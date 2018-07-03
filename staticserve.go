@@ -15,11 +15,11 @@ type flags struct {
 	TLSKey  string
 }
 
-type LogHandler struct {
+type loggingHandler struct {
 	Handler http.Handler
 }
 
-func (lh *LogHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (lh *loggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s %s %s", r.Proto, r.Method, r.URL)
 	lh.Handler.ServeHTTP(w, r)
 }
@@ -52,7 +52,7 @@ func main() {
 
 	handler := http.FileServer(http.Dir(flags.Dir))
 	if flags.Log {
-		handler = &LogHandler{Handler: handler}
+		handler = &loggingHandler{Handler: handler}
 	}
 
 	var err error

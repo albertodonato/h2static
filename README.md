@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/albertodonato/staticserve)](https://goreportcard.com/report/github.com/albertodonato/staticserve)
 [![GoDoc](https://godoc.org/github.com/albertodonato/staticserve?status.svg)](https://godoc.org/github.com/albertodonato/staticserve)
 
-A minimal HTTP server using the builtin go library. It supports TLS and HTTP/2.
+A minimal HTTP server using the builtin Go `http` library. It supports TLS and HTTP/2.
 
 It can be run simply as
 
