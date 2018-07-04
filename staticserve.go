@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"log"
 	"net/http"
@@ -8,11 +9,12 @@ import (
 )
 
 type flags struct {
-	Addr    string
-	Dir     string
-	Log     bool
-	TLSCert string
-	TLSKey  string
+	Addr      string
+	Dir       string
+	DisableH2 bool
+	Log       bool
+	TLSCert   string
+	TLSKey    string
 }
 
 type loggingHandler struct {
@@ -31,6 +33,7 @@ func parseFlags() (f flags) {
 	}
 	flag.StringVar(&f.Addr, "addr", ":8080", "address and port to listen on")
 	flag.StringVar(&f.Dir, "dir", pwd, "directory to serve")
+	flag.BoolVar(&f.DisableH2, "disable-h2", false, "disable HTTP/2 support")
 	flag.BoolVar(&f.Log, "log", false, "log requests")
 	flag.StringVar(&f.TLSCert, "tls-cert", "", "certificate file for TLS connections")
 	flag.StringVar(&f.TLSKey, "tls-key", "", "key file for TLS connections")
@@ -55,11 +58,22 @@ func main() {
 		handler = &loggingHandler{Handler: handler}
 	}
 
+	tlsNextProto := map[string]func(*http.Server, *tls.Conn, http.Handler){}
+	if !flags.DisableH2 {
+		// Setting to nil means to use the default (which is H2-enabled)
+		tlsNextProto = nil
+	}
+
+	server := http.Server{
+		Addr:         flags.Addr,
+		Handler:      handler,
+		TLSNextProto: tlsNextProto,
+	}
 	var err error
 	if serveTLS {
-		err = http.ListenAndServeTLS(flags.Addr, flags.TLSCert, flags.TLSKey, handler)
+		err = server.ListenAndServeTLS(flags.TLSCert, flags.TLSKey)
 	} else {
-		err = http.ListenAndServe(flags.Addr, handler)
+		err = server.ListenAndServe()
 	}
 	log.Fatal(err)
 }
