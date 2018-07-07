@@ -20,10 +20,33 @@ Run
 go build staticserve.go
 ```
 
+which produces a `staticserve` binary.
+
+
 ## HTTPS support
 
 To run the server on HTTPS, a key/certificate pair is required. The service can be run with
 
 ```bash
 staticserve -tls-cert cert.pem -tls-key key.pem
+```
+
+## Usage
+
+Full usage options are as follows:
+
+```
+Usage of staticserve:
+  -addr string
+        address and port to listen on (default ":8080")
+  -dir string
+        directory to serve (default "/home/ack")
+  -disable-h2
+        disable HTTP/2 support
+  -log
+        log requests
+  -tls-cert string
+        certificate file for TLS connections
+  -tls-key string
+        key file for TLS connections
 ```
