@@ -1,6 +1,6 @@
 # Tiny static web server with TLS and HTTP/2 support
 
-[![Build status](https://img.shields.io/travis/albertodonato/staticserve.svg)](https://travis-ci.org/albertodonato/staticserve)
+[![Build status](https://img.shields.io/travis/albertodonato/staticserve.svg)](https://travis-ci.com/albertodonato/staticserve)
 [![Go Report Card](https://goreportcard.com/badge/github.com/albertodonato/staticserve)](https://goreportcard.com/report/github.com/albertodonato/staticserve)
 [![GoDoc](https://godoc.org/github.com/albertodonato/staticserve?status.svg)](https://godoc.org/github.com/albertodonato/staticserve)
 
