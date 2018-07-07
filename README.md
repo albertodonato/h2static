@@ -40,7 +40,7 @@ Usage of staticserve:
   -addr string
         address and port to listen on (default ":8080")
   -dir string
-        directory to serve (default "/home/ack")
+        directory to serve (default ".")
   -disable-h2
         disable HTTP/2 support
   -log

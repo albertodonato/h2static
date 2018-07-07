@@ -5,7 +5,6 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"os"
 )
 
 type flags struct {
@@ -27,12 +26,8 @@ func (lh *loggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func parseFlags() (f flags) {
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
 	flag.StringVar(&f.Addr, "addr", ":8080", "address and port to listen on")
-	flag.StringVar(&f.Dir, "dir", pwd, "directory to serve")
+	flag.StringVar(&f.Dir, "dir", ".", "directory to serve")
 	flag.BoolVar(&f.DisableH2, "disable-h2", false, "disable HTTP/2 support")
 	flag.BoolVar(&f.Log, "log", false, "log requests")
 	flag.StringVar(&f.TLSCert, "tls-cert", "", "certificate file for TLS connections")
