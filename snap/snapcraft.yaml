@@ -1,0 +1,25 @@
+name: staticserve
+version: git
+summary: Tiny static web server with TLS and HTTP/2 support
+description:
+  Static web server using the builtin Go http library.
+
+  It supports HTTP/2 and TLS.
+confinement: strict
+grade: stable
+base: core18
+
+apps:
+  staticserve:
+    command: bin/staticserve
+    plugs:
+      - network-bind
+      - home
+      - removable-media
+
+parts:
+  staticserve:
+    plugin: go
+    source: .
+    source-type: git
+    go-importpath: github.com/albertodonato/staticserve
