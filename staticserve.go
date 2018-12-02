@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -32,6 +33,13 @@ func parseFlags() (f flags) {
 	flag.BoolVar(&f.Log, "log", false, "log requests")
 	flag.StringVar(&f.TLSCert, "tls-cert", "", "certificate file for TLS connections")
 	flag.StringVar(&f.TLSKey, "tls-key", "", "key file for TLS connections")
+	flag.CommandLine.Usage = func() {
+		f := flag.CommandLine
+		output := f.Output()
+		fmt.Fprintf(output, "Tiny static web server with TLS and HTTP/2 support.\n\n")
+		fmt.Fprintf(output, "Usage of %s:\n", f.Name())
+		f.PrintDefaults()
+	}
 	flag.Parse()
 	return
 }
