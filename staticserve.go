@@ -7,9 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
-type Flags struct {
+type cmdFlags struct {
 	Addr      string
 	Dir       string
 	DisableH2 bool
@@ -27,7 +28,13 @@ func (lh *loggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	lh.Handler.ServeHTTP(w, r)
 }
 
-func parseFlags(fs *flag.FlagSet, args []string) (f Flags, err error) {
+const helpHeader = `
+Tiny static web server with TLS and HTTP/2 support.
+
+Usage of %s:
+`
+
+func parseFlags(fs *flag.FlagSet, args []string) (f cmdFlags, err error) {
 	fs.StringVar(&f.Addr, "addr", ":8080", "address and port to listen on")
 	fs.StringVar(&f.Dir, "dir", ".", "directory to serve")
 	fs.BoolVar(&f.DisableH2, "disable-h2", false, "disable HTTP/2 support")
@@ -36,12 +43,7 @@ func parseFlags(fs *flag.FlagSet, args []string) (f Flags, err error) {
 	fs.StringVar(&f.TLSKey, "tls-key", "", "key file for TLS connections")
 	fs.Usage = func() {
 		output := fs.Output()
-		fmt.Fprintf(
-			output, `
-Tiny static web server with TLS and HTTP/2 support.
-
-Usage of %s:
-`, fs.Name())
+		fmt.Fprintf(output, helpHeader, fs.Name())
 		fs.PrintDefaults()
 	}
 	err = fs.Parse(args)
@@ -49,11 +51,11 @@ Usage of %s:
 }
 
 // Whether to enable TLS.
-func enableTLS(flags Flags) bool {
+func enableTLS(flags cmdFlags) bool {
 	return flags.TLSCert != "" && flags.TLSKey != ""
 }
 
-func runServer(server *http.Server, flags Flags) {
+func runServer(server *http.Server, flags cmdFlags) {
 	var err error
 	if enableTLS(flags) {
 		err = server.ListenAndServeTLS(flags.TLSCert, flags.TLSKey)
@@ -63,7 +65,7 @@ func runServer(server *http.Server, flags Flags) {
 	log.Fatal(err)
 }
 
-func setupServer(flags Flags) *http.Server {
+func setupServer(flags cmdFlags) *http.Server {
 	handler := http.FileServer(http.Dir(flags.Dir))
 	if flags.Log {
 		handler = &loggingHandler{Handler: handler}
@@ -84,8 +86,9 @@ func setupServer(flags Flags) *http.Server {
 
 func main() {
 	flags, err := parseFlags(flag.CommandLine, os.Args[1:])
-	log.Fatal(err)
-
+	if err != nil {
+		log.Fatal(err)
+	}
 	serveTLS := enableTLS(flags)
 
 	if flags.Log {
@@ -93,7 +96,11 @@ func main() {
 		if serveTLS {
 			kind = "HTTPS"
 		}
-		log.Printf("Starting %s server on %s, serving path %s", kind, flags.Addr, flags.Dir)
+		absPath, err := filepath.Abs(flags.Dir)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("Starting %s server on %s, serving path %s", kind, flags.Addr, absPath)
 	}
 
 	server := setupServer(flags)
