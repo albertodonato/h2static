@@ -1,25 +1,25 @@
-name: staticserve
+name: h2static
 version: git
 summary: Tiny static web server with TLS and HTTP/2 support
 description:
   Static web server using the builtin Go http library.
 
   It supports HTTP/2 and TLS.
+base: core18
 confinement: strict
 grade: stable
-base: core18
 
 apps:
-  staticserve:
-    command: bin/staticserve
+  h2static:
+    command: bin/h2static
     plugs:
-      - network-bind
       - home
+      - network-bind
       - removable-media
 
 parts:
-  staticserve:
+  h2static:
     plugin: go
     source: .
     source-type: git
-    go-importpath: github.com/albertodonato/staticserve
+    go-importpath: github.com/albertodonato/h2static

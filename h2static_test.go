@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-func TestStaticserve(t *testing.T) {
-	suite.Run(t, new(StaticserveTestSuite))
+func TestH2Static(t *testing.T) {
+	suite.Run(t, new(H2StaticTestSuite))
 }
 
 // A writer that collects the content
@@ -26,18 +26,18 @@ func (l collectWriter) Output() string {
 	return string(l.content)
 }
 
-type StaticserveTestSuite struct {
+type H2StaticTestSuite struct {
 	suite.Suite
 
 	logger *log.Logger
 }
 
-func (s *StaticserveTestSuite) SetupSuite() {
+func (s *H2StaticTestSuite) SetupSuite() {
 	s.logger = log.New(&collectWriter{}, "", 0)
 }
 
 // parseFlags parses commandline options
-func (s *StaticserveTestSuite) TestParseFlags() {
+func (s *H2StaticTestSuite) TestParseFlags() {
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
 	flags, err := parseFlags(
 		flagSet,
@@ -54,7 +54,7 @@ func (s *StaticserveTestSuite) TestParseFlags() {
 }
 
 // parseFlags prints help
-func (s *StaticserveTestSuite) TestParseFlagsHelp() {
+func (s *H2StaticTestSuite) TestParseFlagsHelp() {
 	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
 	writer := &collectWriter{}
 	flagSet.SetOutput(writer)

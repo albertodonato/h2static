@@ -1,15 +1,16 @@
 # Tiny static web server with TLS and HTTP/2 support
 
-[![Build status](https://img.shields.io/travis/albertodonato/staticserve.svg)](https://travis-ci.com/albertodonato/staticserve)
-[![Go Report Card](https://goreportcard.com/badge/github.com/albertodonato/staticserve)](https://goreportcard.com/report/github.com/albertodonato/staticserve)
-[![GoDoc](https://godoc.org/github.com/albertodonato/staticserve?status.svg)](https://godoc.org/github.com/albertodonato/staticserve)
+[![Build status](https://img.shields.io/travis/albertodonato/h2static.svg)](https://travis-ci.com/albertodonato/h2static)
+[![Go Report Card](https://goreportcard.com/badge/github.com/albertodonato/h2static)](https://goreportcard.com/report/github.com/albertodonato/h2static)
+[![GoDoc](https://godoc.org/github.com/albertodonato/h2static?status.svg)](https://godoc.org/github.com/albertodonato/h2static)
+[![Snap Status](https://build.snapcraft.io/badge/albertodonato/h2static.svg)](https://build.snapcraft.io/user/albertodonato/h2static)
 
 A minimal HTTP server using the builtin Go `http` library. It supports TLS and HTTP/2.
 
 It can be run simply as
 
 ```bash
-go run staticserve.go
+go run h2static.go
 ```
 
 ## Build
@@ -17,10 +18,10 @@ go run staticserve.go
 Run
 
 ```bash
-go build staticserve.go
+go build h2static.go
 ```
 
-which produces a `staticserve` binary.
+which produces a `h2static` binary.
 
 
 ## HTTPS support
@@ -28,7 +29,7 @@ which produces a `staticserve` binary.
 To run the server on HTTPS, a key/certificate pair is required. The service can be run with
 
 ```bash
-staticserve -tls-cert cert.pem -tls-key key.pem
+h2static -tls-cert cert.pem -tls-key key.pem
 ```
 
 ## Usage
@@ -36,7 +37,7 @@ staticserve -tls-cert cert.pem -tls-key key.pem
 Full usage options are as follows:
 
 ```
-Usage of staticserve:
+Usage of h2static:
   -addr string
         address and port to listen on (default ":8080")
   -dir string
