@@ -51,3 +51,15 @@ Usage of h2static:
   -tls-key string
         key file for TLS connections
 ```
+
+## Install from Snap
+
+It's also possible to install the tool from the [Snap Store](https://snapcraft.io), on systems where Snaps are supported, via
+
+```bash
+sudo snap install h2static
+```
+
+The `h2static` binary should be available in path.
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/h2static)
