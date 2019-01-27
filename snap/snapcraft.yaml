@@ -1,10 +1,40 @@
 name: h2static
 version: git
 summary: Tiny static web server with TLS and HTTP/2 support
-description:
+description: |
   Static web server using the builtin Go http library.
 
   It supports HTTP/2 and TLS.
+
+  This snap provides both an command "h2static" that can be run by any user,
+  with access to the user home directory, and a system-wide daemon.
+
+  The daemon is configured with the following options:
+
+    - listen
+
+      the "address:port" for the service to listen on. The address can be
+      omitted (e.g. :8080) to bind all addresses.
+
+      If this option is not set, the service will not be started.
+
+    - serve-path
+
+      the directory to serve content from. it's set to $SNAP_COMMON if not
+      specified.
+
+      If the "removable-media" interface is connected, a path under /media can
+      also be used.
+
+    - disable-h2
+
+      set to true to disable HTTP/2 support.
+
+    - tls.cert, tls.key
+
+      ASCII content of the TLS certificate. If both are set, HTTPS support will
+      be enabled.
+
 confinement: strict
 grade: stable
 
@@ -13,6 +43,13 @@ apps:
     command: bin/h2static
     plugs:
       - home
+      - network-bind
+      - removable-media
+
+  daemon:
+    command: bin/daemon
+    daemon: simple
+    plugs:
       - network-bind
       - removable-media
 
@@ -29,3 +66,11 @@ parts:
 
       PATH="/snap/bin:$PATH"
       snapcraftctl build
+
+  daemon-wrapper:
+    plugin: dump
+    source: .
+    organize:
+      daemon.wrapper: bin/daemon
+    prime:
+      - bin/daemon

@@ -1,0 +1,8 @@
+#!/bin/sh -ex
+
+if [ -z "$(snapctl get listen)" ]; then
+    snapctl stop --disable "$SNAP_INSTANCE_NAME"
+else
+    snapctl start --enable "$SNAP_INSTANCE_NAME"
+    snapctl restart --reload "$SNAP_INSTANCE_NAME"
+fi

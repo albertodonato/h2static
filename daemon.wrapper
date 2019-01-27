@@ -1,0 +1,38 @@
+#!/bin/bash -e
+
+option_get() {
+    local option="$1"
+    local default="$2"
+    local value
+
+    value=$(snapctl get "$option")
+    [ -n "$value" ] || value="$default"
+    echo "$value"
+}
+
+# listen addr must be set or the server won't be enabled
+addr=$(option_get listen)
+dir=$(option_get serve-path "$SNAP_COMMON")
+
+opts=""
+
+if [ "$(option_get disable-h2)" = "true" ]; then
+    opts="$opts -disable-h2"
+fi
+
+tls_cert="$(option_get tls.cert)"
+tls_key="$(option_get tls.key)"
+tls_cert_file="$SNAP_DATA/cert.pem"
+tls_key_file="$SNAP_DATA/key.pem"
+if [ -n "$tls_key" ] && [ -n "$tls_cert" ]; then
+    touch "$tls_cert_file" "$tls_key_file"
+    chmod 600 "$tls_cert_file" "$tls_key_file"
+    echo "$tls_cert" > "$tls_cert_file"
+    echo "$tls_key" > "$tls_key_file"
+    opts="$opts -tls-cert $tls_cert_file -tls-key $tls_key_file"
+else
+    rm -f "$tls_cert_file" "$tls_key_file"
+fi
+
+# shellcheck disable=SC2086
+exec "$SNAP/bin/h2static" -log -addr "$addr" -dir "$dir" $opts
