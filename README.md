@@ -62,4 +62,8 @@ sudo snap install h2static
 
 The `h2static` binary should be available in path.
 
-[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/h2static)
+It's also possible to configure the service in the snap so that it run
+automatically.  See `snap info h2static` for details about the available snap
+settings.
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/h2static)
