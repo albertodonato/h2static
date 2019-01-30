@@ -10,12 +10,12 @@ option_get() {
     echo "$value"
 }
 
-# listen addr must be set or the server won't be enabled
 addr=$(option_get listen)
+[ -n "$addr" ] || exit 1
+
 dir=$(option_get serve-path "$SNAP_COMMON")
 
 opts=""
-
 if [ "$(option_get disable-h2)" = "true" ]; then
     opts="$opts -disable-h2"
 fi
