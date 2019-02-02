@@ -53,6 +53,9 @@ apps:
       - network-bind
       - removable-media
 
+hooks:
+  configure: {}
+
 parts:
   h2static:
     plugin: go
