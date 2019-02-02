@@ -11,30 +11,29 @@ description: |
 
   The daemon is configured with the following options:
 
-    - listen
+  - listen
 
-      the "address:port" for the service to listen on. The address can be
-      omitted (e.g. :8080) to bind all addresses.
+    the "address:port" for the service to listen on. The address can be omitted
+    (e.g. ":8080") to bind all addresses.
 
-      If this option is not set, the service will not be started.
+    If this option empty or null, the service will not be started.
 
-    - serve-path
+  - serve-path
 
-      the directory to serve content from. it's set to $SNAP_COMMON if not
-      specified.
+    the directory to serve content from. it's set to $SNAP_COMMON if not
+    specified.
 
-      If the "removable-media" interface is connected, a path under /media can
-      also be used.
+    If the "removable-media" interface is connected, paths under /media can
+    also be used.
 
-    - disable-h2
+  - disable-h2
 
-      set to true to disable HTTP/2 support.
+    set to true to disable HTTP/2 support.
 
-    - tls.cert, tls.key
+  - tls.cert, tls.key
 
-      ASCII content of the TLS certificate. If both are set, HTTPS support will
-      be enabled.
-
+    ASCII contents of the TLS certificate and key. If both are set, HTTPS
+    support will be enabled.
 confinement: strict
 grade: stable
 

@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/sh -e
 
 if [ -z "$(snapctl get listen)" ]; then
     snapctl stop --disable "$SNAP_INSTANCE_NAME"
