@@ -6,7 +6,7 @@ description: |
 
   It supports HTTP/2 and TLS.
 
-  This snap provides both an command "h2static" that can be run by any user,
+  This snap provides both an "h2static" command that can be run by any user,
   with access to the user home directory, and a system-wide daemon.
 
   The daemon is configured with the following options:
