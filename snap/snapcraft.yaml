@@ -34,8 +34,10 @@ description: |
 
     ASCII contents of the TLS certificate and key. If both are set, HTTPS
     support will be enabled.
+license: LGPL-3.0+
 confinement: strict
 grade: stable
+base: core18
 
 apps:
   h2static:
@@ -61,13 +63,6 @@ parts:
     source: .
     source-type: git
     go-importpath: github.com/albertodonato/h2static
-    build-snaps:
-      - go
-    override-build: |
-      set -e
-
-      PATH="/snap/bin:$PATH"
-      snapcraftctl build
 
   daemon-wrapper:
     plugin: dump
