@@ -1,9 +1,12 @@
 # Tiny static web server with TLS and HTTP/2 support
 
+![h2static logo](./logo.svg)
+
 [![Build status](https://img.shields.io/travis/albertodonato/h2static.svg)](https://travis-ci.com/albertodonato/h2static)
 [![Go Report Card](https://goreportcard.com/badge/github.com/albertodonato/h2static)](https://goreportcard.com/report/github.com/albertodonato/h2static)
 [![GoDoc](https://godoc.org/github.com/albertodonato/h2static?status.svg)](https://godoc.org/github.com/albertodonato/h2static)
 [![Snap Status](https://build.snapcraft.io/badge/albertodonato/h2static.svg)](https://build.snapcraft.io/user/albertodonato/h2static)
+
 
 A minimal HTTP server using the builtin Go `http` library. It supports TLS and HTTP/2.
 
