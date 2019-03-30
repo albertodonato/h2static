@@ -35,6 +35,7 @@ description: |
     ASCII contents of the TLS certificate and key. If both are set, HTTPS
     support will be enabled.
 license: LGPL-3.0+
+icon: logo.svg
 confinement: strict
 grade: stable
 base: core18
