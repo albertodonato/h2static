@@ -67,8 +67,6 @@ parts:
 
   daemon-wrapper:
     plugin: dump
-    source: .
+    source: snap/local
     organize:
       daemon.wrapper: bin/daemon
-    prime:
-      - bin/daemon

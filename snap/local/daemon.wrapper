@@ -1,4 +1,7 @@
 #!/bin/bash -e
+#
+# Start h2static in deamon mode, using snap configuration options.
+
 
 option_get() {
     local option="$1"
