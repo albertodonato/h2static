@@ -2,17 +2,18 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
+	"text/template"
 
 	"github.com/albertodonato/h2static/server"
+	"github.com/albertodonato/h2static/version"
 )
 
-const helpHeader = `
-Tiny static web server with TLS and HTTP/2 support.
+const helpHeaderTemplate = `
+{{.Name}} {{.Version}} - Tiny static web server with TLS and HTTP/2 support
 
-Usage of %s:
+Usage of {{.Name}}:
 `
 
 // NewStaticServerFromCmdline returns a a StaticServer parsing cmdline args.
@@ -32,14 +33,27 @@ func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.Static
 	fs.StringVar(&s.TLSCert, "tls-cert", "", "certificate file for TLS connections")
 	fs.StringVar(&s.TLSKey, "tls-key", "", "key file for TLS connections")
 	fs.Usage = func() {
-		output := fs.Output()
-		fmt.Fprintf(output, helpHeader, fs.Name())
+		printHeader(fs)
 		fs.PrintDefaults()
 	}
 	if err := fs.Parse(args); err != nil {
 		return nil, err
 	}
 	return s, nil
+}
+
+func printHeader(fs *flag.FlagSet) {
+	tpl := template.Must(template.New("helpHeader").Parse(helpHeaderTemplate))
+	context := struct {
+		Name    string
+		Version string
+	}{
+		Name:    version.Name,
+		Version: version.Version,
+	}
+	if err := tpl.Execute(fs.Output(), context); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
