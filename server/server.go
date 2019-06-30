@@ -7,15 +7,18 @@ import (
 	"path/filepath"
 )
 
+// LoggingHandler wraps an http.Handler providing logging at startup.
 type LoggingHandler struct {
 	Handler http.Handler
 }
 
+// ServeHTTP logs server startup and serves via the configured handler.
 func (lh LoggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s %s %s", r.Proto, r.Method, r.URL)
 	lh.Handler.ServeHTTP(w, r)
 }
 
+// StaticServer is a static HTTP server.
 type StaticServer struct {
 	Addr      string
 	Dir       string
@@ -25,8 +28,8 @@ type StaticServer struct {
 	TLSKey    string
 }
 
-// isHTTPS returns whether HTTPS is enabled.
-func (s StaticServer) isHTTPS() bool {
+// IsHTTPS returns whether HTTPS is enabled.
+func (s StaticServer) IsHTTPS() bool {
 	return s.TLSCert != "" && s.TLSKey != ""
 }
 
@@ -55,7 +58,7 @@ func (s StaticServer) Run() error {
 	var err error
 
 	server := s.getServer()
-	isHTTPS := s.isHTTPS()
+	isHTTPS := s.IsHTTPS()
 	if s.Log {
 		kind := "HTTP"
 		if isHTTPS {

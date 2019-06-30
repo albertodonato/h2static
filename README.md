@@ -13,7 +13,7 @@ A minimal HTTP server using the builtin Go `http` library. It supports TLS and H
 It can be run simply as
 
 ```bash
-go run h2static.go
+go run ./cmd/h2static
 ```
 
 ## Build
@@ -21,7 +21,7 @@ go run h2static.go
 Run
 
 ```bash
-go build h2static.go
+go build ./cmd/h2static
 ```
 
 which produces a `h2static` binary.
