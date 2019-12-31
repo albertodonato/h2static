@@ -20,13 +20,13 @@ func (lh LoggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // StaticServer is a static HTTP server.
 type StaticServer struct {
-	Addr                   string
-	Dir                    string
-	DisableH2              bool
-	DisableAppendExtension bool
-	Log                    bool
-	TLSCert                string
-	TLSKey                 string
+	Addr                    string
+	Dir                     string
+	DisableH2               bool
+	DisableLookupWithSuffix bool
+	Log                     bool
+	TLSCert                 string
+	TLSKey                  string
 }
 
 // IsHTTPS returns whether HTTPS is enabled.
@@ -37,7 +37,7 @@ func (s StaticServer) IsHTTPS() bool {
 // getServer returns a configured server.
 func (s StaticServer) getServer() *http.Server {
 	var fileSystem http.FileSystem = http.Dir(s.Dir)
-	if !s.DisableAppendExtension {
+	if !s.DisableLookupWithSuffix {
 		fileSystem = HTMLPageResolveFileSystem{fileSystem}
 	}
 	handler := http.FileServer(fileSystem)

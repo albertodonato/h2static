@@ -8,13 +8,15 @@
 [![Snap Status](https://build.snapcraft.io/badge/albertodonato/h2static.svg)](https://build.snapcraft.io/user/albertodonato/h2static)
 
 
-A minimal HTTP server using the builtin Go `http` library. It supports TLS and HTTP/2.
+A minimal HTTP server using the builtin Go `http` library. It supports TLS and
+HTTP/2.
 
 It can be run simply as
 
 ```bash
 go run ./cmd/h2static
 ```
+
 
 ## Build
 
@@ -29,11 +31,13 @@ which produces a `h2static` binary.
 
 ## HTTPS support
 
-To run the server on HTTPS, a key/certificate pair is required. The service can be run with
+To run the server on HTTPS, a key/certificate pair is required. The service can
+be run with
 
 ```bash
 h2static -tls-cert cert.pem -tls-key key.pem
 ```
+
 
 ## Usage
 
@@ -47,6 +51,8 @@ Usage of h2static:
         directory to serve (default ".")
   -disable-h2
         disable HTTP/2 support
+  -disable-lookup-with-suffix
+        disable matching files with .htm(l) suffix for paths without suffix
   -log
         log requests
   -tls-cert string
@@ -55,9 +61,11 @@ Usage of h2static:
         key file for TLS connections
 ```
 
+
 ## Install from Snap
 
-It's also possible to install the tool from the [Snap Store](https://snapcraft.io), on systems where Snaps are supported, via
+The tool can be installed from the [Snap Store](https://snapcraft.io), on
+systems where Snaps are supported, via
 
 ```bash
 sudo snap install h2static
