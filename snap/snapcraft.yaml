@@ -6,34 +6,40 @@ description: |
 
   It supports HTTP/2 and TLS.
 
-  This snap provides both an "h2static" command that can be run by any user,
+  This snap provides both an `h2static` command that can be run by any user,
   with access to the user home directory, and a system-wide daemon.
 
   The daemon is configured with the following options:
 
-  - listen
+  * `listen`
 
-    the "address:port" for the service to listen on. The address can be omitted
-    (e.g. ":8080") to bind all addresses.
+    the `address:port` for the service to listen on. The address can be omitted
+    (e.g. `:8080`) to bind all addresses.
 
     If this option empty or null, the service will not be started.
 
-  - serve-path
+  * `serve-path`
 
-    the directory to serve content from. it's set to $SNAP_COMMON if not
+    the directory to serve content from. it's set to `$SNAP_COMMON` if not
     specified.
 
-    If the "removable-media" interface is connected, paths under /media can
+    If the `removable-media` interface is connected, paths under `/media` can
     also be used.
 
-  - disable-h2
+  * `disable-h2`
 
     set to true to disable HTTP/2 support.
 
-  - tls.cert, tls.key
+  * `disable-lookup-with-suffix`
+
+    set to true to disable disable matching files with .htm(l) suffix for paths
+    without suffix.
+
+  * `tls.cert`, `tls.key`
 
     ASCII contents of the TLS certificate and key. If both are set, HTTPS
     support will be enabled.
+
 license: LGPL-3.0+
 icon: logo.svg
 confinement: strict
