@@ -7,17 +7,6 @@ import (
 	"path/filepath"
 )
 
-// LoggingHandler wraps an http.Handler providing logging at startup.
-type LoggingHandler struct {
-	Handler http.Handler
-}
-
-// ServeHTTP logs server startup and serves via the configured handler.
-func (lh LoggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s %s %s", r.Proto, r.Method, r.URL)
-	lh.Handler.ServeHTTP(w, r)
-}
-
 // StaticServer is a static HTTP server.
 type StaticServer struct {
 	Addr                    string
@@ -26,6 +15,7 @@ type StaticServer struct {
 	DisableLookupWithSuffix bool
 	ShowDotFiles            bool
 	Log                     bool
+	PasswordFile            string
 	TLSCert                 string
 	TLSKey                  string
 }
@@ -43,10 +33,21 @@ func (s StaticServer) getServer() *http.Server {
 		HideDotFiles: !s.ShowDotFiles,
 	}
 	handler := http.FileServer(fileSystem)
+	if s.PasswordFile != "" {
+		credentials, err := loadCredentials(s.PasswordFile)
+		if err != nil {
+			panic(err)
+		}
+		handler = &BasicAuthHandler{
+			Handler:     handler,
+			Credentials: credentials,
+			Realm:       "h2static",
+		}
+	}
+
 	if s.Log {
 		handler = &LoggingHandler{Handler: handler}
 	}
-
 	tlsNextProto := map[string]func(*http.Server, *tls.Conn, http.Handler){}
 	if !s.DisableH2 {
 		// Setting to nil means to use the default (which is H2-enabled)

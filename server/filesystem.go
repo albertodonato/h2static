@@ -19,6 +19,8 @@ type FileSystem struct {
 	HideDotFiles bool
 }
 
+// Open returns a File object for the specified path under the FileSystem
+// directory.
 func (fs FileSystem) Open(name string) (http.File, error) {
 	if fs.HideDotFiles && containsDotFile(name) {
 		// Even if the file exists, return 404
@@ -35,9 +37,8 @@ func (fs FileSystem) Open(name string) (http.File, error) {
 	}
 
 	if !(strings.HasSuffix(name, ".html") || strings.HasSuffix(name, ".htm")) {
-		newName := name
 		for _, suffix := range []string{".html", ".htm"} {
-			newName = name + suffix
+			newName := name + suffix
 			if file, err := fs.FileSystem.Open(newName); err == nil {
 				if fileInfo, err := file.Stat(); err == nil && !fileInfo.IsDir() {
 					return file, nil

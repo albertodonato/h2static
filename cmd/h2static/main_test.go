@@ -45,15 +45,19 @@ func (s *H2StaticTestSuite) TestNewStaticServerFromCmdline() {
 	server, err := main.NewStaticServerFromCmdline(
 		flagSet,
 		[]string{
-			"-addr", ":9090", "-dir", "somedir", "-disable-h2",
+			"-addr", ":9090", "-basic-auth", "passwords", "-dir", "somedir",
+			"-disable-lookup-with-suffix", "-disable-h2", "-show-dotfiles",
 			"-log", "-tls-cert", "crt", "-tls-key", "key"})
 	s.Nil(err)
-	s.Equal(server.Addr, ":9090")
-	s.Equal(server.Dir, "somedir")
+	s.Equal(":9090", server.Addr)
+	s.Equal("passwords", server.PasswordFile)
+	s.Equal("somedir", server.Dir)
 	s.True(server.DisableH2)
+	s.True(server.DisableLookupWithSuffix)
+	s.True(server.ShowDotFiles)
 	s.True(server.Log)
-	s.Equal(server.TLSCert, "crt")
-	s.Equal(server.TLSKey, "key")
+	s.Equal("crt", server.TLSCert)
+	s.Equal("key", server.TLSKey)
 }
 
 // newStaticServerFromCmdline prints help text.
@@ -62,7 +66,7 @@ func (s *H2StaticTestSuite) TestParseFlagsHelp() {
 	writer := &collectWriter{}
 	flagSet.SetOutput(writer)
 	_, err := main.NewStaticServerFromCmdline(flagSet, []string{"-h"})
-	s.Equal(err, flag.ErrHelp)
+	s.Equal(flag.ErrHelp, err)
 	s.Contains(
 		writer.Output(), "Tiny static web server with TLS and HTTP/2 support.")
 }

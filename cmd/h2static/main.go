@@ -19,6 +19,9 @@ Usage of %s:
 func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.StaticServer, error) {
 	s := &server.StaticServer{}
 	fs.StringVar(&s.Addr, "addr", ":8080", "address and port to listen on")
+	fs.StringVar(
+		&s.PasswordFile, "basic-auth", "",
+		`password file for Basic Auth (each line should be in the form "user:SHA512-hash")`)
 	fs.StringVar(&s.Dir, "dir", ".", "directory to serve")
 	fs.BoolVar(
 		&s.DisableLookupWithSuffix, "disable-lookup-with-suffix", false,

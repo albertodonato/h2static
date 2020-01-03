@@ -14,7 +14,7 @@ func TestServer(t *testing.T) {
 }
 
 type ServerTestSuite struct {
-	suite.Suite
+	TempDirTestSuite
 }
 
 // IsHTTPS returns true if certificates are set.
@@ -36,8 +36,8 @@ func (s *ServerTestSuite) TestEnableTLSFalse() {
 func (s *ServerTestSuite) TestGetServerDefault() {
 	serv := server.StaticServer{}
 	httpServer := server.GetServer(serv)
-	s.Equal(httpServer.Addr, "")
-	s.IsType(httpServer.Handler, http.FileServer(http.Dir(".")))
+	s.Equal("", httpServer.Addr)
+	s.IsType(http.FileServer(http.Dir(".")), httpServer.Handler)
 	s.Nil(httpServer.TLSNextProto)
 }
 
@@ -45,15 +45,15 @@ func (s *ServerTestSuite) TestGetServerDefault() {
 func (s *ServerTestSuite) TestSetupServerSpecifyDir() {
 	serv := server.StaticServer{Dir: "/some/dir"}
 	httpServer := server.GetServer(serv)
-	s.Equal(httpServer.Addr, "")
-	s.IsType(httpServer.Handler, http.FileServer(http.Dir("/some/dir")))
+	s.Equal("", httpServer.Addr)
+	s.IsType(http.FileServer(http.Dir("/some/dir")), httpServer.Handler)
 }
 
 // getServer returns a configured http.Server with logging
 func (s *ServerTestSuite) TestSetupServerLog() {
 	serv := server.StaticServer{Log: true}
 	httpServer := server.GetServer(serv)
-	s.IsType(httpServer.Handler, &server.LoggingHandler{})
+	s.IsType(&server.LoggingHandler{}, httpServer.Handler)
 }
 
 // getServer returns a configured http.Server without HTTP/2
@@ -61,4 +61,12 @@ func (s *ServerTestSuite) TestSetupServerNoH2() {
 	serv := server.StaticServer{DisableH2: true}
 	httpServer := server.GetServer(serv)
 	s.NotNil(httpServer.TLSNextProto)
+}
+
+// getServer returns a configured http.Server with Basic-Auth
+func (s *ServerTestSuite) TestSetupServerBasicAuth() {
+	absPath := s.WriteFile("basic-auth", "")
+	serv := server.StaticServer{PasswordFile: absPath}
+	httpServer := server.GetServer(serv)
+	s.IsType(&server.BasicAuthHandler{}, httpServer.Handler)
 }
