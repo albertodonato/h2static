@@ -47,6 +47,8 @@ Full usage options are as follows:
 Usage of h2static:
   -addr string
         address and port to listen on (default ":8080")
+  -basic-auth string
+        password file for Basic Auth (each line should be in the form "user:SHA512-hash")
   -dir string
         directory to serve (default ".")
   -disable-h2
@@ -55,6 +57,8 @@ Usage of h2static:
         disable matching files with .htm(l) suffix for paths without suffix
   -log
         log requests
+  -show-dotfiles
+        show files whose name starts with a dot
   -tls-cert string
         certificate file for TLS connections
   -tls-key string
