@@ -24,6 +24,7 @@ func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.Static
 		&s.DisableLookupWithSuffix, "disable-lookup-with-suffix", false,
 		"disable matching files with .htm(l) suffix for paths without suffix")
 	fs.BoolVar(&s.DisableH2, "disable-h2", false, "disable HTTP/2 support")
+	fs.BoolVar(&s.ShowDotFiles, "show-dotfiles", false, "show files whose name starts with a dot")
 	fs.BoolVar(&s.Log, "log", false, "log requests")
 	fs.StringVar(&s.TLSCert, "tls-cert", "", "certificate file for TLS connections")
 	fs.StringVar(&s.TLSKey, "tls-key", "", "key file for TLS connections")

@@ -24,6 +24,7 @@ type StaticServer struct {
 	Dir                     string
 	DisableH2               bool
 	DisableLookupWithSuffix bool
+	ShowDotFiles            bool
 	Log                     bool
 	TLSCert                 string
 	TLSKey                  string
@@ -36,9 +37,10 @@ func (s StaticServer) IsHTTPS() bool {
 
 // getServer returns a configured server.
 func (s StaticServer) getServer() *http.Server {
-	var fileSystem http.FileSystem = http.Dir(s.Dir)
-	if !s.DisableLookupWithSuffix {
-		fileSystem = HTMLPageResolveFileSystem{fileSystem}
+	fileSystem := FileSystem{
+		FileSystem:   http.Dir(s.Dir),
+		ResolveHTML:  !s.DisableLookupWithSuffix,
+		HideDotFiles: !s.ShowDotFiles,
 	}
 	handler := http.FileServer(fileSystem)
 	if s.Log {
