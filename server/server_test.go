@@ -1,7 +1,6 @@
 package server_test
 
 import (
-	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -37,7 +36,10 @@ func (s *ServerTestSuite) TestGetServerDefault() {
 	serv := server.StaticServer{}
 	httpServer := server.GetServer(serv)
 	s.Equal("", httpServer.Addr)
-	s.IsType(http.FileServer(http.Dir(".")), httpServer.Handler)
+	h := httpServer.Handler.(*server.CommonHeadersHandler)
+	s.IsType(&server.FileHandler{}, h.Handler)
+	fh := h.Handler.(*server.FileHandler)
+	s.IsType(".", fh.FileSystem.Root)
 	s.Nil(httpServer.TLSNextProto)
 }
 
@@ -45,15 +47,17 @@ func (s *ServerTestSuite) TestGetServerDefault() {
 func (s *ServerTestSuite) TestSetupServerSpecifyDir() {
 	serv := server.StaticServer{Dir: "/some/dir"}
 	httpServer := server.GetServer(serv)
-	s.Equal("", httpServer.Addr)
-	s.IsType(http.FileServer(http.Dir("/some/dir")), httpServer.Handler)
+	h := httpServer.Handler.(*server.CommonHeadersHandler)
+	fh := h.Handler.(*server.FileHandler)
+	s.IsType("/some/dir", fh.FileSystem.Root)
 }
 
 // getServer returns a configured http.Server with logging
 func (s *ServerTestSuite) TestSetupServerLog() {
 	serv := server.StaticServer{Log: true}
 	httpServer := server.GetServer(serv)
-	s.IsType(&server.LoggingHandler{}, httpServer.Handler)
+	h := httpServer.Handler.(*server.CommonHeadersHandler)
+	s.IsType(&server.LoggingHandler{}, h.Handler)
 }
 
 // getServer returns a configured http.Server without HTTP/2
@@ -68,5 +72,6 @@ func (s *ServerTestSuite) TestSetupServerBasicAuth() {
 	absPath := s.WriteFile("basic-auth", "")
 	serv := server.StaticServer{PasswordFile: absPath}
 	httpServer := server.GetServer(serv)
-	s.IsType(&server.BasicAuthHandler{}, httpServer.Handler)
+	h := httpServer.Handler.(*server.CommonHeadersHandler)
+	s.IsType(&server.BasicAuthHandler{}, h.Handler)
 }

@@ -36,6 +36,15 @@ func (s *FileSystemTestSuite) fileList(file http.File) (names []string) {
 	return
 }
 
+// NewFileSystem returns a new filesystem.
+func (s *FileSystemTestSuite) TestNewFileSystem() {
+	fs := server.NewFileSystem("/some/dir", true, true)
+	s.Equal(http.Dir("/some/dir"), fs.FileSystem)
+	s.Equal("/some/dir", fs.Root)
+	s.True(fs.ResolveHTML)
+	s.True(fs.HideDotFiles)
+}
+
 // The file with .html suffix is returned if present
 func (s *FileSystemTestSuite) TestLookupWithHTMLSuffix() {
 	s.WriteFile("test.html", "foo")
@@ -132,4 +141,23 @@ func (s *FileSystemTestSuite) TestShowDotFilesListing() {
 	file, err := fs.Open("/")
 	s.Nil(err)
 	s.Equal([]string{".foo", "bar"}, s.fileList(file))
+}
+
+// OpenFile returns a File if it's not a directory.
+func (s *FileSystemTestSuite) TestOpenFileForFile() {
+	s.WriteFile("foo", "bar")
+	fs := server.FileSystem{FileSystem: s.dir}
+	file, err := fs.OpenFile("/foo")
+	s.Nil(err)
+	content, err := ioutil.ReadAll(file)
+	s.Nil(err)
+	s.Equal([]byte("bar"), content)
+}
+
+// OpenFile errors if the File is a directory.
+func (s *FileSystemTestSuite) TestOpenFileForDirectory() {
+	fs := server.FileSystem{FileSystem: s.dir}
+	file, err := fs.OpenFile("/")
+	s.Nil(file)
+	s.IsType(os.ErrNotExist, err)
 }

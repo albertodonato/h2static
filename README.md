@@ -38,6 +38,37 @@ be run with
 h2static -tls-cert cert.pem -tls-key key.pem
 ```
 
+## JSON directory listing
+
+When requesting a path that matches a directory, it's possible to get the
+listing in JSON format by setting the `Accept` header to `application/json` in
+the request:
+
+```
+$ curl -s -H "Accept: application/json"  http://localhost:8080/ | jq
+{
+  "Name": "/",
+  "IsRoot": true,
+  "Entries": [
+    {
+      "Name": "bar.txt",
+      "IsDir": false,
+      "Size": 11
+    },
+    {
+      "Name": "foo.txt",
+      "IsDir": false,
+      "Size": 6
+    },
+    {
+      "Name": "subdir/",
+      "IsDir": true,
+      "Size": 0
+    }
+  ]
+}
+```
+
 
 ## Usage
 

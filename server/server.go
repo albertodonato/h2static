@@ -27,12 +27,9 @@ func (s StaticServer) IsHTTPS() bool {
 
 // getServer returns a configured server.
 func (s StaticServer) getServer() *http.Server {
-	fileSystem := FileSystem{
-		FileSystem:   http.Dir(s.Dir),
-		ResolveHTML:  !s.DisableLookupWithSuffix,
-		HideDotFiles: !s.ShowDotFiles,
-	}
-	handler := http.FileServer(fileSystem)
+	fileSystem := NewFileSystem(
+		s.Dir, !s.DisableLookupWithSuffix, !s.ShowDotFiles)
+	var handler http.Handler = NewFileHandler(fileSystem)
 	if s.PasswordFile != "" {
 		credentials, err := loadCredentials(s.PasswordFile)
 		if err != nil {
@@ -48,6 +45,8 @@ func (s StaticServer) getServer() *http.Server {
 	if s.Log {
 		handler = &LoggingHandler{Handler: handler}
 	}
+	handler = &CommonHeadersHandler{Handler: handler}
+
 	tlsNextProto := map[string]func(*http.Server, *tls.Conn, http.Handler){}
 	if !s.DisableH2 {
 		// Setting to nil means to use the default (which is H2-enabled)

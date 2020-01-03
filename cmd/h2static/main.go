@@ -44,14 +44,7 @@ func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.Static
 
 func printHeader(fs *flag.FlagSet) {
 	tpl := template.Must(template.New("helpHeader").Parse(helpHeaderTemplate))
-	context := struct {
-		Name    string
-		Version string
-	}{
-		Name:    version.Name,
-		Version: version.Version,
-	}
-	if err := tpl.Execute(fs.Output(), context); err != nil {
+	if err := tpl.Execute(fs.Output(), version.App); err != nil {
 		log.Fatal(err)
 	}
 }

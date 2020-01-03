@@ -29,11 +29,23 @@ func (s *TempDirTestSuite) TearDownTest() {
 	os.RemoveAll(s.TempDir)
 }
 
-// WriteFile creates a filw with the specified content, returning the absolute
+// WriteFile creates a file with the specified content, returning the absolute
 // path.
 func (s *TempDirTestSuite) WriteFile(name, content string) string {
-	absPath := filepath.Join(s.TempDir, name)
-	err := ioutil.WriteFile(absPath, []byte(content), 0644)
+	path := s.absPath(name)
+	err := ioutil.WriteFile(path, []byte(content), 0644)
 	s.Nil(err)
-	return absPath
+	return path
+}
+
+// Mkdir creates a directory, returning the absolute path.
+func (s *TempDirTestSuite) Mkdir(name string) string {
+	path := s.absPath(name)
+	err := os.Mkdir(path, 0644)
+	s.Nil(err)
+	return path
+}
+
+func (s *TempDirTestSuite) absPath(path string) string {
+	return filepath.Join(s.TempDir, path)
 }

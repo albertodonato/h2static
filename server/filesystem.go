@@ -17,6 +17,16 @@ type FileSystem struct {
 
 	ResolveHTML  bool
 	HideDotFiles bool
+	Root         string
+}
+
+func NewFileSystem(root string, resolveHTML bool, hideDotFiles bool) FileSystem {
+	return FileSystem{
+		FileSystem:   http.Dir(root),
+		ResolveHTML:  resolveHTML,
+		HideDotFiles: hideDotFiles,
+		Root:         string(http.Dir(root)),
+	}
 }
 
 // Open returns a File object for the specified path under the FileSystem
@@ -39,16 +49,25 @@ func (fs FileSystem) Open(name string) (http.File, error) {
 	if !(strings.HasSuffix(name, ".html") || strings.HasSuffix(name, ".htm")) {
 		for _, suffix := range []string{".html", ".htm"} {
 			newName := name + suffix
-			if file, err := fs.FileSystem.Open(newName); err == nil {
-				if fileInfo, err := file.Stat(); err == nil && !fileInfo.IsDir() {
-					return file, nil
-				}
+			if file, err := fs.OpenFile(newName); err == nil {
+				return file, nil
 			}
 		}
 	}
 
 	// return the result of the original call
 	return file, err
+}
+
+// OpenFile returns a File object for the specified path under the FileSystem
+// directory if it esists and it's not a directory.
+func (fs FileSystem) OpenFile(name string) (http.File, error) {
+	if file, err := fs.FileSystem.Open(name); err == nil {
+		if fileInfo, err := file.Stat(); err == nil && !fileInfo.IsDir() {
+			return file, nil
+		}
+	}
+	return nil, os.ErrNotExist
 }
 
 // dotfileHidingFile wraps the Readdir method of http.File so to remove files
