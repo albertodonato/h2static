@@ -13,10 +13,35 @@ type LoggingHandler struct {
 	Handler http.Handler
 }
 
+type loggingResponseWriter struct {
+	http.ResponseWriter
+
+	statusCode int
+	length     int
+}
+
+func newLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
+	return &loggingResponseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+}
+
+func (w *loggingResponseWriter) WriteHeader(statusCode int) {
+	w.statusCode = statusCode
+	w.ResponseWriter.WriteHeader(statusCode)
+}
+
+func (w *loggingResponseWriter) Write(b []byte) (n int, err error) {
+	n, err = w.ResponseWriter.Write(b)
+	w.length += n
+	return n, err
+}
+
 // ServeHTTP logs server startup and serves via the configured handler.
 func (h LoggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s %s %s", r.Proto, r.Method, r.URL)
-	h.Handler.ServeHTTP(w, r)
+	wr := newLoggingResponseWriter(w)
+	h.Handler.ServeHTTP(wr, r)
+	log.Printf(
+		"%s %s %s %d - %d %d",
+		r.Proto, r.Method, r.URL, r.ContentLength, wr.statusCode, wr.length)
 }
 
 // BasicAuthHandler provides Basic Authorization.
@@ -47,7 +72,8 @@ func (h BasicAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h BasicAuthHandler) authRequiredResponse(w http.ResponseWriter) {
 	w.Header().Set(
 		"WWW-Authenticate", fmt.Sprintf(`Basic realm="%s", charset="UTF-8"`, h.Realm))
-	http.Error(w, "401 unauthorized", http.StatusUnauthorized)
+	code := http.StatusUnauthorized
+	http.Error(w, fmt.Sprintf("%d %s", code, http.StatusText(code)), code)
 }
 
 func (h BasicAuthHandler) hashPassword(password string) string {
