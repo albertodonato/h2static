@@ -11,6 +11,20 @@ description: |
 
   The daemon is configured with the following options:
 
+  * `basic-auth`
+
+    content of the crednetials file for Basic Authorization. Each line should contain
+    colon-separated pair of username and SHA512 hash of the password.
+
+  * `disable-h2`
+
+    set to true to disable HTTP/2 support.
+
+  * `disable-lookup-with-suffix`
+
+    set to true to disable disable matching files with .htm(l) suffix for paths
+    without suffix.
+
   * `listen`
 
     the `address:port` for the service to listen on. The address can be omitted
@@ -25,15 +39,6 @@ description: |
 
     If the `removable-media` interface is connected, paths under `/media` can
     also be used.
-
-  * `disable-h2`
-
-    set to true to disable HTTP/2 support.
-
-  * `disable-lookup-with-suffix`
-
-    set to true to disable disable matching files with .htm(l) suffix for paths
-    without suffix.
 
   * `show-dotfiles`
 
