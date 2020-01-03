@@ -8,7 +8,7 @@ v1.1.0 - 2019-07-01
 ===================
 
 * Use go modules
-* Refactor code, add tests 
+* Refactor code, add tests
 
 
 v1.0.2 - 2019-03-30
