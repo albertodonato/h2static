@@ -76,7 +76,8 @@ parts:
     source: .
     source-type: git
     build-packages:
-      - build-essential
+      - gcc
+    go-importpath: github.com/albertodonato/h2static
 
   daemon-wrapper:
     plugin: dump
