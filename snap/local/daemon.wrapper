@@ -21,13 +21,13 @@ fi
 
 dir=$(option_get serve-path "$SNAP_COMMON")
 
+# handle boolean options
 opts=""
-if [ "$(option_get disable-h2)" = "true" ]; then
-    opts="$opts -disable-h2"
-fi
-if [ "$(option_get disable-lookup-with-suffix)" = "true" ]; then
-    opts="$opts -disable-lookup-with-suffix"
-fi
+for option in disable-h2 disable-lookup-with-suffix show-dotfiles; do
+    if [ "$(option_get $option)" = "true" ]; then
+        opts="$opts -${option}"
+    fi
+done
 
 tls_cert="$(option_get tls.cert)"
 tls_key="$(option_get tls.key)"
@@ -43,5 +43,6 @@ else
     rm -f "$tls_cert_file" "$tls_key_file"
 fi
 
+set -x
 # shellcheck disable=SC2086
 exec "$SNAP/bin/h2static" -log -addr "$addr" -dir "$dir" $opts

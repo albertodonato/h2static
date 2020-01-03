@@ -35,6 +35,10 @@ description: |
     set to true to disable disable matching files with .htm(l) suffix for paths
     without suffix.
 
+  * `show-dotfiles`
+
+    set to true to show hidden files (starting with a dot).
+
   * `tls.cert`, `tls.key`
 
     ASCII contents of the TLS certificate and key. If both are set, HTTPS
