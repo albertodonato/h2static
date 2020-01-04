@@ -1,9 +1,8 @@
 // Package version defines constants for application version.
 package version
 
-// The applcation name.
+// Name defines the applcation name.
 const Name = "h2static"
 
-// The applcation version.
+// Version defines the application version.
 const Version = "1.2.0"
-
