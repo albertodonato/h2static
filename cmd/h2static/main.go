@@ -11,7 +11,7 @@ import (
 )
 
 const helpHeaderTemplate = `
-{{.Name}} {{.Version}} - Tiny static web server with TLS and HTTP/2 support
+{{.Name}} {{.Version}} - Tiny static web server with TLS and HTTP/2 support.
 
 Usage of {{.Name}}:
 `
