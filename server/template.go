@@ -54,13 +54,19 @@ var dirListingTemplateText = `<!doctype html>
         border-radius: 0.25em;
         white-space: nowrap;
       }
+      a.type-dir-up {
+        width: auto;
+        background: #6c757d linear-gradient(to bottom, #828a91 0, #6c757d 100%);
+        border-color: #6c757d;
+        color: white;
+      }
       a.type-dir {
-        background-image: linear-gradient(to bottom,#337ab7 0,#2e6da4 100%);
+        background: #337ab7 linear-gradient(to bottom, #337ab7 0, #2e6da4 100%);
         border-color: #337ab7;
         color: white;
       }
       a.type-file {
-        background-image: linear-gradient(to bottom,#f5f5f5 0,#e8e8e8 100%);
+        background: #dddddd linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
         border-color: #dddddd;
         color: #515151;
       }
@@ -115,7 +121,7 @@ var dirListingTemplateText = `<!doctype html>
         {{ if .Dir.IsRoot -}}
         {{- else -}}
         <div class="entry">
-          <a href=".." class="button link type-dir">..</a>
+          <a href=".." class="button link type-dir-up">..</a>
         </div>
         {{- end }}
         {{- range .Dir.Entries }}

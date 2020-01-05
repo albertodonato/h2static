@@ -45,7 +45,7 @@ func (s *FileHandlerTestSuite) TestListingHTML() {
 	s.Contains(content, `<a href="bar" class="button link type-file">bar</a>`)
 	s.Contains(content, `<a href="baz/" class="button link type-dir">baz/</a>`)
 	// The root directory doesn't contain a link up
-	s.NotContains(content, `<a href=".." class="button link type-dir">..</a>`)
+	s.NotContains(content, `<a href=".." class="button link type-dir-up">..</a>`)
 }
 
 func (s *FileHandlerTestSuite) TestListingHTMLSubdir() {
@@ -56,7 +56,7 @@ func (s *FileHandlerTestSuite) TestListingHTMLSubdir() {
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
 	content := w.Body.String()
-	s.Contains(content, `<a href=".." class="button link type-dir">..</a>`)
+	s.Contains(content, `<a href=".." class="button link type-dir-up">..</a>`)
 }
 
 func (s *FileHandlerTestSuite) TestServeFile() {
