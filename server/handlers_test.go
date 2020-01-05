@@ -131,7 +131,7 @@ func (s *FileHandlerTestSuite) TestListingJSON() {
 				{
 					Name:  "baz/",
 					IsDir: true,
-					Size:  0,
+					Size:  s.Stat("baz").Size(),
 				},
 				{
 					Name:  "foo",
