@@ -129,7 +129,11 @@ var dirListingTemplateText = `<!doctype html>
         {{- end }}
         {{- range .Dir.Entries }}
         <div class="entry">
-          <a href="{{ .Name }}" class="button link type-{{ if .IsDir }}dir{{ else }}file{{ end }}">{{ .Name }}</a>
+          {{ if .IsDir }}
+            <a href="{{ .Name }}/" class="button link type-dir">{{ .Name }}/</a>
+          {{ else }}
+            <a href="{{ .Name }}" class="button link type-file">{{ .Name }}</a>
+          {{ end }}
           <span class="button size">
               {{- .HumanSize.Value -}}
             <span class="size-suffix">{{ .HumanSize.Suffix }}</span>
@@ -228,9 +232,6 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir http.File
 	entries := []DirEntryInfo{}
 	for _, p := range pathInfos {
 		name := string(template.URL(p.Name()))
-		if p.IsDir() {
-			name += "/"
-		}
 		size := p.Size()
 		entries = append(entries, DirEntryInfo{
 			Name:      name,
