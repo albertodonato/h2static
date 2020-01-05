@@ -53,6 +53,13 @@ func (s *TempDirTestSuite) Mkdir(name string) string {
 	return path
 }
 
+// RemoveAll removes the path and everything under it.
+func (s *TempDirTestSuite) RemoveAll(name string) {
+	path := s.absPath(name)
+	err := os.RemoveAll(path)
+	s.Nil(err)
+}
+
 func (s *TempDirTestSuite) absPath(path string) string {
 	return filepath.Join(s.TempDir, path)
 }

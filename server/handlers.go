@@ -85,12 +85,20 @@ func (f FileHandler) findIndexSuffix(dirPath string) string {
 	return ""
 }
 
+const sortColumns = "ns" // name, size
+
 func (f FileHandler) writeDirListing(w http.ResponseWriter, r *http.Request, path string, dir *File) {
+	q := r.URL.Query()
+	sortColumn := q.Get("c")
+	if !strings.Contains(sortColumns, sortColumn) || sortColumn == "" {
+		sortColumn = "n"
+	}
+	sortAsc := q.Get("o") != "d"
 	var err error
 	if strings.ToLower(r.Header.Get("Accept")) == "application/json" {
-		err = f.template.RenderJSON(w, path, dir)
+		err = f.template.RenderJSON(w, path, dir, sortColumn, sortAsc)
 	} else {
-		err = f.template.RenderHTML(w, path, dir)
+		err = f.template.RenderHTML(w, path, dir, sortColumn, sortAsc)
 	}
 	if err != nil {
 		http.Error(w, "Error listing directory", http.StatusInternalServerError)

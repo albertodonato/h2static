@@ -36,7 +36,7 @@ func (s *DirectoryListingTemplateTestSuite) SetupTest() {
 func (s *DirectoryListingTemplateTestSuite) TestRenderHTML() {
 	template := server.NewDirectoryListingTemplate()
 	w := httptest.NewRecorder()
-	template.RenderHTML(w, "/", s.dir)
+	template.RenderHTML(w, "/", s.dir, "", true)
 	response := w.Result()
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
@@ -46,11 +46,37 @@ func (s *DirectoryListingTemplateTestSuite) TestRenderHTML() {
 	s.Contains(content, `<a href="baz/" class="button link type-dir">baz/</a>`)
 }
 
+// RenderHTML renders controls for descending sorting.
+func (s *DirectoryListingTemplateTestSuite) TestRenderHTMLSortControlsDesc() {
+	template := server.NewDirectoryListingTemplate()
+	w := httptest.NewRecorder()
+	template.RenderHTML(w, "/", s.dir, "", true)
+	response := w.Result()
+	s.Equal(http.StatusOK, response.StatusCode)
+	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
+	content := w.Body.String()
+	s.Contains(content, `<a class="button link sort" href="?c=n&o=d">Name</a>`)
+	s.Contains(content, `<a class="button size sort" href="?c=s&o=d">Size</a>`)
+}
+
+// RenderHTML renders controls for ascending sorting.
+func (s *DirectoryListingTemplateTestSuite) TestRenderHTMLSortControlsAsc() {
+	template := server.NewDirectoryListingTemplate()
+	w := httptest.NewRecorder()
+	template.RenderHTML(w, "/", s.dir, "", false)
+	response := w.Result()
+	s.Equal(http.StatusOK, response.StatusCode)
+	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
+	content := w.Body.String()
+	s.Contains(content, `<a class="button link sort" href="?c=n&o=a">Name</a>`)
+	s.Contains(content, `<a class="button size sort" href="?c=s&o=a">Size</a>`)
+}
+
 // RenderJSON renders JSON listing.
 func (s *DirectoryListingTemplateTestSuite) TestRenderJSON() {
 	template := server.NewDirectoryListingTemplate()
 	w := httptest.NewRecorder()
-	template.RenderJSON(w, "/", s.dir)
+	template.RenderJSON(w, "/", s.dir, "", true)
 	response := w.Result()
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("application/json", response.Header.Get("Content-Type"))

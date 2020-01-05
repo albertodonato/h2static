@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"os"
 	"sort"
 	"strings"
 
@@ -72,6 +71,12 @@ var dirListingTemplateText = `<!DOCTYPE html>
         border-color: #dddddd;
         color: #515151;
       }
+      a.sort {
+        background: #6c757d linear-gradient(to bottom, #828a91 0, #6c757d 100%);
+        border-color: #6c757d;
+        color: white;
+        font-size: 80%;
+      }
       .path {
         font-family: monospace;
       }
@@ -126,8 +131,16 @@ var dirListingTemplateText = `<!DOCTYPE html>
     </header>
     <main>
       <section class="listing">
-        {{- if .Dir.IsRoot -}}
-        {{- else -}}
+        <div class="entry">
+          {{- if .Sort.Asc -}}
+          <a class="button link sort" href="?c=n&o=d">Name {{ if eq .Sort.Column "n" }}&#x25B2;{{ end }}</a>
+          <a class="button size sort" href="?c=s&o=d">{{ if eq .Sort.Column "s" }}&#x25B2;{{ end }} Size</a>
+          {{- else -}}
+          <a class="button link sort" href="?c=n&o=a">Name {{ if eq .Sort.Column "n" }}&#x25BC;{{ end }}</a>
+          <a class="button size sort" href="?c=s&o=a">{{ if eq .Sort.Column "s" }}&#x25BC;{{ end }} Size</a>
+          {{- end -}}
+        </div>
+        {{- if not .Dir.IsRoot -}}
         <div class="entry">
           <a href=".." class="button link type-dir-up">..</a>
         </div>
@@ -187,9 +200,15 @@ type humanSizeInfo struct {
 	Suffix string
 }
 
+type sortInfo struct {
+	Column string
+	Asc    bool
+}
+
 type templateContext struct {
-	App version.Version
-	Dir DirInfo
+	App  version.Version
+	Sort sortInfo
+	Dir  DirInfo
 }
 
 // DirectoryListingTemplate is a template rendered for a directory.
@@ -206,8 +225,8 @@ func NewDirectoryListingTemplate() *DirectoryListingTemplate {
 }
 
 // RenderHTML renders the HTML template for a directory.
-func (t *DirectoryListingTemplate) RenderHTML(w http.ResponseWriter, path string, dir *File) error {
-	context, err := t.getTemplateContext(path, dir)
+func (t *DirectoryListingTemplate) RenderHTML(w http.ResponseWriter, path string, dir *File, sortColumn string, sortAsc bool) error {
+	context, err := t.getTemplateContext(path, dir, sortColumn, sortAsc)
 	if err != nil {
 		return err
 	}
@@ -216,8 +235,8 @@ func (t *DirectoryListingTemplate) RenderHTML(w http.ResponseWriter, path string
 }
 
 // RenderJSON returns JSON listing for a directory.
-func (t *DirectoryListingTemplate) RenderJSON(w http.ResponseWriter, path string, dir *File) error {
-	context, err := t.getTemplateContext(path, dir)
+func (t *DirectoryListingTemplate) RenderJSON(w http.ResponseWriter, path string, dir *File, sortColumn string, sortAsc bool) error {
+	context, err := t.getTemplateContext(path, dir, sortColumn, sortAsc)
 	if err != nil {
 		return err
 	}
@@ -226,22 +245,24 @@ func (t *DirectoryListingTemplate) RenderJSON(w http.ResponseWriter, path string
 }
 
 // return directory info for the template
-func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File) (*templateContext, error) {
+func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, sortColumn string, sortAsc bool) (*templateContext, error) {
 	pathInfos, err := dir.Readdir(-1)
 	if err != nil {
 		return nil, err
 	}
 
-	toLower := func(info os.FileInfo) string {
-		return strings.ToLower(info.Name())
+	var sortFunc func(int, int) bool
+	if sortColumn == "s" { // sort by size
+		sortFunc = func(i, j int) bool {
+			return pathInfos[i].Size() < pathInfos[j].Size()
+		}
+	} else { // sort by name
+		sortFunc = func(i, j int) bool {
+			return strings.ToLower(pathInfos[i].Name()) < strings.ToLower(pathInfos[j].Name())
+		}
 	}
 
-	sort.Slice(
-		pathInfos,
-		func(i, j int) bool {
-			return toLower(pathInfos[i]) < toLower(pathInfos[j])
-		})
-
+	sort.Slice(pathInfos, func(i, j int) bool { return sortFunc(i, j) == sortAsc })
 	entries := []DirEntryInfo{}
 	for _, p := range pathInfos {
 		name := string(template.URL(p.Name()))
@@ -255,6 +276,10 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File) (*
 	}
 	return &templateContext{
 		App: version.App,
+		Sort: sortInfo{
+			Column: sortColumn,
+			Asc:    sortAsc,
+		},
 		Dir: DirInfo{
 			Name:    path,
 			IsRoot:  path == "/",

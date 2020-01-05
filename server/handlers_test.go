@@ -29,8 +29,8 @@ func (s *FileHandlerTestSuite) SetupTest() {
 	s.TempDirTestSuite.SetupTest()
 	s.fileSystem = server.NewFileSystem(s.TempDir, true, true)
 	s.handler = server.NewFileHandler(s.fileSystem)
-	s.WriteFile("foo", "foo content")
-	s.WriteFile("bar", "bar content")
+	s.WriteFile("foo", "foofoofoo")
+	s.WriteFile("bar", "barbar")
 	s.Mkdir("baz")
 }
 
@@ -71,7 +71,7 @@ func (s *FileHandlerTestSuite) TestServeFile() {
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("text/plain; charset=utf-8", response.Header.Get("Content-Type"))
 	content := w.Body.String()
-	s.Equal("foo content", content)
+	s.Equal("foofoofoo", content)
 }
 
 // URLs for directories without trailing shash are redirected to the URL with
@@ -137,6 +137,55 @@ func (s *FileHandlerTestSuite) TestListingJSON() {
 	decoder := json.NewDecoder(w.Body)
 	content := server.DirInfo{}
 	decoder.Decode(&content)
+}
+
+// JSON listing can be sorted in descending order.
+func (s *FileHandlerTestSuite) TestListingJSONSortDesc() {
+	s.RemoveAll("/baz")
+	r := httptest.NewRequest("GET", "/?o=d", nil)
+	r.Header.Set("Accept", "application/json")
+	w := httptest.NewRecorder()
+	s.handler.ServeHTTP(w, r)
+	response := w.Result()
+	s.Equal(http.StatusOK, response.StatusCode)
+	s.Equal("application/json", response.Header.Get("Content-Type"))
+	decoder := json.NewDecoder(w.Body)
+	content := server.DirInfo{}
+	decoder.Decode(&content)
+	s.Equal(
+		server.DirInfo{
+			Name:   "/",
+			IsRoot: true,
+			Entries: []server.DirEntryInfo{
+				{
+					Name:  "foo",
+					IsDir: false,
+					Size:  9,
+				},
+				{
+					Name:  "bar",
+					IsDir: false,
+					Size:  6,
+				},
+			},
+		},
+		content,
+	)
+}
+
+// JSON listing can be sorted by size.
+func (s *FileHandlerTestSuite) TestListingJSONSortSize() {
+	s.RemoveAll("/baz")
+	r := httptest.NewRequest("GET", "/?c=s", nil)
+	r.Header.Set("Accept", "application/json")
+	w := httptest.NewRecorder()
+	s.handler.ServeHTTP(w, r)
+	response := w.Result()
+	s.Equal(http.StatusOK, response.StatusCode)
+	s.Equal("application/json", response.Header.Get("Content-Type"))
+	decoder := json.NewDecoder(w.Body)
+	content := server.DirInfo{}
+	decoder.Decode(&content)
 	s.Equal(
 		server.DirInfo{
 			Name:   "/",
@@ -145,17 +194,12 @@ func (s *FileHandlerTestSuite) TestListingJSON() {
 				{
 					Name:  "bar",
 					IsDir: false,
-					Size:  11,
-				},
-				{
-					Name:  "baz",
-					IsDir: true,
-					Size:  s.Stat("baz").Size(),
+					Size:  6,
 				},
 				{
 					Name:  "foo",
 					IsDir: false,
-					Size:  11,
+					Size:  9,
 				},
 			},
 		},
