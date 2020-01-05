@@ -70,6 +70,9 @@ var dirListingTemplateText = `<!doctype html>
         border-color: #dddddd;
         color: #515151;
       }
+      .path {
+        font-family: monospace;
+      }
       .link {
         width: 70%;
       }
@@ -114,7 +117,7 @@ var dirListingTemplateText = `<!doctype html>
   </head>
   <body>
     <header>
-      <h1>Directory listing for {{ .Dir.Name }}</h1>
+      <h1>Directory listing for <span class="path">{{ .Dir.Name }}</span></h1>
     </header>
     <main>
       <section class="listing">
