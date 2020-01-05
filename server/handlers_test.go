@@ -110,7 +110,7 @@ func (s *FileHandlerTestSuite) TestServeDirectoryIndexHTM() {
 	s.Equal("some content", content)
 }
 
-// The index.html file is prefered to index.htm
+// The index.html file is preferred to index.htm
 func (s *FileHandlerTestSuite) TestServeDirectoryPreferIndexHTML() {
 	s.WriteFile("index.html", "some content")
 	s.WriteFile("index.htm", "other content")
