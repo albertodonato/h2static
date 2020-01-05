@@ -33,6 +33,7 @@ func (s *FileHandlerTestSuite) SetupTest() {
 	s.Mkdir("baz")
 }
 
+// HTML listing contains links to entries.
 func (s *FileHandlerTestSuite) TestListingHTML() {
 	r := httptest.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
@@ -48,8 +49,9 @@ func (s *FileHandlerTestSuite) TestListingHTML() {
 	s.NotContains(content, `<a href=".." class="button link type-dir-up">..</a>`)
 }
 
+// HTML listing for a subdirectory has a link to the parent.
 func (s *FileHandlerTestSuite) TestListingHTMLSubdir() {
-	r := httptest.NewRequest("GET", "/baz", nil)
+	r := httptest.NewRequest("GET", "/baz/", nil)
 	w := httptest.NewRecorder()
 	s.handler.ServeHTTP(w, r)
 	response := w.Result()
@@ -59,6 +61,7 @@ func (s *FileHandlerTestSuite) TestListingHTMLSubdir() {
 	s.Contains(content, `<a href=".." class="button link type-dir-up">..</a>`)
 }
 
+// File content is served.
 func (s *FileHandlerTestSuite) TestServeFile() {
 	r := httptest.NewRequest("GET", "/foo", nil)
 	w := httptest.NewRecorder()
@@ -70,6 +73,18 @@ func (s *FileHandlerTestSuite) TestServeFile() {
 	s.Equal("foo content", content)
 }
 
+// URLs for directories without trailing shash are redirected to the URL with
+// slash.
+func (s *FileHandlerTestSuite) TestDirectoryRedirectWithTrailingSlash() {
+	r := httptest.NewRequest("GET", "/baz", nil)
+	w := httptest.NewRecorder()
+	s.handler.ServeHTTP(w, r)
+	response := w.Result()
+	s.Equal(http.StatusMovedPermanently, response.StatusCode)
+	s.Equal("/baz/", response.Header.Get("Location"))
+}
+
+// If a directory has an index.html file, it's served instead of listing.
 func (s *FileHandlerTestSuite) TestServeDirectoryIndexHTML() {
 	s.WriteFile("index.html", "some content")
 	r := httptest.NewRequest("GET", "/", nil)
@@ -82,6 +97,7 @@ func (s *FileHandlerTestSuite) TestServeDirectoryIndexHTML() {
 	s.Equal("some content", content)
 }
 
+// If a directory has an index.htm file, it's served instead of listing.
 func (s *FileHandlerTestSuite) TestServeDirectoryIndexHTM() {
 	s.WriteFile("index.htm", "some content")
 	r := httptest.NewRequest("GET", "/", nil)
@@ -94,6 +110,7 @@ func (s *FileHandlerTestSuite) TestServeDirectoryIndexHTM() {
 	s.Equal("some content", content)
 }
 
+// The index.html file is prefered to index.htm
 func (s *FileHandlerTestSuite) TestServeDirectoryPreferIndexHTML() {
 	s.WriteFile("index.html", "some content")
 	s.WriteFile("index.htm", "other content")
@@ -107,6 +124,7 @@ func (s *FileHandlerTestSuite) TestServeDirectoryPreferIndexHTML() {
 	s.Equal("some content", content)
 }
 
+// JSON listing is returned if the Accept header is set.
 func (s *FileHandlerTestSuite) TestListingJSON() {
 	r := httptest.NewRequest("GET", "/", nil)
 	r.Header.Set("Accept", "application/json")

@@ -53,6 +53,11 @@ func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if pathInfo.IsDir() {
+		if !strings.HasSuffix(upath, "/") {
+			// always redirect to URL with trailing slash for directories
+			localRedirect(w, r, upath+"/")
+			return
+		}
 		// if found, append the index suffix
 		indexPath := f.findIndexSuffix(basePath)
 		if indexPath == "" {
@@ -182,4 +187,14 @@ func (h CommonHeadersHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 func writeHTTPError(w http.ResponseWriter, code int) {
 	http.Error(w, fmt.Sprintf("%d %s", code, http.StatusText(code)), code)
+}
+
+// localRedirect gives a Moved Permanently response.  It does not convert
+// relative paths to absolute paths like Redirect does.
+func localRedirect(w http.ResponseWriter, r *http.Request, newPath string) {
+	if q := r.URL.RawQuery; q != "" {
+		newPath += "?" + q
+	}
+	w.Header().Set("Location", newPath)
+	w.WriteHeader(http.StatusMovedPermanently)
 }
