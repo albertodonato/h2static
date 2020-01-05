@@ -31,7 +31,14 @@ func (s StaticServer) IsHTTPS() bool {
 func (s StaticServer) getServer() *http.Server {
 	fileSystem := NewFileSystem(
 		s.Dir, !s.DisableLookupWithSuffix, !s.ShowDotFiles)
-	var handler http.Handler = NewFileHandler(fileSystem)
+	mux := http.NewServeMux()
+	mux.Handle("/", NewFileHandler(fileSystem))
+	mux.Handle(
+		AssetsPrefix,
+		http.StripPrefix(AssetsPrefix, &AssetsHandler{Assets: staticAssets}))
+
+	var handler http.Handler = mux
+
 	if s.PasswordFile != "" {
 		credentials, err := loadCredentials(s.PasswordFile)
 		if err != nil {

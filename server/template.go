@@ -11,123 +11,24 @@ import (
 	"github.com/albertodonato/h2static/version"
 )
 
+// AssetsPrefix defines the URL prefix for static assets.
+const AssetsPrefix = "/.h2static-assets/"
+
 // template for the directory listing page
 var dirListingTemplateText = `<!DOCTYPE html>
 <html>
   <head>
     <title>{{ .App.Name }} - Directory listing for {{ .Dir.Name }}</title>
-    <style type="text/css">
-      body {
-        width: 90%;
-        margin: 0 auto;
-        font-family: sans;
-        font-size: 34px;
-        color: black;
-      }
-      h1 {
-        margin: 1em 0;
-        font-size: 130%;
-      }
-      a, a:visited {
-        color: black;
-        text-decoration: none;
-      }
-      a:active, a:hover {
-        color: #007bff;
-        text-decoration: none;
-      }
-      .listing {
-        width: 100%;
-      }
-      .entry {
-        padding: 0.5rem 0;
-        display: flex;
-        justify-content: space-between;
-      }
-      .button {
-        display: inline-block;
-        margin: 0 0.2rem;
-        padding: 1rem 0.5rem;
-        font-family: monospace;
-        border-width: 1px;
-        border-style: solid;
-        border-radius: 0.25rem;
-        white-space: nowrap;
-      }
-      a.type-dir-up {
-        flex-grow: 0;
-        width: auto;
-        background: #6c757d linear-gradient(to bottom, #828a91 0, #6c757d 100%);
-        border-color: #6c757d;
-        color: white;
-      }
-      a.type-dir {
-        background: #337ab7 linear-gradient(to bottom, #337ab7 0, #2e6da4 100%);
-        border-color: #337ab7;
-        color: white;
-      }
-      a.type-file {
-        background: #dddddd linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
-        border-color: #dddddd;
-        color: #515151;
-      }
-      a.sort {
-        background: #6c757d linear-gradient(to bottom, #828a91 0, #6c757d 100%);
-        border-color: #6c757d;
-        color: white;
-        font-size: 80%;
-      }
-      .path {
-        font-family: monospace;
-      }
-      .link {
-        flex-grow: 1;
-      }
-      .size {
-        border-color: #777777;
-        background-color: white;
-        color: #777777;
-        text-align: right;
-        width: 11rem;
-      }
-      .size-suffix {
-        display: inline-block;
-        width: 1.5em;
-        margin-left: 0.25em;
-        font-size: 80%;
-        text-align: left;
-      }
-      .powered-by {
-        margin: 3em 0;
-        text-align: center;
-        font-size: 80%;
-      }
-      .powered-by a {
-        font-family: monospace;
-        font-size: 120%;
-        margin-left: 0.5em;
-      }
-      a.powered-by:hover {
-        text-decoration: underline;
-      }
-
-      @media (min-width: 992px) {
-        body {
-          width: 60%;
-          font-size: 16px;
-        }
-        .button {
-          padding: 0.5rem;
-        }
-        .size {
-          width: 5rem;
-        }
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{{ .AssetsPrefix }}style.css">
   </head>
   <body>
     <header>
-      <h1>Directory listing for <span class="path">{{ .Dir.Name }}</span></h1>
+      <h1>
+        <a class="logo" alt="{{ .App.Name }}" href="/">
+          <img src="{{ .AssetsPrefix }}logo.svg">
+        </a>
+        <span class="title">Directory listing for <span class="path">{{ .Dir.Name }}</span></span>
+      </h1>
     </header>
     <main>
       <section class="listing">
@@ -206,9 +107,10 @@ type sortInfo struct {
 }
 
 type templateContext struct {
-	App  version.Version
-	Sort sortInfo
-	Dir  DirInfo
+	App          version.Version
+	AssetsPrefix string
+	Sort         sortInfo
+	Dir          DirInfo
 }
 
 // DirectoryListingTemplate is a template rendered for a directory.
@@ -275,7 +177,8 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, so
 		})
 	}
 	return &templateContext{
-		App: version.App,
+		App:          version.App,
+		AssetsPrefix: AssetsPrefix,
 		Sort: sortInfo{
 			Column: sortColumn,
 			Asc:    sortAsc,

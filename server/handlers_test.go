@@ -279,3 +279,40 @@ func (s *CommonHeadersHandlerTestSuite) TestAddHeaders() {
 	s.Equal(http.StatusNotFound, response.StatusCode)
 	s.Equal(server, response.Header.Get("Server"))
 }
+
+func TestAssetsHandler(t *testing.T) {
+	suite.Run(t, new(AssetsHandlerTestSuite))
+}
+
+type AssetsHandlerTestSuite struct {
+	suite.Suite
+}
+
+func (s *AssetsHandlerTestSuite) TestServeAssets() {
+	assets := server.StaticAssets{
+		"foo.txt": {
+			ContentType: "text/plain",
+			Content:     []byte("foo content"),
+		},
+		"bar.json": {
+			ContentType: "application/json",
+			Content:     []byte(`{"a":"b"}`),
+		},
+	}
+
+	handler := server.AssetsHandler{Assets: assets}
+	r := httptest.NewRequest("GET", "/foo.txt", nil)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, r)
+	response := w.Result()
+	s.Equal(http.StatusOK, response.StatusCode)
+	s.Equal("text/plain", response.Header.Get("Content-Type"))
+	s.Equal("foo content", w.Body.String())
+	r = httptest.NewRequest("GET", "/bar.json", nil)
+	w = httptest.NewRecorder()
+	handler.ServeHTTP(w, r)
+	response = w.Result()
+	s.Equal(http.StatusOK, response.StatusCode)
+	s.Equal("application/json", response.Header.Get("Content-Type"))
+	s.Equal(`{"a":"b"}`, w.Body.String())
+}

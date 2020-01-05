@@ -192,6 +192,26 @@ func (h CommonHeadersHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	h.Handler.ServeHTTP(w, r)
 }
 
+// AssetsHandler serves static assets.
+type AssetsHandler struct {
+	http.Handler
+
+	Assets StaticAssets
+}
+
+// ServeHTTP return content for static assets.
+func (h AssetsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	asset, ok := h.Assets[strings.TrimPrefix(r.URL.Path, "/")]
+	if ok {
+		header := w.Header()
+		header.Set("Content-Type", asset.ContentType)
+		header.Set("Cache-Control", "public, max-age=86400")
+		w.Write(asset.Content)
+		return
+	}
+	writeHTTPError(w, http.StatusNotFound)
+}
+
 func writeHTTPError(w http.ResponseWriter, code int) {
 	http.Error(w, fmt.Sprintf("%d %s", code, http.StatusText(code)), code)
 }

@@ -1,6 +1,8 @@
 package server_test
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -32,16 +34,18 @@ func (s *ServerTestSuite) TestEnableTLSFalse() {
 	s.False(serv.IsHTTPS())
 }
 
-// getServer returns a configured http.Server
-func (s *ServerTestSuite) TestGetServerDefault() {
+// getServer returns static file handlers for a path.
+func (s *ServerTestSuite) TestGetServerDefaultStaticServe() {
 	serv := server.StaticServer{}
 	httpServer := server.GetServer(serv)
+	s.Nil(httpServer.TLSNextProto)
 	s.Equal("", httpServer.Addr)
 	h := httpServer.Handler.(*server.CommonHeadersHandler)
-	s.IsType(&server.FileHandler{}, h.Handler)
-	fh := h.Handler.(*server.FileHandler)
-	s.IsType(".", fh.FileSystem.Root)
-	s.Nil(httpServer.TLSNextProto)
+	mux := h.Handler.(*http.ServeMux)
+	fh, pattern := mux.Handler(httptest.NewRequest("GET", "/foo", nil))
+	s.Equal("/", pattern)
+	s.IsType(&server.FileHandler{}, fh)
+	s.IsType(".", fh.(*server.FileHandler).FileSystem.Root)
 }
 
 // getServer returns a configured http.Server with the specified dir
@@ -49,8 +53,9 @@ func (s *ServerTestSuite) TestSetupServerSpecifyDir() {
 	serv := server.StaticServer{Dir: "/some/dir"}
 	httpServer := server.GetServer(serv)
 	h := httpServer.Handler.(*server.CommonHeadersHandler)
-	fh := h.Handler.(*server.FileHandler)
-	s.IsType("/some/dir", fh.FileSystem.Root)
+	mux := h.Handler.(*http.ServeMux)
+	fh, _ := mux.Handler(httptest.NewRequest("GET", "/foo", nil))
+	s.IsType("/some/dir", fh.(*server.FileHandler).FileSystem.Root)
 }
 
 // getServer returns a configured http.Server with logging
