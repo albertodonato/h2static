@@ -121,21 +121,21 @@ var dirListingTemplateText = `<!doctype html>
     </header>
     <main>
       <section class="listing">
-        {{ if .Dir.IsRoot -}}
+        {{- if .Dir.IsRoot -}}
         {{- else -}}
         <div class="entry">
           <a href=".." class="button link type-dir-up">..</a>
         </div>
-        {{- end }}
-        {{- range .Dir.Entries }}
+        {{- end -}}
+        {{- range .Dir.Entries -}}
         <div class="entry">
-          {{ if .IsDir }}
+          {{ if .IsDir -}}
             <a href="{{ .Name }}/" class="button link type-dir">{{ .Name }}/</a>
-          {{ else }}
+          {{- else -}}
             <a href="{{ .Name }}" class="button link type-file">{{ .Name }}</a>
-          {{ end }}
+          {{- end }}
           <span class="button size">
-              {{- .HumanSize.Value -}}
+            {{ .HumanSize.Value -}}
             <span class="size-suffix">{{ .HumanSize.Suffix }}</span>
           </span>
         </div>
