@@ -8,3 +8,5 @@ import (
 func GetServer(s StaticServer) *http.Server {
 	return s.getServer()
 }
+
+var GetHumanByteSize = getHumanByteSize

@@ -74,6 +74,13 @@ var dirListingTemplateText = `<!doctype html>
         color: #777777;
         text-align: right;
       }
+      .size-suffix {
+        display: inline-block;
+        width: 1.5em;
+        margin-left: 0.25em;
+        font-size: 80%;
+        text-align: left;
+      }
       .powered-by {
         margin: 3em 0;
         text-align: center;
@@ -114,7 +121,10 @@ var dirListingTemplateText = `<!doctype html>
         {{- range .Dir.Entries }}
         <div class="entry">
           <a href="{{ .Name }}" class="button link type-{{ if .IsDir }}dir{{ else }}file{{ end }}">{{ .Name }}</a>
-          <span class="button size">{{ .Size }}</span>
+          <span class="button size">
+              {{- .HumanSize.Value -}}
+            <span class="size-suffix">{{ .HumanSize.Suffix }}</span>
+          </span>
         </div>
         {{ end -}}
       </section>
@@ -140,9 +150,15 @@ type DirInfo struct {
 
 // DirEntryInfo holds details for a directory entry.
 type DirEntryInfo struct {
-	Name  string
-	IsDir bool
-	Size  int64
+	Name      string
+	IsDir     bool
+	Size      int64
+	HumanSize humanSizeInfo `json:"-"`
+}
+
+type humanSizeInfo struct {
+	Value  int
+	Suffix string
 }
 
 type templateContext struct {
@@ -206,10 +222,12 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir http.File
 		if p.IsDir() {
 			name += "/"
 		}
+		size := p.Size()
 		entries = append(entries, DirEntryInfo{
-			Name:  name,
-			IsDir: p.IsDir(),
-			Size:  p.Size(),
+			Name:      name,
+			IsDir:     p.IsDir(),
+			Size:      size,
+			HumanSize: getHumanByteSize(size),
 		})
 	}
 	return &templateContext{
@@ -220,4 +238,19 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir http.File
 			Entries: entries,
 		},
 	}, nil
+}
+
+func getHumanByteSize(size int64) humanSizeInfo {
+	value := size
+	suffix := ""
+	for _, s := range []string{"K", "M", "G", "T", "P", "E"} {
+		if value < 1024 {
+			break
+		}
+		value, suffix = value/1024, s
+	}
+	return humanSizeInfo{
+		Value:  int(value),
+		Suffix: suffix + "B",
+	}
 }
