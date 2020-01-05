@@ -7,7 +7,7 @@ type Version struct {
 	Version string
 }
 
-// The application version.
+// App defines The application version.
 var App = Version{
 	Name:    "h2static",
 	Version: "1.2.0",

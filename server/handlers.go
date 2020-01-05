@@ -64,9 +64,8 @@ func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			f.writeDirListing(w, r, basePath, file)
 			return
-		} else {
-			fullPath += indexPath
 		}
+		fullPath += indexPath
 	}
 	http.ServeFile(w, r, fullPath)
 }

@@ -20,6 +20,7 @@ type FileSystem struct {
 	Root         string
 }
 
+// NewFileSystem returns a FileSystem with the specified configuration.
 func NewFileSystem(root string, resolveHTML bool, hideDotFiles bool) FileSystem {
 	return FileSystem{
 		FileSystem:   http.Dir(root),
