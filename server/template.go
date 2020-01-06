@@ -133,11 +133,11 @@ var dirListingTemplateText = `<!DOCTYPE html>
       <section class="listing">
         <div class="entry">
           {{- if .Sort.Asc -}}
-          <a class="button link sort" href="?c=n&o=d">Name {{ if eq .Sort.Column "n" }}&#x25B2;{{ end }}</a>
-          <a class="button size sort" href="?c=s&o=d">{{ if eq .Sort.Column "s" }}&#x25B2;{{ end }} Size</a>
+          <a class="button link sort" href="?c=n&o=d">Name{{ if eq .Sort.Column "n" }} &#x25B2;{{ end }}</a>
+          <a class="button size sort" href="?c=s&o=d">{{ if eq .Sort.Column "s" }}&#x25B2; {{ end }}Size</a>
           {{- else -}}
-          <a class="button link sort" href="?c=n&o=a">Name {{ if eq .Sort.Column "n" }}&#x25BC;{{ end }}</a>
-          <a class="button size sort" href="?c=s&o=a">{{ if eq .Sort.Column "s" }}&#x25BC;{{ end }} Size</a>
+          <a class="button link sort" href="?c=n&o=a">Name{{ if eq .Sort.Column "n" }} &#x25BC;{{ end }}</a>
+          <a class="button size sort" href="?c=s&o=a">{{ if eq .Sort.Column "s" }}&#x25BC; {{ end }}Size</a>
           {{- end -}}
         </div>
         {{- if not .Dir.IsRoot -}}
