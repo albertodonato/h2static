@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/albertodonato/h2static/server"
+	"github.com/albertodonato/h2static/testhelpers"
 )
 
 func TestDirectoryListingTemplate(t *testing.T) {
@@ -16,7 +17,7 @@ func TestDirectoryListingTemplate(t *testing.T) {
 }
 
 type DirectoryListingTemplateTestSuite struct {
-	TempDirTestSuite
+	testhelpers.TempDirTestSuite
 
 	dir http.File
 }

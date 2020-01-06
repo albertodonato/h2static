@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/albertodonato/h2static/server"
+	"github.com/albertodonato/h2static/testhelpers"
 	"github.com/albertodonato/h2static/version"
 )
 
@@ -18,7 +19,7 @@ func TestFileHandler(t *testing.T) {
 }
 
 type FileHandlerTestSuite struct {
-	TempDirTestSuite
+	testhelpers.TempDirTestSuite
 
 	fileSystem server.FileSystem
 	handler    *server.FileHandler

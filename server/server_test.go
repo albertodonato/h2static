@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/albertodonato/h2static/server"
+	"github.com/albertodonato/h2static/testhelpers"
 )
 
 func TestServer(t *testing.T) {
@@ -13,7 +14,7 @@ func TestServer(t *testing.T) {
 }
 
 type ServerTestSuite struct {
-	TempDirTestSuite
+	testhelpers.TempDirTestSuite
 }
 
 // IsHTTPS returns true if certificates are set.

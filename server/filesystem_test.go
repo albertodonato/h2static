@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/albertodonato/h2static/server"
+	"github.com/albertodonato/h2static/testhelpers"
 )
 
 func TestFileSystem(t *testing.T) {
@@ -17,7 +18,7 @@ func TestFileSystem(t *testing.T) {
 }
 
 type FileSystemTestSuite struct {
-	TempDirTestSuite
+	testhelpers.TempDirTestSuite
 
 	dir http.Dir
 }

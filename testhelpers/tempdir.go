@@ -1,4 +1,4 @@
-package server_test
+package testhelpers
 
 import (
 	"io/ioutil"
@@ -9,22 +9,21 @@ import (
 )
 
 // TempDirTestSuite is a test suite which creates and cleanups a temporary
-// directory
+// directory.
 type TempDirTestSuite struct {
 	suite.Suite
 
 	TempDir string
 }
 
+// SetupTest sets up a temporary dir.
 func (s *TempDirTestSuite) SetupTest() {
 	tempdir, err := ioutil.TempDir("", "testdir")
-	if err != nil {
-		panic(err)
-	}
-
+	s.Nil(err)
 	s.TempDir = tempdir
 }
 
+// TearDownTest cleans the temporary dir.
 func (s *TempDirTestSuite) TearDownTest() {
 	os.RemoveAll(s.TempDir)
 }
