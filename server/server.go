@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+
+	"github.com/albertodonato/h2static/version"
 )
 
 // StaticServer is a static HTTP server.
@@ -38,7 +40,7 @@ func (s StaticServer) getServer() *http.Server {
 		handler = &BasicAuthHandler{
 			Handler:     handler,
 			Credentials: credentials,
-			Realm:       "h2static",
+			Realm:       version.App.Name,
 		}
 	}
 
