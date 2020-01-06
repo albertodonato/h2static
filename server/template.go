@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -169,8 +170,16 @@ type DirEntryInfo struct {
 	HumanSize humanSizeInfo `json:"-"`
 }
 
+// FileSize represent a file size as a float number.
+type FileSize float64
+
+// String returns a string representation of the FileSize.
+func (f FileSize) String() string {
+	return strings.TrimSuffix(fmt.Sprintf("%.1f", f), ".0")
+}
+
 type humanSizeInfo struct {
-	Value  int
+	Value  FileSize
 	Suffix string
 }
 
@@ -251,7 +260,7 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir http.File
 }
 
 func getHumanByteSize(size int64) humanSizeInfo {
-	value := size
+	value := FileSize(size)
 	suffix := ""
 	for _, s := range []string{"K", "M", "G", "T", "P", "E"} {
 		if value < 1024 {
@@ -260,7 +269,7 @@ func getHumanByteSize(size int64) humanSizeInfo {
 		value, suffix = value/1024, s
 	}
 	return humanSizeInfo{
-		Value:  int(value),
+		Value:  value,
 		Suffix: suffix + "B",
 	}
 }

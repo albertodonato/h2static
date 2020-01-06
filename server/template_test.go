@@ -93,41 +93,48 @@ type GetHumanByteSizeTestSuite struct {
 // The value is converted with bytes.
 func (s *GetHumanByteSizeTestSuite) TestBytes() {
 	info := server.GetHumanByteSize(10)
-	s.Equal(10, info.Value)
+	s.Equal(server.FileSize(10.0), info.Value)
 	s.Equal("B", info.Suffix)
 }
 
 // The value is converted with Kilobytes.
 func (s *GetHumanByteSizeTestSuite) TestKiloBytes() {
 	info := server.GetHumanByteSize(10 * 1024)
-	s.Equal(10, info.Value)
+	s.Equal(server.FileSize(10.0), info.Value)
 	s.Equal("KB", info.Suffix)
 }
 
 // The value is converted with Megabytes.
 func (s *GetHumanByteSizeTestSuite) TestMegaBytes() {
 	info := server.GetHumanByteSize(10 * 1024 * 1024)
-	s.Equal(10, info.Value)
+	s.Equal(server.FileSize(10.0), info.Value)
 	s.Equal("MB", info.Suffix)
 }
 
 // The value is converted with Gigabytes.
 func (s *GetHumanByteSizeTestSuite) TestGigaBytes() {
 	info := server.GetHumanByteSize(10 * 1024 * 1024 * 1024)
-	s.Equal(10, info.Value)
+	s.Equal(server.FileSize(10.0), info.Value)
 	s.Equal("GB", info.Suffix)
 }
 
 // The value is converted with Terabytes.
 func (s *GetHumanByteSizeTestSuite) TestTeraBytes() {
 	info := server.GetHumanByteSize(10 * 1024 * 1024 * 1024 * 1024)
-	s.Equal(10, info.Value)
+	s.Equal(server.FileSize(10.0), info.Value)
 	s.Equal("TB", info.Suffix)
 }
 
 // The value is converted with Petabytes.
 func (s *GetHumanByteSizeTestSuite) TestPetaBytes() {
 	info := server.GetHumanByteSize(10 * 1024 * 1024 * 1024 * 1024 * 1024)
-	s.Equal(10, info.Value)
+	s.Equal(server.FileSize(10.0), info.Value)
+	s.Equal("PB", info.Suffix)
+}
+
+// Decimal part is include
+func (s *GetHumanByteSizeTestSuite) TestWithDecimal() {
+	info := server.GetHumanByteSize(int64(1.5 * 1024 * 1024 * 1024 * 1024 * 1024))
+	s.Equal(server.FileSize(1.5), info.Value)
 	s.Equal("PB", info.Suffix)
 }
