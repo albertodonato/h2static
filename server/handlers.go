@@ -32,30 +32,37 @@ func NewFileHandler(fileSystem FileSystem) *FileHandler {
 
 // ServeHTTP handles a request for the static file serve.
 func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	upath := r.URL.Path
-	if !strings.HasPrefix(upath, "/") {
-		upath = "/" + upath
-		r.URL.Path = upath
+	urlPath := r.URL.Path
+	if !strings.HasPrefix(urlPath, "/") {
+		urlPath = "/" + urlPath
+		r.URL.Path = urlPath
 	}
-	basePath := path.Clean(upath)
-	fullPath, err := filepath.Abs(filepath.Join(f.FileSystem.Root, basePath))
-	if err != nil {
-		writeHTTPError(w, http.StatusInternalServerError)
-		return
-	}
-	pathInfo, err := os.Stat(fullPath)
+	basePath := path.Clean(urlPath)
+	file, err := f.FileSystem.Open(basePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			writeHTTPError(w, http.StatusNotFound)
 		} else {
-			http.Error(w, "Failed getting path info", http.StatusInternalServerError)
+			writeHTTPError(w, http.StatusInternalServerError)
 		}
 		return
 	}
+	pathInfo, err := file.Stat()
+	if err != nil {
+		http.Error(w, "Failed getting path info", http.StatusInternalServerError)
+		return
+	}
+	fullPath := filepath.Join(f.FileSystem.Root, basePath)
+	if strings.HasSuffix(basePath, "/") {
+		// If the original path was for a dir, rebuild the full path as it's
+		// possible that an index file was opened instead.
+		fullPath = filepath.Join(
+			filepath.Dir(strings.TrimSuffix(fullPath, "/")), pathInfo.Name())
+	}
 	if pathInfo.IsDir() {
-		if !strings.HasSuffix(upath, "/") {
+		if !strings.HasSuffix(urlPath, "/") {
 			// always redirect to URL with trailing slash for directories
-			localRedirect(w, r, upath+"/")
+			localRedirect(w, r, urlPath+"/")
 			return
 		}
 		// if found, append the index suffix
