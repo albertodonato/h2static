@@ -1,3 +1,13 @@
+v2.0.0 - 2020-01-06
+===================
+
+* Support for HTTP Basic Authentication (#1)
+* Hide dotfiles by default (togglable via command line option) (#2)
+* Rework directory listing code, add nicer HTML+CSS output (#3)
+* Support JSON output for directory listing (#4)
+* Redirect directory paths without trailing slash to ones with slash (#5)
+
+
 v1.2.0 - 2019-12-29
 ===================
 
