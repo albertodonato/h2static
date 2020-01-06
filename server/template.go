@@ -13,7 +13,7 @@ import (
 )
 
 // template for the directory listing page
-var dirListingTemplateText = `<!doctype html>
+var dirListingTemplateText = `<!DOCTYPE html>
 <html>
   <head>
     <title>{{ .App.Name }} - Directory listing for {{ .Dir.Name }}</title>
