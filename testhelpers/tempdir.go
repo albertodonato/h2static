@@ -48,7 +48,7 @@ func (s *TempDirTestSuite) Stat(name string) os.FileInfo {
 // Mkdir creates a directory, returning the absolute path.
 func (s *TempDirTestSuite) Mkdir(name string) string {
 	path := s.absPath(name)
-	err := os.Mkdir(path, 0644)
+	err := os.Mkdir(path, 0755)
 	s.Nil(err)
 	return path
 }

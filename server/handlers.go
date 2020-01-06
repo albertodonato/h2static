@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"github.com/albertodonato/h2static/version"
@@ -51,13 +50,7 @@ func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed getting path info", http.StatusInternalServerError)
 		return
 	}
-	fullPath := filepath.Join(f.FileSystem.Root, basePath)
-	if strings.HasSuffix(basePath, "/") {
-		// If the original path was for a dir, rebuild the full path as it's
-		// possible that an index file was opened instead.
-		fullPath = filepath.Join(
-			filepath.Dir(strings.TrimSuffix(fullPath, "/")), pathInfo.Name())
-	}
+	fullPath := file.AbsPath
 	if pathInfo.IsDir() {
 		if !strings.HasSuffix(urlPath, "/") {
 			// always redirect to URL with trailing slash for directories

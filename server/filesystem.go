@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -50,7 +51,7 @@ func (fs FileSystem) Open(name string) (*File, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &File{File: file, HideDotFiles: fs.HideDotFiles}, nil
+	return fs.newFile(file, name)
 }
 
 // OpenFile returns a File object for the specified path under the FileSystem
@@ -58,10 +59,27 @@ func (fs FileSystem) Open(name string) (*File, error) {
 func (fs FileSystem) OpenFile(name string) (*File, error) {
 	if file, err := fs.FileSystem.Open(name); err == nil {
 		if fileInfo, err := file.Stat(); err == nil && !fileInfo.IsDir() {
-			return &File{File: file}, nil
+			return fs.newFile(file, name)
 		}
 	}
 	return nil, os.ErrNotExist
+}
+
+func (fs FileSystem) newFile(file http.File, name string) (*File, error) {
+	absPath, err := fs.absPath(name)
+	if err != nil {
+		return nil, err
+	}
+	return &File{
+		File:         file,
+		AbsPath:      absPath,
+		HideDotFiles: fs.HideDotFiles,
+	}, nil
+}
+
+// Return the absolute path of a name under the filesystem.
+func (fs FileSystem) absPath(name string) (string, error) {
+	return filepath.Abs(filepath.Join(fs.Root, name))
 }
 
 // File extends http.File with additional features:
@@ -72,6 +90,7 @@ func (fs FileSystem) OpenFile(name string) (*File, error) {
 type File struct {
 	http.File
 
+	AbsPath      string
 	HideDotFiles bool
 }
 

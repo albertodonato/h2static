@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -21,11 +20,13 @@ type FileSystemTestSuite struct {
 	testhelpers.TempDirTestSuite
 
 	dir http.Dir
+	fs  server.FileSystem
 }
 
 func (s *FileSystemTestSuite) SetupTest() {
 	s.TempDirTestSuite.SetupTest()
 	s.dir = http.Dir(s.TempDir)
+	s.fs = server.NewFileSystem(s.TempDir, true, true)
 }
 
 func (s *FileSystemTestSuite) fileList(file http.File) (names []string) {
@@ -49,8 +50,8 @@ func (s *FileSystemTestSuite) TestNewFileSystem() {
 // The file with .html suffix is returned if present
 func (s *FileSystemTestSuite) TestLookupWithHTMLSuffix() {
 	s.WriteFile("test.html", "foo")
-	fs := server.FileSystem{FileSystem: s.dir, ResolveHTML: true}
-	file, err := fs.Open("/test")
+	s.fs.ResolveHTML = true
+	file, err := s.fs.Open("/test")
 	s.Nil(err)
 	content, err := ioutil.ReadAll(file)
 	s.Nil(err)
@@ -60,8 +61,8 @@ func (s *FileSystemTestSuite) TestLookupWithHTMLSuffix() {
 // The file with .htm suffix is returned if present
 func (s *FileSystemTestSuite) TestLookupWithHTMSuffix() {
 	s.WriteFile("test.htm", "foo")
-	fs := server.FileSystem{FileSystem: s.dir, ResolveHTML: true}
-	file, err := fs.Open("/test")
+	s.fs.ResolveHTML = true
+	file, err := s.fs.Open("/test")
 	s.Nil(err)
 	content, err := ioutil.ReadAll(file)
 	s.Nil(err)
@@ -72,8 +73,8 @@ func (s *FileSystemTestSuite) TestLookupWithHTMSuffix() {
 func (s *FileSystemTestSuite) TestLookupWithHTMLSuffixPreferred() {
 	s.WriteFile("test.html", "with html")
 	s.WriteFile("test.htm", "with htm")
-	fs := server.FileSystem{FileSystem: s.dir, ResolveHTML: true}
-	file, err := fs.Open("/test")
+	s.fs.ResolveHTML = true
+	file, err := s.fs.Open("/test")
 	s.Nil(err)
 	content, err := ioutil.ReadAll(file)
 	s.Nil(err)
@@ -82,12 +83,10 @@ func (s *FileSystemTestSuite) TestLookupWithHTMLSuffixPreferred() {
 
 // The suffix is not added if the name with suffix is a directory
 func (s *FileSystemTestSuite) TestLookupWithSuffixNotIfDirectory() {
-	err := os.Mkdir(filepath.Join(s.TempDir, "test.html"), 0755)
-	s.Nil(err)
-	err = os.Mkdir(filepath.Join(s.TempDir, "test.htm"), 0755)
-	s.Nil(err)
-	fs := server.FileSystem{FileSystem: s.dir, ResolveHTML: true}
-	file, err := fs.Open("/test")
+	s.Mkdir("test.html")
+	s.Mkdir("test.htm")
+	s.fs.ResolveHTML = true
+	file, err := s.fs.Open("/test")
 	s.IsType(&os.PathError{}, err)
 	s.Nil(file)
 }
@@ -96,8 +95,8 @@ func (s *FileSystemTestSuite) TestLookupWithSuffixNotIfDirectory() {
 func (s *FileSystemTestSuite) TestNoLookupWithHTMLSuffix() {
 	s.WriteFile("test.html", "")
 	s.WriteFile("test.htm", "")
-	fs := server.FileSystem{FileSystem: s.dir, ResolveHTML: false}
-	file, err := fs.Open("/test")
+	s.fs.ResolveHTML = false
+	file, err := s.fs.Open("/test")
 	s.IsType(&os.PathError{}, err)
 	s.Nil(file)
 }
@@ -105,8 +104,8 @@ func (s *FileSystemTestSuite) TestNoLookupWithHTMLSuffix() {
 // Files starting with a dot can be hidden.
 func (s *FileSystemTestSuite) TestHideDotFiles() {
 	s.WriteFile(".foo", "")
-	fs := server.FileSystem{FileSystem: s.dir, HideDotFiles: true}
-	file, err := fs.Open("/.foo")
+	s.fs.HideDotFiles = true
+	file, err := s.fs.Open("/.foo")
 	s.IsType(os.ErrNotExist, err)
 	s.Nil(file)
 }
@@ -114,8 +113,8 @@ func (s *FileSystemTestSuite) TestHideDotFiles() {
 // Files starting with a dot can be shown.
 func (s *FileSystemTestSuite) TestShowDotFiles() {
 	s.WriteFile(".foo", "hidden foo")
-	fs := server.FileSystem{FileSystem: s.dir, HideDotFiles: false}
-	file, err := fs.Open("/.foo")
+	s.fs.HideDotFiles = false
+	file, err := s.fs.Open("/.foo")
 	s.Nil(err)
 	content, err := ioutil.ReadAll(file)
 	s.Nil(err)
@@ -128,8 +127,8 @@ func (s *FileSystemTestSuite) TestHideDotFilesListing() {
 	s.WriteFile(".bar", "")
 	s.WriteFile("baz", "")
 	s.WriteFile("bza", "")
-	fs := server.FileSystem{FileSystem: s.dir, HideDotFiles: true}
-	file, err := fs.Open("/")
+	s.fs.HideDotFiles = true
+	file, err := s.fs.Open("/")
 	s.Nil(err)
 	s.Equal([]string{"baz", "bza"}, s.fileList(file))
 }
@@ -138,8 +137,8 @@ func (s *FileSystemTestSuite) TestHideDotFilesListing() {
 func (s *FileSystemTestSuite) TestShowDotFilesListing() {
 	s.WriteFile(".foo", "")
 	s.WriteFile("bar", "")
-	fs := server.FileSystem{FileSystem: s.dir, HideDotFiles: false}
-	file, err := fs.Open("/")
+	s.fs.HideDotFiles = false
+	file, err := s.fs.Open("/")
 	s.Nil(err)
 	s.Equal([]string{".foo", "bar"}, s.fileList(file))
 }
@@ -147,8 +146,8 @@ func (s *FileSystemTestSuite) TestShowDotFilesListing() {
 // OpenFile returns a File if it's not a directory.
 func (s *FileSystemTestSuite) TestOpenFileForFile() {
 	s.WriteFile("foo", "bar")
-	fs := server.FileSystem{FileSystem: s.dir}
-	file, err := fs.OpenFile("/foo")
+	s.fs.HideDotFiles = true
+	file, err := s.fs.OpenFile("/foo")
 	s.Nil(err)
 	content, err := ioutil.ReadAll(file)
 	s.Nil(err)
@@ -157,8 +156,7 @@ func (s *FileSystemTestSuite) TestOpenFileForFile() {
 
 // OpenFile errors if the File is a directory.
 func (s *FileSystemTestSuite) TestOpenFileForDirectory() {
-	fs := server.FileSystem{FileSystem: s.dir}
-	file, err := fs.OpenFile("/")
+	file, err := s.fs.OpenFile("/")
 	s.Nil(file)
 	s.IsType(os.ErrNotExist, err)
 }
