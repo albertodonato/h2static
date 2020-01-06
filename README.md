@@ -7,8 +7,18 @@
 [![Snap Status](https://build.snapcraft.io/badge/albertodonato/h2static.svg)](https://build.snapcraft.io/user/albertodonato/h2static)
 
 
-A minimal HTTP server using the builtin Go `http` library. It supports TLS and
-HTTP/2.
+A minimal HTTP server for serving static files, using the builtin Go `http`
+library.
+
+It provides a few handy features for serving files and static websites:
+
+* support for HTTP/2
+* support for TLS (HTTPS)
+* support for HTTP Basic Authentication
+* directory listing in HTML and JSON format
+* serve `index.html`/`index.htm` files for the contaning directory
+* serve the corresponding `.html`/`.htm` file for a path without the suffix
+  (when such path doesn't exist)
 
 It can be run simply as
 
@@ -16,10 +26,7 @@ It can be run simply as
 go run ./cmd/h2static
 ```
 
-
-## Build
-
-Run
+and built with
 
 ```bash
 go build ./cmd/h2static
@@ -30,8 +37,8 @@ which produces a `h2static` binary.
 
 ## HTTPS support
 
-To run the server on HTTPS, a key/certificate pair is required. The service can
-be run with
+To run the server on HTTPS, a key/certificate pair in PEM format is
+required. The service can be run with
 
 ```bash
 h2static -tls-cert cert.pem -tls-key key.pem
@@ -44,7 +51,7 @@ listing in JSON format by setting the `Accept` header to `application/json` in
 the request:
 
 ```
-$ curl -s -H "Accept: application/json"  http://localhost:8080/ | jq
+$ curl -s -H "Accept: application/json" http://localhost:8080/ | jq
 {
   "Name": "/",
   "IsRoot": true,
