@@ -14,6 +14,7 @@ const helpHeaderTemplate = `
 {{.Name}} {{.Version}} - Tiny static web server with TLS and HTTP/2 support.
 
 Usage of {{.Name}}:
+
 `
 
 // NewStaticServerFromCmdline returns a a StaticServer parsing cmdline args.
@@ -35,6 +36,7 @@ func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.Static
 	fs.Usage = func() {
 		printHeader(fs)
 		fs.PrintDefaults()
+		fs.Output().Write([]byte{'\n'})
 	}
 	if err := fs.Parse(args); err != nil {
 		return nil, err

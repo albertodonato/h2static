@@ -82,6 +82,7 @@ Full usage options are as follows:
 
 ```
 Usage of h2static:
+
   -addr string
         address and port to listen on (default ":8080")
   -basic-auth string
