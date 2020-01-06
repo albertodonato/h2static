@@ -41,21 +41,22 @@ var dirListingTemplateText = `<!DOCTYPE html>
         width: 100%;
       }
       .entry {
-        padding: 0.5em 0;
+        padding: 0.5rem 0;
         display: flex;
         justify-content: space-between;
       }
       .button {
         display: inline-block;
-        margin: 0 0.2em;
-        padding: 1em 0.5em;
+        margin: 0 0.2rem;
+        padding: 1rem 0.5rem;
         font-family: monospace;
         border-width: 1px;
         border-style: solid;
-        border-radius: 0.25em;
+        border-radius: 0.25rem;
         white-space: nowrap;
       }
       a.type-dir-up {
+        flex-grow: 0;
         width: auto;
         background: #6c757d linear-gradient(to bottom, #828a91 0, #6c757d 100%);
         border-color: #6c757d;
@@ -75,14 +76,14 @@ var dirListingTemplateText = `<!DOCTYPE html>
         font-family: monospace;
       }
       .link {
-        width: 70%;
+        flex-grow: 1;
       }
       .size {
-        flex-grow: 1;
         border-color: #777777;
         background-color: white;
         color: #777777;
         text-align: right;
+        width: 11rem;
       }
       .size-suffix {
         display: inline-block;
@@ -111,7 +112,10 @@ var dirListingTemplateText = `<!DOCTYPE html>
           font-size: 16px;
         }
         .button {
-          padding: 0.5em;
+          padding: 0.5rem;
+        }
+        .size {
+          width: 5rem;
         }
       }
     </style>
