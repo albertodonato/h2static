@@ -17,9 +17,8 @@ import (
 // FileHandler is an http.Handler which serves static files under the specified
 // filesystem.
 type FileHandler struct {
-	FileSystem
-
-	template *DirectoryListingTemplate
+	FileSystem FileSystem
+	template   *DirectoryListingTemplate
 }
 
 // NewFileHandler returns a FileHandler for the specified filesystem.
@@ -93,7 +92,7 @@ func (f FileHandler) findIndexSuffix(dirPath string) string {
 	return ""
 }
 
-func (f FileHandler) writeDirListing(w http.ResponseWriter, r *http.Request, path string, dir http.File) {
+func (f FileHandler) writeDirListing(w http.ResponseWriter, r *http.Request, path string, dir *File) {
 	var err error
 	if strings.ToLower(r.Header.Get("Accept")) == "application/json" {
 		err = f.template.RenderJSON(w, path, dir)

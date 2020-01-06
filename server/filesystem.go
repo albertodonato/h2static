@@ -10,8 +10,8 @@ import (
 //
 // - serve .htm(l) files for the corresponding path without suffix, if the
 //  original path is not found
-//
 // - hide dotfiles
+//
 type FileSystem struct {
 	http.FileSystem
 
@@ -32,22 +32,14 @@ func NewFileSystem(root string, resolveHTML bool, hideDotFiles bool) FileSystem 
 
 // Open returns a File object for the specified path under the FileSystem
 // directory.
-func (fs FileSystem) Open(name string) (http.File, error) {
+func (fs FileSystem) Open(name string) (*File, error) {
 	if fs.HideDotFiles && containsDotFile(name) {
 		// Even if the file exists, return 404
 		return nil, os.ErrNotExist
 	}
 
 	file, err := fs.FileSystem.Open(name)
-	if fs.HideDotFiles {
-		file = dotfileHidingFile{file}
-	}
-
-	if !os.IsNotExist(err) || !fs.ResolveHTML {
-		return file, err
-	}
-
-	if !(strings.HasSuffix(name, ".html") || strings.HasSuffix(name, ".htm")) {
+	if os.IsNotExist(err) && fs.ResolveHTML && !(strings.HasSuffix(name, ".html") || strings.HasSuffix(name, ".htm")) {
 		for _, suffix := range []string{".html", ".htm"} {
 			newName := name + suffix
 			if file, err := fs.OpenFile(newName); err == nil {
@@ -55,41 +47,48 @@ func (fs FileSystem) Open(name string) (http.File, error) {
 			}
 		}
 	}
-
-	// return the result of the original call
-	return file, err
+	if err != nil {
+		return nil, err
+	}
+	return &File{File: file, HideDotFiles: fs.HideDotFiles}, nil
 }
 
 // OpenFile returns a File object for the specified path under the FileSystem
 // directory if it esists and it's not a directory.
-func (fs FileSystem) OpenFile(name string) (http.File, error) {
+func (fs FileSystem) OpenFile(name string) (*File, error) {
 	if file, err := fs.FileSystem.Open(name); err == nil {
 		if fileInfo, err := file.Stat(); err == nil && !fileInfo.IsDir() {
-			return file, nil
+			return &File{File: file}, nil
 		}
 	}
 	return nil, os.ErrNotExist
 }
 
-// dotfileHidingFile wraps the Readdir method of http.File so to remove files
-// and directories that start with a period from its output.
-type dotfileHidingFile struct {
+// File extends http.File with additional features:
+//
+// - optionally hide dotfiles from Readdir result
+// - provide the absolute path
+//
+type File struct {
 	http.File
+
+	HideDotFiles bool
 }
 
 // Readdir is a wrapper around the Readdir method of the embedded File that
 // filters out all files that start with a period in their name.
-func (f dotfileHidingFile) Readdir(n int) (fileInfos []os.FileInfo, err error) {
+func (f File) Readdir(n int) ([]os.FileInfo, error) {
 	files, err := f.File.Readdir(n)
 	if err != nil {
-		return
+		return nil, err
 	}
+	fileInfos := []os.FileInfo{}
 	for _, file := range files {
-		if !strings.HasPrefix(file.Name(), ".") {
+		if !(f.HideDotFiles && strings.HasPrefix(file.Name(), ".")) {
 			fileInfos = append(fileInfos, file)
 		}
 	}
-	return
+	return fileInfos, nil
 }
 
 // containsDotFile reports whether name contains a path element starting with a

@@ -19,14 +19,14 @@ func TestDirectoryListingTemplate(t *testing.T) {
 type DirectoryListingTemplateTestSuite struct {
 	testhelpers.TempDirTestSuite
 
-	dir http.File
+	dir *server.File
 }
 
 func (s *DirectoryListingTemplateTestSuite) SetupTest() {
 	s.TempDirTestSuite.SetupTest()
 	dir, err := http.Dir(s.TempDir).Open("/")
 	s.Nil(err)
-	s.dir = dir
+	s.dir = &server.File{File: dir}
 	s.WriteFile("foo", "foo content")
 	s.WriteFile("bar", "bar content")
 	s.Mkdir("baz")

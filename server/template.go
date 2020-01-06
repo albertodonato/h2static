@@ -202,7 +202,7 @@ func NewDirectoryListingTemplate() *DirectoryListingTemplate {
 }
 
 // RenderHTML renders the HTML template for a directory.
-func (t *DirectoryListingTemplate) RenderHTML(w http.ResponseWriter, path string, dir http.File) error {
+func (t *DirectoryListingTemplate) RenderHTML(w http.ResponseWriter, path string, dir *File) error {
 	context, err := t.getTemplateContext(path, dir)
 	if err != nil {
 		return err
@@ -212,7 +212,7 @@ func (t *DirectoryListingTemplate) RenderHTML(w http.ResponseWriter, path string
 }
 
 // RenderJSON returns JSON listing for a directory.
-func (t *DirectoryListingTemplate) RenderJSON(w http.ResponseWriter, path string, dir http.File) error {
+func (t *DirectoryListingTemplate) RenderJSON(w http.ResponseWriter, path string, dir *File) error {
 	context, err := t.getTemplateContext(path, dir)
 	if err != nil {
 		return err
@@ -222,7 +222,7 @@ func (t *DirectoryListingTemplate) RenderJSON(w http.ResponseWriter, path string
 }
 
 // return directory info for the template
-func (t *DirectoryListingTemplate) getTemplateContext(path string, dir http.File) (*templateContext, error) {
+func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File) (*templateContext, error) {
 	pathInfos, err := dir.Readdir(-1)
 	if err != nil {
 		return nil, err
