@@ -41,9 +41,9 @@ func (s *DirectoryListingTemplateTestSuite) TestRenderHTML() {
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
 	content := w.Body.String()
-	s.Contains(content, `<a href="foo" class="button link type-file">foo</a>`)
-	s.Contains(content, `<a href="bar" class="button link type-file">bar</a>`)
-	s.Contains(content, `<a href="baz/" class="button link type-dir">baz/</a>`)
+	s.Contains(content, `<a href="foo" class="button col-name type-file">foo</a>`)
+	s.Contains(content, `<a href="bar" class="button col-name type-file">bar</a>`)
+	s.Contains(content, `<a href="baz/" class="button col-name type-dir">baz/</a>`)
 }
 
 // RenderHTML renders controls for descending sorting.
@@ -55,8 +55,8 @@ func (s *DirectoryListingTemplateTestSuite) TestRenderHTMLSortControlsDesc() {
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
 	content := w.Body.String()
-	s.Contains(content, `<a class="button link sort" href="?c=n&o=d">Name</a>`)
-	s.Contains(content, `<a class="button size sort" href="?c=s&o=d">Size</a>`)
+	s.Contains(content, `<a class="button col-name " href="?c=n&o=d">Name</a>`)
+	s.Contains(content, `<a class="button col-size " href="?c=s&o=d">Size</a>`)
 }
 
 // RenderHTML renders controls for ascending sorting.
@@ -68,8 +68,8 @@ func (s *DirectoryListingTemplateTestSuite) TestRenderHTMLSortControlsAsc() {
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
 	content := w.Body.String()
-	s.Contains(content, `<a class="button link sort" href="?c=n&o=a">Name</a>`)
-	s.Contains(content, `<a class="button size sort" href="?c=s&o=a">Size</a>`)
+	s.Contains(content, `<a class="button col-name " href="?c=n&o=a">Name</a>`)
+	s.Contains(content, `<a class="button col-size " href="?c=s&o=a">Size</a>`)
 }
 
 // RenderJSON renders JSON listing.
