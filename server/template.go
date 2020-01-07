@@ -32,28 +32,23 @@ var dirListingTemplateText = `<!DOCTYPE html>
     </header>
     <main>
       <section class="listing">
-        <div class="entry">
-          {{- if .Sort.Asc -}}
-          <a class="button link sort" href="?c=n&o=d">Name{{ if eq .Sort.Column "n" }} &#x25B2;{{ end }}</a>
-          <a class="button size sort" href="?c=s&o=d">{{ if eq .Sort.Column "s" }}&#x25B2; {{ end }}Size</a>
-          {{- else -}}
-          <a class="button link sort" href="?c=n&o=a">Name{{ if eq .Sort.Column "n" }} &#x25BC;{{ end }}</a>
-          <a class="button size sort" href="?c=s&o=a">{{ if eq .Sort.Column "s" }}&#x25BC; {{ end }}Size</a>
-          {{- end -}}
+        <div class="entry sort sort-{{- if .Sort.Asc }}asc{{ else }}desc{{ end -}}">
+          <a class="button col-name {{ if eq .Sort.Column "n" }}sorted{{ end -}}" href="?c=n&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Name</a>
+          <a class="button col-size {{ if eq .Sort.Column "s" }}sorted{{ end -}}" href="?c=s&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Size</a>
         </div>
         {{- if not .Dir.IsRoot -}}
         <div class="entry">
-          <a href=".." class="button link type-dir-up">..</a>
+          <a href=".." class="button col-name type-dir-up">..</a>
         </div>
         {{- end -}}
         {{- range .Dir.Entries -}}
         <div class="entry">
           {{ if .IsDir -}}
-            <a href="{{ .Name }}/" class="button link type-dir">{{ .Name }}/</a>
+            <a href="{{ .Name }}/" class="button col-name type-dir">{{ .Name }}/</a>
           {{- else -}}
-            <a href="{{ .Name }}" class="button link type-file">{{ .Name }}</a>
+            <a href="{{ .Name }}" class="button col-name type-file">{{ .Name }}</a>
           {{- end }}
-          <span class="button size">
+          <span class="button col-size">
             {{ .HumanSize.Value -}}
             <span class="size-suffix">{{ .HumanSize.Suffix }}</span>
           </span>

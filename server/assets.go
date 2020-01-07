@@ -94,24 +94,33 @@ a.type-dir {
   color: white;
 }
 a.type-file {
-
   background: #dddddd linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
   border-color: #dddddd;
   color: #515151;
 }
-a.sort {
+.sort a {
   background: #6c757d linear-gradient(to bottom, #828a91 0, #6c757d 100%);
   border-color: #6c757d;
   color: white;
   font-size: 80%;
 }
+.sort-asc .col-name.sorted::after,
+.sort-asc .col-size.sorted::before {
+  margin: 0 0.5em;
+  content: "\0025B2";
+}
+.sort-desc .col-name.sorted::after,
+.sort-desc .col-size.sorted::before {
+  margin: 0 0.5em;
+  content: "\0025BC";
+}
 .path {
   font-family: monospace;
 }
-.link {
+.col-name {
   flex-grow: 1;
 }
-.size {
+.col-size {
   border-color: #777777;
   background-color: white;
   color: #777777;
@@ -151,7 +160,7 @@ a.powered-by:hover {
   .button {
     padding: 0.5rem;
   }
-  .size {
+  .col-size {
     width: 5rem;
   }
 }
