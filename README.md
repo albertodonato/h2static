@@ -67,7 +67,7 @@ $ curl -s -H "Accept: application/json" http://localhost:8080/ | jq
       "Size": 6
     },
     {
-      "Name": "subdir/",
+      "Name": "subdir",
       "IsDir": true,
       "Size": 0
     }
