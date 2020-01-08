@@ -1,3 +1,11 @@
+v2.1.0 - 2020-01-08
+===================
+
+* Suport directory listing sorting by name or size
+* Serve CSS and SVG logo as separate assets
+* Log handler errors on 500 responses (#6)
+
+
 v2.0.0 - 2020-01-06
 ===================
 
