@@ -2,17 +2,13 @@ package main_test
 
 import (
 	"flag"
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
 	"github.com/albertodonato/h2static/cmd/h2static"
+	"github.com/albertodonato/h2static/testhelpers"
 )
-
-func TestH2Static(t *testing.T) {
-	suite.Run(t, new(H2StaticTestSuite))
-}
 
 // A writer that collects the content
 type collectWriter struct {
@@ -28,45 +24,64 @@ func (l collectWriter) Output() string {
 	return string(l.content)
 }
 
-type H2StaticTestSuite struct {
-	suite.Suite
-
-	logger *log.Logger
+func TestH2Static(t *testing.T) {
+	suite.Run(t, new(H2StaticTestSuite))
 }
 
-func (s *H2StaticTestSuite) SetupSuite() {
-	s.logger = log.New(&collectWriter{}, "", 0)
+type H2StaticTestSuite struct {
+	testhelpers.TempDirTestSuite
+
+	flagSet *flag.FlagSet
+	writer  *collectWriter
+}
+
+func (s *H2StaticTestSuite) SetupTest() {
+	s.TempDirTestSuite.SetupTest()
+
+	s.flagSet = flag.NewFlagSet("test", flag.ContinueOnError)
+	s.writer = &collectWriter{}
+	s.flagSet.SetOutput(s.writer)
 }
 
 // NewStaticServerFromCmdline parses commandline options and returns a
 // configured server.
 func (s *H2StaticTestSuite) TestNewStaticServerFromCmdline() {
-	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
+	passwdPath := s.WriteFile("passwords.txt", "some:password")
+	certPath := s.WriteFile("crt.pem", "cert")
+	keyPath := s.WriteFile("key.pem", "key")
+	dirPath := s.Mkdir("dir")
+
 	server, err := main.NewStaticServerFromCmdline(
-		flagSet,
+		s.flagSet,
 		[]string{
-			"-addr", ":9090", "-basic-auth", "passwords", "-dir", "somedir",
+			"-addr", ":9090", "-basic-auth", passwdPath, "-dir", dirPath,
 			"-disable-lookup-with-suffix", "-disable-h2", "-show-dotfiles",
-			"-log", "-tls-cert", "crt", "-tls-key", "key"})
+			"-log", "-tls-cert", certPath, "-tls-key", keyPath})
 	s.Nil(err)
 	s.Equal(":9090", server.Addr)
-	s.Equal("passwords", server.PasswordFile)
-	s.Equal("somedir", server.Dir)
+	s.Equal(passwdPath, server.PasswordFile)
+	s.Equal(dirPath, server.Dir)
 	s.True(server.DisableH2)
 	s.True(server.DisableLookupWithSuffix)
 	s.True(server.ShowDotFiles)
 	s.True(server.Log)
-	s.Equal("crt", server.TLSCert)
-	s.Equal("key", server.TLSKey)
+	s.Equal(certPath, server.TLSCert)
+	s.Equal(keyPath, server.TLSKey)
+}
+
+// Config options are validated and error returned on invalid paths.
+func (s *H2StaticTestSuite) TestValidateConfig() {
+	server, err := main.NewStaticServerFromCmdline(
+		s.flagSet, []string{"-dir", "/not/here"})
+	s.Nil(server)
+	s.NotNil(err)
+	s.Contains(err.Error(), "/not/here: no such file or directory")
 }
 
 // newStaticServerFromCmdline prints help text.
 func (s *H2StaticTestSuite) TestParseFlagsHelp() {
-	flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
-	writer := &collectWriter{}
-	flagSet.SetOutput(writer)
-	_, err := main.NewStaticServerFromCmdline(flagSet, []string{"-h"})
+	_, err := main.NewStaticServerFromCmdline(s.flagSet, []string{"-h"})
 	s.Equal(flag.ErrHelp, err)
 	s.Contains(
-		writer.Output(), "Tiny static web server with TLS and HTTP/2 support.")
+		s.writer.Output(), "Tiny static web server with TLS and HTTP/2 support.")
 }

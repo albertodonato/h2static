@@ -27,7 +27,7 @@ func loadCredentials(path string) (map[string]string, error) {
 		if len(tokens) != 2 {
 			absPath, err := filepath.Abs(path)
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
 			log.Printf("Skipping invalid credentials at %s:%d", absPath, lineNum)
 			continue

@@ -41,6 +41,9 @@ func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.Static
 	if err := fs.Parse(args); err != nil {
 		return nil, err
 	}
+	if err := s.ValidateConfig(); err != nil {
+		return nil, err
+	}
 	return s, nil
 }
 

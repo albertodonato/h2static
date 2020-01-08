@@ -2,8 +2,10 @@ package server
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/albertodonato/h2static/version"
@@ -22,13 +24,35 @@ type StaticServer struct {
 	TLSKey                  string
 }
 
+// ValidateConfig validates the StaticServer configuration
+func (s StaticServer) ValidateConfig() error {
+	if err := checkFile(s.Dir, true); err != nil {
+		return err
+	}
+
+	if s.IsHTTPS() {
+		for _, path := range []string{s.TLSCert, s.TLSKey} {
+			if err := checkFile(path, false); err != nil {
+				return err
+			}
+		}
+	}
+	if s.PasswordFile != "" {
+		if err := checkFile(s.PasswordFile, false); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // IsHTTPS returns whether HTTPS is enabled.
 func (s StaticServer) IsHTTPS() bool {
 	return s.TLSCert != "" && s.TLSKey != ""
 }
 
 // getServer returns a configured server.
-func (s StaticServer) getServer() *http.Server {
+func (s StaticServer) getServer() (*http.Server, error) {
 	fileSystem := NewFileSystem(
 		s.Dir, !s.DisableLookupWithSuffix, !s.ShowDotFiles)
 	mux := http.NewServeMux()
@@ -42,7 +66,7 @@ func (s StaticServer) getServer() *http.Server {
 	if s.PasswordFile != "" {
 		credentials, err := loadCredentials(s.PasswordFile)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		handler = &BasicAuthHandler{
 			Handler:     handler,
@@ -66,14 +90,17 @@ func (s StaticServer) getServer() *http.Server {
 		Addr:         s.Addr,
 		Handler:      handler,
 		TLSNextProto: tlsNextProto,
-	}
+	}, nil
 }
 
 // Run starts the server.
 func (s StaticServer) Run() error {
 	var err error
 
-	server := s.getServer()
+	server, err := s.getServer()
+	if err != nil {
+		return err
+	}
 	isHTTPS := s.IsHTTPS()
 	if s.Log {
 		kind := "HTTP"
@@ -93,4 +120,19 @@ func (s StaticServer) Run() error {
 		err = server.ListenAndServe()
 	}
 	return err
+}
+
+func checkFile(path string, asDir bool) error {
+	info, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	isDir := info.IsDir()
+	if asDir && !isDir {
+		return fmt.Errorf("not a directory: %s", path)
+	}
+	if !asDir && isDir {
+		return fmt.Errorf("is a directory: %s", path)
+	}
+	return nil
 }
