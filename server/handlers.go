@@ -41,13 +41,13 @@ func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if os.IsNotExist(err) {
 			writeHTTPError(w, http.StatusNotFound)
 		} else {
-			writeHTTPError(w, http.StatusInternalServerError)
+			writeServerError(w, err)
 		}
 		return
 	}
 	pathInfo, err := file.Stat()
 	if err != nil {
-		http.Error(w, "Failed getting path info", http.StatusInternalServerError)
+		writeServerError(w, err)
 		return
 	}
 	fullPath := file.AbsPath
@@ -63,7 +63,7 @@ func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// no index found, list directory content
 			file, err := f.FileSystem.Open(basePath)
 			if err != nil {
-				writeHTTPError(w, http.StatusInternalServerError)
+				writeServerError(w, err)
 				return
 			}
 			f.writeDirListing(w, r, basePath, file)
@@ -101,7 +101,7 @@ func (f FileHandler) writeDirListing(w http.ResponseWriter, r *http.Request, pat
 		err = f.template.RenderHTML(w, path, dir, sortColumn, sortAsc)
 	}
 	if err != nil {
-		http.Error(w, "Error listing directory", http.StatusInternalServerError)
+		writeServerError(w, err)
 		return
 	}
 }
@@ -214,6 +214,11 @@ func (h AssetsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func writeHTTPError(w http.ResponseWriter, code int) {
 	http.Error(w, fmt.Sprintf("%d %s", code, http.StatusText(code)), code)
+}
+
+func writeServerError(w http.ResponseWriter, err error) {
+	log.Printf("Error: %v", err)
+	writeHTTPError(w, http.StatusInternalServerError)
 }
 
 // localRedirect gives a Moved Permanently response.  It does not convert

@@ -52,6 +52,7 @@ func printHeader(fs *flag.FlagSet) {
 }
 
 func main() {
+	log.SetPrefix(version.App.Name + " ")
 	server, err := NewStaticServerFromCmdline(flag.CommandLine, os.Args[1:])
 	if err != nil {
 		log.Fatal(err)
