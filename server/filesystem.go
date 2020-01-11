@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,20 +15,20 @@ import (
 // - hide dotfiles
 //
 type FileSystem struct {
-	http.FileSystem
-
 	ResolveHTML  bool
 	HideDotFiles bool
 	Root         string
+
+	fs http.FileSystem
 }
 
 // NewFileSystem returns a FileSystem with the specified configuration.
 func NewFileSystem(root string, resolveHTML bool, hideDotFiles bool) FileSystem {
 	return FileSystem{
-		FileSystem:   http.Dir(root),
 		ResolveHTML:  resolveHTML,
 		HideDotFiles: hideDotFiles,
 		Root:         string(http.Dir(root)),
+		fs:           http.Dir(root),
 	}
 }
 
@@ -39,7 +40,7 @@ func (fs FileSystem) Open(name string) (*File, error) {
 		return nil, os.ErrNotExist
 	}
 
-	file, err := fs.FileSystem.Open(name)
+	_, err := fs.fs.Open(name)
 	if os.IsNotExist(err) && fs.ResolveHTML && !(strings.HasSuffix(name, ".html") || strings.HasSuffix(name, ".htm")) {
 		for _, suffix := range []string{".html", ".htm"} {
 			newName := name + suffix
@@ -51,30 +52,26 @@ func (fs FileSystem) Open(name string) (*File, error) {
 	if err != nil {
 		return nil, err
 	}
-	return fs.newFile(file, name)
+	return fs.newFile(name)
 }
 
 // OpenFile returns a File object for the specified path under the FileSystem
 // directory if it esists and it's not a directory.
 func (fs FileSystem) OpenFile(name string) (*File, error) {
-	if file, err := fs.FileSystem.Open(name); err == nil {
+	if file, err := fs.fs.Open(name); err == nil {
 		if fileInfo, err := file.Stat(); err == nil && !fileInfo.IsDir() {
-			return fs.newFile(file, name)
+			return fs.newFile(name)
 		}
 	}
 	return nil, os.ErrNotExist
 }
 
-func (fs FileSystem) newFile(file http.File, name string) (*File, error) {
+func (fs FileSystem) newFile(name string) (*File, error) {
 	absPath, err := fs.absPath(name)
 	if err != nil {
 		return nil, err
 	}
-	return &File{
-		File:         file,
-		AbsPath:      absPath,
-		HideDotFiles: fs.HideDotFiles,
-	}, nil
+	return NewFile(absPath, fs.HideDotFiles)
 }
 
 // Return the absolute path of a name under the filesystem.
@@ -82,32 +79,77 @@ func (fs FileSystem) absPath(name string) (string, error) {
 	return filepath.Abs(filepath.Join(fs.Root, name))
 }
 
-// File extends http.File with additional features:
+// File is an entry of a  FileSystem entry.
 //
-// - optionally hide dotfiles from Readdir result
-// - provide the absolute path
-//
+// If the entry is a directory and the filesystem is configured to hide
+// dotfiles, the directory will also not list dotfiles under it.
 type File struct {
-	http.File
+	Info os.FileInfo
 
-	AbsPath      string
-	HideDotFiles bool
+	absPath      string
+	hideDotFiles bool
 }
 
-// Readdir is a wrapper around the Readdir method of the embedded File that
-// filters out all files that start with a period in their name.
-func (f File) Readdir(n int) ([]os.FileInfo, error) {
-	files, err := f.File.Readdir(n)
+// NewFile returns a File for an absolute path.
+func NewFile(absPath string, hideDotFiles bool) (*File, error) {
+	info, err := os.Stat(absPath)
 	if err != nil {
 		return nil, err
 	}
-	fileInfos := []os.FileInfo{}
-	for _, file := range files {
-		if !(f.HideDotFiles && strings.HasPrefix(file.Name(), ".")) {
-			fileInfos = append(fileInfos, file)
-		}
+	return &File{
+		Info:         info,
+		absPath:      absPath,
+		hideDotFiles: hideDotFiles,
+	}, nil
+}
+
+// AbsPath returns the absolute path of the File.
+func (f File) AbsPath() string {
+	return f.absPath
+}
+
+// Readdir files in the directory, excluding special files and optionally
+// hidden files (that start with a dot).
+func (f File) Readdir() ([]*File, error) {
+	file, err := os.Open(f.absPath)
+	if err != nil {
+		return nil, err
 	}
-	return fileInfos, nil
+	// don't use Readdir to get the FileInfo since it doesn't resolve
+	// symlinks. We want the FileInfo to be the one of the symlink target
+	// (hence the use of os.Stat below).
+	names, err := file.Readdirnames(-1)
+	if err != nil {
+		return nil, err
+	}
+	files := []*File{}
+	for _, name := range names {
+		info, err := os.Stat(filepath.Join(f.absPath, name))
+		if err != nil {
+			log.Printf("%v", err)
+			continue
+		}
+		name := info.Name()
+		if f.hideDotFiles && strings.HasPrefix(name, ".") {
+			continue
+		}
+		mode := info.Mode()
+		if !(mode.IsDir() || mode.IsRegular()) {
+			continue
+		}
+		file, err := f.newFile(name)
+		if err != nil {
+			log.Printf("%v", err)
+			continue
+		}
+		files = append(files, file)
+	}
+	return files, nil
+}
+
+func (f File) newFile(name string) (*File, error) {
+	absPath := filepath.Join(f.AbsPath(), name)
+	return NewFile(absPath, f.hideDotFiles)
 }
 
 // containsDotFile reports whether name contains a path element starting with a

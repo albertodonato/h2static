@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
+	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -29,19 +31,26 @@ func (s *FileSystemTestSuite) SetupTest() {
 	s.fs = server.NewFileSystem(s.TempDir, true, true)
 }
 
-func (s *FileSystemTestSuite) fileList(file http.File) (names []string) {
-	fileInfos, err := file.Readdir(-1)
-	for _, fileInfo := range fileInfos {
-		names = append(names, fileInfo.Name())
-	}
+func (s *FileSystemTestSuite) readFile(file *server.File) string {
+	f, err := os.Open(file.AbsPath())
 	s.Nil(err)
+	content, err := ioutil.ReadAll(f)
+	s.Nil(err)
+	return string(content)
+}
+
+func (s *FileSystemTestSuite) fileList(file *server.File) (names []string) {
+	files, err := file.Readdir()
+	s.Nil(err)
+	for _, file := range files {
+		names = append(names, file.Info.Name())
+	}
 	return
 }
 
 // NewFileSystem returns a new filesystem.
 func (s *FileSystemTestSuite) TestNewFileSystem() {
 	fs := server.NewFileSystem("/some/dir", true, true)
-	s.Equal(http.Dir("/some/dir"), fs.FileSystem)
 	s.Equal("/some/dir", fs.Root)
 	s.True(fs.ResolveHTML)
 	s.True(fs.HideDotFiles)
@@ -53,9 +62,7 @@ func (s *FileSystemTestSuite) TestLookupWithHTMLSuffix() {
 	s.fs.ResolveHTML = true
 	file, err := s.fs.Open("/test")
 	s.Nil(err)
-	content, err := ioutil.ReadAll(file)
-	s.Nil(err)
-	s.Equal([]byte("foo"), content)
+	s.Equal("foo", s.readFile(file))
 }
 
 // The file with .htm suffix is returned if present
@@ -64,9 +71,8 @@ func (s *FileSystemTestSuite) TestLookupWithHTMSuffix() {
 	s.fs.ResolveHTML = true
 	file, err := s.fs.Open("/test")
 	s.Nil(err)
-	content, err := ioutil.ReadAll(file)
-	s.Nil(err)
-	s.Equal([]byte("foo"), content)
+	s.Equal("foo", s.readFile(file))
+
 }
 
 // The file with .html suffix is preferred over the .htm one if both are present
@@ -76,9 +82,7 @@ func (s *FileSystemTestSuite) TestLookupWithHTMLSuffixPreferred() {
 	s.fs.ResolveHTML = true
 	file, err := s.fs.Open("/test")
 	s.Nil(err)
-	content, err := ioutil.ReadAll(file)
-	s.Nil(err)
-	s.Equal([]byte("with html"), content)
+	s.Equal("with html", s.readFile(file))
 }
 
 // The suffix is not added if the name with suffix is a directory
@@ -116,9 +120,7 @@ func (s *FileSystemTestSuite) TestShowDotFiles() {
 	s.fs.HideDotFiles = false
 	file, err := s.fs.Open("/.foo")
 	s.Nil(err)
-	content, err := ioutil.ReadAll(file)
-	s.Nil(err)
-	s.Equal([]byte("hidden foo"), content)
+	s.Equal("hidden foo", s.readFile(file))
 }
 
 // Files starting with a dot can be hidden from listing.
@@ -143,15 +145,54 @@ func (s *FileSystemTestSuite) TestShowDotFilesListing() {
 	s.Equal([]string{".foo", "bar"}, s.fileList(file))
 }
 
+// Symlinks are reported as files or directories based on the target.
+func (s *FileSystemTestSuite) TestListingWithSymlinks() {
+	s.WriteFile("foo", "")
+	s.Mkdir("bar")
+	s.Symlink("foo", "new-foo")
+	s.Symlink("bar", "new-bar")
+	file, err := s.fs.Open("/")
+	s.Nil(err)
+	files, err := file.Readdir()
+	s.Nil(err)
+	type detail struct {
+		name  string
+		isdir bool
+	}
+	details := []detail{}
+	for _, file := range files {
+		details = append(details, detail{
+			name:  file.Info.Name(),
+			isdir: file.Info.IsDir(),
+		})
+	}
+	s.Equal(
+		[]detail{
+			{name: "foo", isdir: false},
+			{name: "bar", isdir: true},
+			{name: "new-foo", isdir: false},
+			{name: "new-bar", isdir: true},
+		}, details)
+}
+
+// Special files are not included in listing.
+func (s *FileSystemTestSuite) TestListingIgnoreSpecial() {
+	fifoPath := filepath.Join(s.TempDir, "fifo")
+	s.Nil(syscall.Mkfifo(fifoPath, 0644))
+	file, err := s.fs.Open("/")
+	s.Nil(err)
+	files, err := file.Readdir()
+	s.Nil(err)
+	s.Equal([]*server.File{}, files)
+}
+
 // OpenFile returns a File if it's not a directory.
 func (s *FileSystemTestSuite) TestOpenFileForFile() {
 	s.WriteFile("foo", "bar")
 	s.fs.HideDotFiles = true
 	file, err := s.fs.OpenFile("/foo")
 	s.Nil(err)
-	content, err := ioutil.ReadAll(file)
-	s.Nil(err)
-	s.Equal([]byte("bar"), content)
+	s.Equal("bar", s.readFile(file))
 }
 
 // OpenFile errors if the File is a directory.
@@ -159,4 +200,18 @@ func (s *FileSystemTestSuite) TestOpenFileForDirectory() {
 	file, err := s.fs.OpenFile("/")
 	s.Nil(file)
 	s.IsType(os.ErrNotExist, err)
+}
+
+func TestFile(t *testing.T) {
+	suite.Run(t, new(FileTestSuite))
+}
+
+type FileTestSuite struct {
+	testhelpers.TempDirTestSuite
+}
+
+func (s *FileTestSuite) TestNewFile() {
+	f, err := server.NewFile(s.TempDir, true)
+	s.Nil(err)
+	s.Equal(s.TempDir, f.AbsPath())
 }

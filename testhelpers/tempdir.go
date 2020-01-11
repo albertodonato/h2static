@@ -53,6 +53,16 @@ func (s *TempDirTestSuite) Mkdir(name string) string {
 	return path
 }
 
+// Symlink creates a symbolic link to oldname returning the absolute path of
+// the new name. Both paths are relative to the tempdir path.
+func (s *TempDirTestSuite) Symlink(oldname, newname string) string {
+	oldPath := s.absPath(oldname)
+	newPath := s.absPath(newname)
+	err := os.Symlink(oldPath, newPath)
+	s.Nil(err)
+	return newPath
+}
+
 // RemoveAll removes the path and everything under it.
 func (s *TempDirTestSuite) RemoveAll(name string) {
 	path := s.absPath(name)

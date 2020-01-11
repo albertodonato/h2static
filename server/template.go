@@ -143,7 +143,7 @@ func (t *DirectoryListingTemplate) RenderJSON(w http.ResponseWriter, path string
 
 // return directory info for the template
 func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, sortColumn string, sortAsc bool) (*templateContext, error) {
-	pathInfos, err := dir.Readdir(-1)
+	files, err := dir.Readdir()
 	if err != nil {
 		return nil, err
 	}
@@ -151,22 +151,22 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, so
 	var sortFunc func(int, int) bool
 	if sortColumn == "s" { // sort by size
 		sortFunc = func(i, j int) bool {
-			return pathInfos[i].Size() < pathInfos[j].Size()
+			return files[i].Info.Size() < files[j].Info.Size()
 		}
 	} else { // sort by name
 		sortFunc = func(i, j int) bool {
-			return strings.ToLower(pathInfos[i].Name()) < strings.ToLower(pathInfos[j].Name())
+			return strings.ToLower(files[i].Info.Name()) < strings.ToLower(files[j].Info.Name())
 		}
 	}
 
-	sort.Slice(pathInfos, func(i, j int) bool { return sortFunc(i, j) == sortAsc })
+	sort.Slice(files, func(i, j int) bool { return sortFunc(i, j) == sortAsc })
 	entries := []DirEntryInfo{}
-	for _, p := range pathInfos {
-		name := string(template.URL(p.Name()))
-		size := p.Size()
+	for _, f := range files {
+		name := string(template.URL(f.Info.Name()))
+		size := f.Info.Size()
 		entries = append(entries, DirEntryInfo{
 			Name:      name,
-			IsDir:     p.IsDir(),
+			IsDir:     f.Info.IsDir(),
 			Size:      size,
 			HumanSize: getHumanByteSize(size),
 		})

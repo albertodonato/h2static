@@ -45,13 +45,8 @@ func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	pathInfo, err := file.Stat()
-	if err != nil {
-		writeServerError(w, err)
-		return
-	}
-	fullPath := file.AbsPath
-	if pathInfo.IsDir() {
+	fullPath := file.AbsPath()
+	if file.Info.IsDir() {
 		if !strings.HasSuffix(urlPath, "/") {
 			// always redirect to URL with trailing slash for directories
 			localRedirect(w, r, urlPath+"/")

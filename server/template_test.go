@@ -24,9 +24,10 @@ type DirectoryListingTemplateTestSuite struct {
 
 func (s *DirectoryListingTemplateTestSuite) SetupTest() {
 	s.TempDirTestSuite.SetupTest()
-	dir, err := http.Dir(s.TempDir).Open("/")
+	fs := server.NewFileSystem(s.TempDir, true, true)
+	dir, err := fs.Open("/")
 	s.Nil(err)
-	s.dir = &server.File{File: dir}
+	s.dir = dir
 	s.WriteFile("foo", "foo content")
 	s.WriteFile("bar", "bar content")
 	s.Mkdir("baz")
