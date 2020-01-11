@@ -1,3 +1,9 @@
+v2.1.1 - 2020-01-11
+===================
+
+* Add command options validation for paths, return errors instead of panicking
+  on invalid configurations (#7)
+
 v2.1.0 - 2020-01-08
 ===================
 
