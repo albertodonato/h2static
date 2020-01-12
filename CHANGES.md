@@ -1,8 +1,16 @@
+v2.2.0 - 2020-01-13
+===================
+
+* Report symlinks as files/directories based on the type of the target (#8)
+* Don't follow symlinks outside of the base directory, add option to allow it
+
+
 v2.1.1 - 2020-01-11
 ===================
 
 * Add command options validation for paths, return errors instead of panicking
   on invalid configurations (#7)
+
 
 v2.1.0 - 2020-01-08
 ===================
@@ -27,6 +35,7 @@ v1.2.0 - 2019-12-29
 
 * When a path without `.htm(l)` suffix is requrested, if it doesn't exist but a
   file with the suffix exists, serve that file instead
+
 
 v1.1.0 - 2019-07-01
 ===================
