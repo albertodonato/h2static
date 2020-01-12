@@ -40,6 +40,8 @@ func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			writeHTTPError(w, http.StatusNotFound)
+		} else if os.IsPermission(err) {
+			writeHTTPError(w, http.StatusForbidden)
 		} else {
 			writeServerError(w, err)
 		}
