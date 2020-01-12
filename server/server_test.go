@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -88,7 +89,7 @@ func (s *ServerTestSuite) TestEnableTLSTrue() {
 	tlsCert := s.WriteFile("cert.pem", "cert")
 	tlsKey := s.WriteFile("key.pem", "key")
 	serv, err := server.NewStaticServer(server.StaticServerConfig{
-		Dir: s.TempDir,
+		Dir:     s.TempDir,
 		TLSCert: tlsCert,
 		TLSKey:  tlsKey,
 	})
@@ -104,7 +105,8 @@ func (s *ServerTestSuite) TestEnableTLSFalse() {
 
 // getServer returns static file handlers for a path.
 func (s *ServerTestSuite) TestGetServerDefaultStaticServe() {
-	serv := &server.StaticServer{}
+	serv, err := server.NewStaticServer(server.StaticServerConfig{})
+	s.Nil(err)
 	httpServer, err := server.GetServer(serv)
 	s.Nil(err)
 	s.Nil(httpServer.TLSNextProto)
@@ -114,7 +116,9 @@ func (s *ServerTestSuite) TestGetServerDefaultStaticServe() {
 	fh, pattern := mux.Handler(httptest.NewRequest("GET", "/foo", nil))
 	s.Equal("/", pattern)
 	s.IsType(&server.FileHandler{}, fh)
-	s.IsType(".", fh.(*server.FileHandler).FileSystem.Root)
+	curdir, err := os.Getwd()
+	s.Nil(err)
+	s.Equal(curdir, fh.(*server.FileHandler).FileSystem.Root)
 }
 
 // getServer returns a configured http.Server with the specified dir
@@ -126,7 +130,22 @@ func (s *ServerTestSuite) TestSetupServerSpecifyDir() {
 	h := httpServer.Handler.(*server.CommonHeadersHandler)
 	mux := h.Handler.(*http.ServeMux)
 	fh, _ := mux.Handler(httptest.NewRequest("GET", "/foo", nil))
-	s.IsType(s.TempDir, fh.(*server.FileHandler).FileSystem.Root)
+	s.Equal(s.TempDir, fh.(*server.FileHandler).FileSystem.Root)
+}
+
+// getServer returns a configured http.Server which allows outside symlink access
+func (s *ServerTestSuite) TestSetupServerSpecifyAllowOutsideSymlinks() {
+	serv, err := server.NewStaticServer(server.StaticServerConfig{
+		Dir:                  s.TempDir,
+		AllowOutsideSymlinks: true,
+	})
+	s.Nil(err)
+	httpServer, err := server.GetServer(serv)
+	s.Nil(err)
+	h := httpServer.Handler.(*server.CommonHeadersHandler)
+	mux := h.Handler.(*http.ServeMux)
+	fh, _ := mux.Handler(httptest.NewRequest("GET", "/foo", nil))
+	s.True(fh.(*server.FileHandler).FileSystem.AllowOutsideSymlinks)
 }
 
 // getServer returns a configured http.Server with logging
@@ -145,7 +164,7 @@ func (s *ServerTestSuite) TestSetupServerLog() {
 // getServer returns a configured http.Server without HTTP/2
 func (s *ServerTestSuite) TestSetupServerNoH2() {
 	serv, err := server.NewStaticServer(server.StaticServerConfig{
-		Dir: s.TempDir,
+		Dir:       s.TempDir,
 		DisableH2: true,
 	})
 	s.Nil(err)
@@ -158,7 +177,7 @@ func (s *ServerTestSuite) TestSetupServerNoH2() {
 func (s *ServerTestSuite) TestSetupServerBasicAuth() {
 	absPath := s.WriteFile("basic-auth", "")
 	serv, err := server.NewStaticServer(server.StaticServerConfig{
-		Dir: s.TempDir,
+		Dir:          s.TempDir,
 		PasswordFile: absPath,
 	})
 	s.Nil(err)

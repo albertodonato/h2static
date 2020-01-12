@@ -11,6 +11,11 @@ description: |
 
   The daemon is configured with the following options:
 
+  * `allow-outside-symlinks`
+
+    allow access to symlinks whose target is outside of the `serve-path`. This
+    is disabled by default since it might be a security issue.
+
   * `basic-auth`
 
     content of the crednetials file for Basic Authorization. Each line should contain

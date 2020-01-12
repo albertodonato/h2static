@@ -22,9 +22,15 @@ fi
 dir=$(option_get serve-path "$SNAP_COMMON")
 
 # handle boolean options
+declare -a bool_opts=(
+    allow-outside-symlinks
+    disable-h2
+    disable-lookup-with-suffix
+    show-dotfiles
+)
 opts=""
-for option in disable-h2 disable-lookup-with-suffix show-dotfiles; do
-    if [ "$(option_get $option)" = "true" ]; then
+for option in "${bool_opts[@]}"; do
+    if [ "$(option_get "$option")" = "true" ]; then
         opts="$opts -${option}"
     fi
 done

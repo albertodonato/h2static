@@ -99,6 +99,28 @@ func (s *FileSystemTestSuite) TestNoLookupWithHTMLSuffix() {
 	s.Nil(file)
 }
 
+// By default symlinks outside the filesystem root are not accessible.
+func (s *FileSystemTestSuite) TestNoOutsideSymlink() {
+	s.WriteFile("foo", "content")
+	root := s.Mkdir("root")
+	s.Symlink("foo", "root/foo-link")
+	fs := server.FileSystem{Root: root}
+	file, err := fs.Open("/foo-link")
+	s.IsType(os.ErrPermission, err)
+	s.Nil(file)
+}
+
+// If enabled, symlinks outside the filesystem root are accessible.
+func (s *FileSystemTestSuite) TestOutsideSymlinks() {
+	s.WriteFile("foo", "content")
+	root := s.Mkdir("root")
+	s.Symlink("foo", "root/foo-link")
+	fs := server.FileSystem{Root: root, AllowOutsideSymlinks: true}
+	file, err := fs.Open("/foo-link")
+	s.Nil(err)
+	s.Equal("content", s.readFile(file))
+}
+
 // Files starting with a dot can be hidden.
 func (s *FileSystemTestSuite) TestHideDotFiles() {
 	s.WriteFile(".foo", "")

@@ -54,11 +54,12 @@ func (s *H2StaticTestSuite) TestNewStaticServerFromCmdline() {
 	server, err := main.NewStaticServerFromCmdline(
 		s.flagSet,
 		[]string{
-			"-addr", ":9090", "-basic-auth", passwdPath, "-dir", dirPath,
-			"-disable-lookup-with-suffix", "-disable-h2", "-show-dotfiles",
-			"-log", "-tls-cert", certPath, "-tls-key", keyPath})
+			"-addr", ":9090", "-allow-outside-symlinks", "-basic-auth", passwdPath,
+			"-dir", dirPath, "-disable-lookup-with-suffix", "-disable-h2",
+			"-show-dotfiles", "-log", "-tls-cert", certPath, "-tls-key", keyPath})
 	s.Nil(err)
 	s.Equal(":9090", server.Config.Addr)
+	s.True(server.Config.AllowOutsideSymlinks)
 	s.Equal(passwdPath, server.Config.PasswordFile)
 	s.Equal(dirPath, server.Config.Dir)
 	s.True(server.Config.DisableH2)

@@ -15,11 +15,13 @@ import (
 // - serve .htm(l) files for the corresponding path without suffix, if the
 //  original path is not found
 // - hide dotfiles
+// - allow access to file/directories outside the filesystem root via symlinks
 //
 type FileSystem struct {
-	ResolveHTML  bool
-	HideDotFiles bool
-	Root         string
+	ResolveHTML          bool
+	HideDotFiles         bool
+	AllowOutsideSymlinks bool
+	Root                 string
 }
 
 // Open returns a File object for the specified path under the FileSystem
@@ -68,6 +70,21 @@ func (fs FileSystem) newFile(name string) (*File, error) {
 	absPath, err := fs.absPath(name)
 	if err != nil {
 		return nil, err
+	}
+	if !fs.AllowOutsideSymlinks {
+		if target, _ := os.Readlink(absPath); target != "" {
+			path, err := filepath.Abs(target)
+			if err != nil {
+				return nil, err
+			}
+			root, err := filepath.Abs(fs.Root)
+			if err != nil {
+				return nil, err
+			}
+			if !strings.HasPrefix(path, root) {
+				return nil, os.ErrPermission
+			}
+		}
 	}
 	return NewFile(absPath, fs.HideDotFiles)
 }

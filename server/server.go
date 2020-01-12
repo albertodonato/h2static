@@ -14,6 +14,7 @@ import (
 // StaticServerConfig holds configuration options for a StaticServer.
 type StaticServerConfig struct {
 	Addr                    string
+	AllowOutsideSymlinks    bool
 	Dir                     string
 	DisableH2               bool
 	DisableLookupWithSuffix bool
@@ -31,6 +32,9 @@ type StaticServer struct {
 
 // NewStaticServer returns a StaticServer.
 func NewStaticServer(config StaticServerConfig) (*StaticServer, error) {
+	if config.Dir == "" {
+		config.Dir = "."
+	}
 	server := StaticServer{Config: config}
 	if err := validateServerConfig(server); err != nil {
 		return nil, err
@@ -74,9 +78,10 @@ func (s *StaticServer) IsHTTPS() bool {
 // getServer returns a configured server.
 func (s *StaticServer) getServer() (*http.Server, error) {
 	fileSystem := FileSystem{
-		Root:         s.Config.Dir,
-		ResolveHTML:  !s.Config.DisableLookupWithSuffix,
-		HideDotFiles: !s.Config.ShowDotFiles,
+		AllowOutsideSymlinks: s.Config.AllowOutsideSymlinks,
+		HideDotFiles:         !s.Config.ShowDotFiles,
+		ResolveHTML:          !s.Config.DisableLookupWithSuffix,
+		Root:                 s.Config.Dir,
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/", NewFileHandler(fileSystem))
