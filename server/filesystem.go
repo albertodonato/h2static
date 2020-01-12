@@ -1,14 +1,16 @@
 package server
 
 import (
+	"fmt"
 	"log"
-	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
 
-// A FileSystem which which can optionally:
+// FileSystem provides acess to files and directories under a certain root.
+// It can optionally optionally:
 //
 // - serve .htm(l) files for the corresponding path without suffix, if the
 //  original path is not found
@@ -18,18 +20,6 @@ type FileSystem struct {
 	ResolveHTML  bool
 	HideDotFiles bool
 	Root         string
-
-	fs http.FileSystem
-}
-
-// NewFileSystem returns a FileSystem with the specified configuration.
-func NewFileSystem(root string, resolveHTML bool, hideDotFiles bool) FileSystem {
-	return FileSystem{
-		ResolveHTML:  resolveHTML,
-		HideDotFiles: hideDotFiles,
-		Root:         string(http.Dir(root)),
-		fs:           http.Dir(root),
-	}
 }
 
 // Open returns a File object for the specified path under the FileSystem
@@ -40,7 +30,7 @@ func (fs FileSystem) Open(name string) (*File, error) {
 		return nil, os.ErrNotExist
 	}
 
-	_, err := fs.fs.Open(name)
+	_, err := fs.open(name)
 	if os.IsNotExist(err) && fs.ResolveHTML && !(strings.HasSuffix(name, ".html") || strings.HasSuffix(name, ".htm")) {
 		for _, suffix := range []string{".html", ".htm"} {
 			newName := name + suffix
@@ -58,12 +48,20 @@ func (fs FileSystem) Open(name string) (*File, error) {
 // OpenFile returns a File object for the specified path under the FileSystem
 // directory if it esists and it's not a directory.
 func (fs FileSystem) OpenFile(name string) (*File, error) {
-	if file, err := fs.fs.Open(name); err == nil {
+	if file, err := fs.open(name); err == nil {
 		if fileInfo, err := file.Stat(); err == nil && !fileInfo.IsDir() {
 			return fs.newFile(name)
 		}
 	}
 	return nil, os.ErrNotExist
+}
+
+func (fs FileSystem) open(name string) (*os.File, error) {
+	if filepath.Separator != '/' && strings.ContainsRune(name, filepath.Separator) {
+		return nil, fmt.Errorf("invalid character in file path: %s", name)
+	}
+	fullName := filepath.Join(fs.Root, filepath.FromSlash(path.Clean("/"+name)))
+	return os.Open(fullName)
 }
 
 func (fs FileSystem) newFile(name string) (*File, error) {

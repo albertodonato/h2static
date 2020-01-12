@@ -24,7 +24,11 @@ type DirectoryListingTemplateTestSuite struct {
 
 func (s *DirectoryListingTemplateTestSuite) SetupTest() {
 	s.TempDirTestSuite.SetupTest()
-	fs := server.NewFileSystem(s.TempDir, true, true)
+	fs := server.FileSystem{
+		ResolveHTML:  true,
+		HideDotFiles: true,
+		Root:         s.TempDir,
+	}
 	dir, err := fs.Open("/")
 	s.Nil(err)
 	s.dir = dir

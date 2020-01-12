@@ -2,7 +2,6 @@ package server_test
 
 import (
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -22,14 +21,16 @@ func TestFileSystem(t *testing.T) {
 type FileSystemTestSuite struct {
 	testhelpers.TempDirTestSuite
 
-	dir http.Dir
-	fs  server.FileSystem
+	fs server.FileSystem
 }
 
 func (s *FileSystemTestSuite) SetupTest() {
 	s.TempDirTestSuite.SetupTest()
-	s.dir = http.Dir(s.TempDir)
-	s.fs = server.NewFileSystem(s.TempDir, true, true)
+	s.fs = server.FileSystem{
+		Root:         s.TempDir,
+		ResolveHTML:  true,
+		HideDotFiles: true,
+	}
 }
 
 func (s *FileSystemTestSuite) readFile(file *server.File) string {
@@ -47,14 +48,6 @@ func (s *FileSystemTestSuite) fileList(file *server.File) (names []string) {
 		names = append(names, file.Info.Name())
 	}
 	return
-}
-
-// NewFileSystem returns a new filesystem.
-func (s *FileSystemTestSuite) TestNewFileSystem() {
-	fs := server.NewFileSystem("/some/dir", true, true)
-	s.Equal("/some/dir", fs.Root)
-	s.True(fs.ResolveHTML)
-	s.True(fs.HideDotFiles)
 }
 
 // The file with .html suffix is returned if present

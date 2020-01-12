@@ -27,7 +27,11 @@ type FileHandlerTestSuite struct {
 
 func (s *FileHandlerTestSuite) SetupTest() {
 	s.TempDirTestSuite.SetupTest()
-	s.fileSystem = server.NewFileSystem(s.TempDir, true, true)
+	s.fileSystem = server.FileSystem{
+		Root:         s.TempDir,
+		ResolveHTML:  true,
+		HideDotFiles: true,
+	}
 	s.handler = server.NewFileHandler(s.fileSystem)
 	s.WriteFile("foo", "foofoofoo")
 	s.WriteFile("bar", "barbar")

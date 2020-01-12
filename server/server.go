@@ -53,8 +53,11 @@ func (s StaticServer) IsHTTPS() bool {
 
 // getServer returns a configured server.
 func (s StaticServer) getServer() (*http.Server, error) {
-	fileSystem := NewFileSystem(
-		s.Dir, !s.DisableLookupWithSuffix, !s.ShowDotFiles)
+	fileSystem := FileSystem{
+		Root:         s.Dir,
+		ResolveHTML:  !s.DisableLookupWithSuffix,
+		HideDotFiles: !s.ShowDotFiles,
+	}
 	mux := http.NewServeMux()
 	mux.Handle("/", NewFileHandler(fileSystem))
 	mux.Handle(
