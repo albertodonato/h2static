@@ -22,8 +22,8 @@ type ServerTestSuite struct {
 
 // If the specified Dir doesn't exist, an error is returned.
 func (s *ServerTestSuite) TestValidateConfigDirNotExists() {
-	serv := server.StaticServer{Dir: "/not/here"}
-	err := serv.ValidateConfig()
+	serv, err := server.NewStaticServer(server.StaticServerConfig{Dir: "/not/here"})
+	s.Nil(serv)
 	s.NotNil(err)
 	s.Contains(err.Error(), "/not/here: no such file or directory")
 }
@@ -31,8 +31,8 @@ func (s *ServerTestSuite) TestValidateConfigDirNotExists() {
 // If the specified Dir exists but is not a directory, an error is returned.
 func (s *ServerTestSuite) TestValidateConfigDirNotDir() {
 	path := s.WriteFile("foo", "bar")
-	serv := server.StaticServer{Dir: path}
-	err := serv.ValidateConfig()
+	serv, err := server.NewStaticServer(server.StaticServerConfig{Dir: path})
+	s.Nil(serv)
 	s.NotNil(err)
 	s.Equal(fmt.Sprintf("not a directory: %s", path), err.Error())
 }
@@ -40,8 +40,12 @@ func (s *ServerTestSuite) TestValidateConfigDirNotDir() {
 // If the TLS certificate file doesn't exist, an error is returned.
 func (s *ServerTestSuite) TestValidateConfigTLSCertFileNotExists() {
 	tlsKey := s.WriteFile("foo", "bar")
-	serv := server.StaticServer{Dir: s.TempDir, TLSCert: "/not/here", TLSKey: tlsKey}
-	err := serv.ValidateConfig()
+	serv, err := server.NewStaticServer(server.StaticServerConfig{
+		Dir:     s.TempDir,
+		TLSCert: "/not/here",
+		TLSKey:  tlsKey,
+	})
+	s.Nil(serv)
 	s.NotNil(err)
 	s.Contains(err.Error(), "/not/here: no such file or directory")
 }
@@ -49,32 +53,46 @@ func (s *ServerTestSuite) TestValidateConfigTLSCertFileNotExists() {
 // If the TLS key file doesn't exist, an error is returned.
 func (s *ServerTestSuite) TestValidateConfigTLSKeyFileNotExists() {
 	tlsCert := s.WriteFile("foo", "bar")
-	serv := server.StaticServer{Dir: s.TempDir, TLSCert: tlsCert, TLSKey: "/not/here"}
-	err := serv.ValidateConfig()
+	serv, err := server.NewStaticServer(
+		server.StaticServerConfig{
+			Dir:     s.TempDir,
+			TLSCert: tlsCert,
+			TLSKey:  "/not/here",
+		})
+	s.Nil(serv)
 	s.NotNil(err)
 	s.Contains(err.Error(), "/not/here: no such file or directory")
 }
 
 // If the passwords file doesn't exist, an error is returned.
 func (s *ServerTestSuite) TestValidateConfigPasswordFileNotExists() {
-	serv := server.StaticServer{Dir: s.TempDir, PasswordFile: "/not/here"}
-	err := serv.ValidateConfig()
+	serv, err := server.NewStaticServer(
+		server.StaticServerConfig{
+			Dir:          s.TempDir,
+			PasswordFile: "/not/here",
+		})
+	s.Nil(serv)
 	s.NotNil(err)
 	s.Contains(err.Error(), "/not/here: no such file or directory")
 }
 
 // If no invalid file is passed, ValidateConfig returns nil.
 func (s *ServerTestSuite) TestValidateConfigNoError() {
-	serv := server.StaticServer{Dir: s.TempDir}
-	s.Nil(serv.ValidateConfig())
+	serv, err := server.NewStaticServer(server.StaticServerConfig{Dir: s.TempDir})
+	s.NotNil(serv)
+	s.Nil(err)
 }
 
 // IsHTTPS returns true if certificates are set.
 func (s *ServerTestSuite) TestEnableTLSTrue() {
-	serv := server.StaticServer{
-		TLSCert: "cert",
-		TLSKey:  "secret",
-	}
+	tlsCert := s.WriteFile("cert.pem", "cert")
+	tlsKey := s.WriteFile("key.pem", "key")
+	serv, err := server.NewStaticServer(server.StaticServerConfig{
+		Dir: s.TempDir,
+		TLSCert: tlsCert,
+		TLSKey:  tlsKey,
+	})
+	s.Nil(err)
 	s.True(serv.IsHTTPS())
 }
 
@@ -86,7 +104,7 @@ func (s *ServerTestSuite) TestEnableTLSFalse() {
 
 // getServer returns static file handlers for a path.
 func (s *ServerTestSuite) TestGetServerDefaultStaticServe() {
-	serv := server.StaticServer{}
+	serv := &server.StaticServer{}
 	httpServer, err := server.GetServer(serv)
 	s.Nil(err)
 	s.Nil(httpServer.TLSNextProto)
@@ -101,18 +119,23 @@ func (s *ServerTestSuite) TestGetServerDefaultStaticServe() {
 
 // getServer returns a configured http.Server with the specified dir
 func (s *ServerTestSuite) TestSetupServerSpecifyDir() {
-	serv := server.StaticServer{Dir: "/some/dir"}
+	serv, err := server.NewStaticServer(server.StaticServerConfig{Dir: s.TempDir})
+	s.Nil(err)
 	httpServer, err := server.GetServer(serv)
 	s.Nil(err)
 	h := httpServer.Handler.(*server.CommonHeadersHandler)
 	mux := h.Handler.(*http.ServeMux)
 	fh, _ := mux.Handler(httptest.NewRequest("GET", "/foo", nil))
-	s.IsType("/some/dir", fh.(*server.FileHandler).FileSystem.Root)
+	s.IsType(s.TempDir, fh.(*server.FileHandler).FileSystem.Root)
 }
 
 // getServer returns a configured http.Server with logging
 func (s *ServerTestSuite) TestSetupServerLog() {
-	serv := server.StaticServer{Log: true}
+	serv, err := server.NewStaticServer(server.StaticServerConfig{
+		Dir: s.TempDir,
+		Log: true,
+	})
+	s.Nil(err)
 	httpServer, err := server.GetServer(serv)
 	s.Nil(err)
 	h := httpServer.Handler.(*server.CommonHeadersHandler)
@@ -121,7 +144,11 @@ func (s *ServerTestSuite) TestSetupServerLog() {
 
 // getServer returns a configured http.Server without HTTP/2
 func (s *ServerTestSuite) TestSetupServerNoH2() {
-	serv := server.StaticServer{DisableH2: true}
+	serv, err := server.NewStaticServer(server.StaticServerConfig{
+		Dir: s.TempDir,
+		DisableH2: true,
+	})
+	s.Nil(err)
 	httpServer, err := server.GetServer(serv)
 	s.Nil(err)
 	s.NotNil(httpServer.TLSNextProto)
@@ -130,7 +157,11 @@ func (s *ServerTestSuite) TestSetupServerNoH2() {
 // getServer returns a configured http.Server with Basic-Auth
 func (s *ServerTestSuite) TestSetupServerBasicAuth() {
 	absPath := s.WriteFile("basic-auth", "")
-	serv := server.StaticServer{PasswordFile: absPath}
+	serv, err := server.NewStaticServer(server.StaticServerConfig{
+		Dir: s.TempDir,
+		PasswordFile: absPath,
+	})
+	s.Nil(err)
 	httpServer, err := server.GetServer(serv)
 	s.Nil(err)
 	h := httpServer.Handler.(*server.CommonHeadersHandler)

@@ -5,7 +5,7 @@ import (
 )
 
 // Export StaticServer.getServer.
-func GetServer(s StaticServer) (*http.Server, error) {
+func GetServer(s *StaticServer) (*http.Server, error) {
 	return s.getServer()
 }
 

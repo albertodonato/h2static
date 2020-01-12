@@ -58,15 +58,15 @@ func (s *H2StaticTestSuite) TestNewStaticServerFromCmdline() {
 			"-disable-lookup-with-suffix", "-disable-h2", "-show-dotfiles",
 			"-log", "-tls-cert", certPath, "-tls-key", keyPath})
 	s.Nil(err)
-	s.Equal(":9090", server.Addr)
-	s.Equal(passwdPath, server.PasswordFile)
-	s.Equal(dirPath, server.Dir)
-	s.True(server.DisableH2)
-	s.True(server.DisableLookupWithSuffix)
-	s.True(server.ShowDotFiles)
-	s.True(server.Log)
-	s.Equal(certPath, server.TLSCert)
-	s.Equal(keyPath, server.TLSKey)
+	s.Equal(":9090", server.Config.Addr)
+	s.Equal(passwdPath, server.Config.PasswordFile)
+	s.Equal(dirPath, server.Config.Dir)
+	s.True(server.Config.DisableH2)
+	s.True(server.Config.DisableLookupWithSuffix)
+	s.True(server.Config.ShowDotFiles)
+	s.True(server.Config.Log)
+	s.Equal(certPath, server.Config.TLSCert)
+	s.Equal(keyPath, server.Config.TLSKey)
 }
 
 // Config options are validated and error returned on invalid paths.

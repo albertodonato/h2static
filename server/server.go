@@ -11,8 +11,8 @@ import (
 	"github.com/albertodonato/h2static/version"
 )
 
-// StaticServer is a static HTTP server.
-type StaticServer struct {
+// StaticServerConfig holds configuration options for a StaticServer.
+type StaticServerConfig struct {
 	Addr                    string
 	Dir                     string
 	DisableH2               bool
@@ -24,21 +24,34 @@ type StaticServer struct {
 	TLSKey                  string
 }
 
-// ValidateConfig validates the StaticServer configuration
-func (s StaticServer) ValidateConfig() error {
-	if err := checkFile(s.Dir, true); err != nil {
+// StaticServer is a static HTTP server.
+type StaticServer struct {
+	Config StaticServerConfig
+}
+
+// NewStaticServer returns a StaticServer.
+func NewStaticServer(config StaticServerConfig) (*StaticServer, error) {
+	server := StaticServer{Config: config}
+	if err := validateServerConfig(server); err != nil {
+		return nil, err
+	}
+	return &server, nil
+}
+
+func validateServerConfig(s StaticServer) error {
+	if err := checkFile(s.Config.Dir, true); err != nil {
 		return err
 	}
 
 	if s.IsHTTPS() {
-		for _, path := range []string{s.TLSCert, s.TLSKey} {
+		for _, path := range []string{s.Config.TLSCert, s.Config.TLSKey} {
 			if err := checkFile(path, false); err != nil {
 				return err
 			}
 		}
 	}
-	if s.PasswordFile != "" {
-		if err := checkFile(s.PasswordFile, false); err != nil {
+	if s.Config.PasswordFile != "" {
+		if err := checkFile(s.Config.PasswordFile, false); err != nil {
 			return err
 		}
 	}
@@ -47,16 +60,16 @@ func (s StaticServer) ValidateConfig() error {
 }
 
 // IsHTTPS returns whether HTTPS is enabled.
-func (s StaticServer) IsHTTPS() bool {
-	return s.TLSCert != "" && s.TLSKey != ""
+func (s *StaticServer) IsHTTPS() bool {
+	return s.Config.TLSCert != "" && s.Config.TLSKey != ""
 }
 
 // getServer returns a configured server.
-func (s StaticServer) getServer() (*http.Server, error) {
+func (s *StaticServer) getServer() (*http.Server, error) {
 	fileSystem := FileSystem{
-		Root:         s.Dir,
-		ResolveHTML:  !s.DisableLookupWithSuffix,
-		HideDotFiles: !s.ShowDotFiles,
+		Root:         s.Config.Dir,
+		ResolveHTML:  !s.Config.DisableLookupWithSuffix,
+		HideDotFiles: !s.Config.ShowDotFiles,
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/", NewFileHandler(fileSystem))
@@ -66,8 +79,8 @@ func (s StaticServer) getServer() (*http.Server, error) {
 
 	var handler http.Handler = mux
 
-	if s.PasswordFile != "" {
-		credentials, err := loadCredentials(s.PasswordFile)
+	if s.Config.PasswordFile != "" {
+		credentials, err := loadCredentials(s.Config.PasswordFile)
 		if err != nil {
 			return nil, err
 		}
@@ -78,26 +91,26 @@ func (s StaticServer) getServer() (*http.Server, error) {
 		}
 	}
 
-	if s.Log {
+	if s.Config.Log {
 		handler = &LoggingHandler{Handler: handler}
 	}
 	handler = &CommonHeadersHandler{Handler: handler}
 
 	tlsNextProto := map[string]func(*http.Server, *tls.Conn, http.Handler){}
-	if !s.DisableH2 {
+	if !s.Config.DisableH2 {
 		// Setting to nil means to use the default (which is H2-enabled)
 		tlsNextProto = nil
 	}
 
 	return &http.Server{
-		Addr:         s.Addr,
+		Addr:         s.Config.Addr,
 		Handler:      handler,
 		TLSNextProto: tlsNextProto,
 	}, nil
 }
 
 // Run starts the server.
-func (s StaticServer) Run() error {
+func (s *StaticServer) Run() error {
 	var err error
 
 	server, err := s.getServer()
@@ -105,20 +118,20 @@ func (s StaticServer) Run() error {
 		return err
 	}
 	isHTTPS := s.IsHTTPS()
-	if s.Log {
+	if s.Config.Log {
 		kind := "HTTP"
 		if isHTTPS {
 			kind = "HTTPS"
 		}
-		absPath, err := filepath.Abs(s.Dir)
+		absPath, err := filepath.Abs(s.Config.Dir)
 		if err != nil {
 			return err
 		}
-		log.Printf("Starting %s server on %s, serving path %s", kind, s.Addr, absPath)
+		log.Printf("Starting %s server on %s, serving path %s", kind, s.Config.Addr, absPath)
 	}
 
 	if isHTTPS {
-		err = server.ListenAndServeTLS(s.TLSCert, s.TLSKey)
+		err = server.ListenAndServeTLS(s.Config.TLSCert, s.Config.TLSKey)
 	} else {
 		err = server.ListenAndServe()
 	}

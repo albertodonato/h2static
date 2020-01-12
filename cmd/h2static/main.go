@@ -19,20 +19,20 @@ Usage of {{.Name}}:
 
 // NewStaticServerFromCmdline returns a a StaticServer parsing cmdline args.
 func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.StaticServer, error) {
-	s := &server.StaticServer{}
-	fs.StringVar(&s.Addr, "addr", ":8080", "address and port to listen on")
+	conf := &server.StaticServerConfig{}
+	fs.StringVar(&conf.Addr, "addr", ":8080", "address and port to listen on")
 	fs.StringVar(
-		&s.PasswordFile, "basic-auth", "",
+		&conf.PasswordFile, "basic-auth", "",
 		`password file for Basic Auth (each line should be in the form "user:SHA512-hash")`)
-	fs.StringVar(&s.Dir, "dir", ".", "directory to serve")
+	fs.StringVar(&conf.Dir, "dir", ".", "directory to serve")
 	fs.BoolVar(
-		&s.DisableLookupWithSuffix, "disable-lookup-with-suffix", false,
+		&conf.DisableLookupWithSuffix, "disable-lookup-with-suffix", false,
 		"disable matching files with .htm(l) suffix for paths without suffix")
-	fs.BoolVar(&s.DisableH2, "disable-h2", false, "disable HTTP/2 support")
-	fs.BoolVar(&s.ShowDotFiles, "show-dotfiles", false, "show files whose name starts with a dot")
-	fs.BoolVar(&s.Log, "log", false, "log requests")
-	fs.StringVar(&s.TLSCert, "tls-cert", "", "certificate file for TLS connections")
-	fs.StringVar(&s.TLSKey, "tls-key", "", "key file for TLS connections")
+	fs.BoolVar(&conf.DisableH2, "disable-h2", false, "disable HTTP/2 support")
+	fs.BoolVar(&conf.ShowDotFiles, "show-dotfiles", false, "show files whose name starts with a dot")
+	fs.BoolVar(&conf.Log, "log", false, "log requests")
+	fs.StringVar(&conf.TLSCert, "tls-cert", "", "certificate file for TLS connections")
+	fs.StringVar(&conf.TLSKey, "tls-key", "", "key file for TLS connections")
 	fs.Usage = func() {
 		printHeader(fs)
 		fs.PrintDefaults()
@@ -41,10 +41,7 @@ func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.Static
 	if err := fs.Parse(args); err != nil {
 		return nil, err
 	}
-	if err := s.ValidateConfig(); err != nil {
-		return nil, err
-	}
-	return s, nil
+	return server.NewStaticServer(*conf)
 }
 
 func printHeader(fs *flag.FlagSet) {
