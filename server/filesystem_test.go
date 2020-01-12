@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"syscall"
 	"testing"
 
@@ -166,12 +167,15 @@ func (s *FileSystemTestSuite) TestListingWithSymlinks() {
 			isdir: file.Info.IsDir(),
 		})
 	}
+	sort.Slice(details, func(i, j int) bool {
+		return details[i].name < details[j].name
+	})
 	s.Equal(
 		[]detail{
-			{name: "foo", isdir: false},
 			{name: "bar", isdir: true},
-			{name: "new-foo", isdir: false},
+			{name: "foo", isdir: false},
 			{name: "new-bar", isdir: true},
+			{name: "new-foo", isdir: false},
 		}, details)
 }
 
