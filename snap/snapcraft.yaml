@@ -87,6 +87,11 @@ parts:
       # Disable use of go modules as Currently snapcraft doesn't support them,
       # but go will try to use them as go.mod is there.
       - GO111MODULE: "off"
+    # Manually strip binaries (see lp:1858785)
+    override-build: |
+      set -e
+      snapcraftctl build
+      strip -s $SNAPCRAFT_PART_INSTALL/bin/h2static
 
   daemon-wrapper:
     plugin: dump
