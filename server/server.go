@@ -35,6 +35,13 @@ func NewStaticServer(config StaticServerConfig) (*StaticServer, error) {
 	if err := validateServerConfig(server); err != nil {
 		return nil, err
 	}
+
+	// always use absolute path for the root dir.
+	absDir, err := filepath.Abs(config.Dir)
+	if err != nil {
+		return nil, err
+	}
+	server.Config.Dir = absDir
 	return &server, nil
 }
 
@@ -123,11 +130,9 @@ func (s *StaticServer) Run() error {
 		if isHTTPS {
 			kind = "HTTPS"
 		}
-		absPath, err := filepath.Abs(s.Config.Dir)
-		if err != nil {
-			return err
-		}
-		log.Printf("Starting %s server on %s, serving path %s", kind, s.Config.Addr, absPath)
+		log.Printf(
+			"Starting %s server on %s, serving path %s",
+			kind, s.Config.Addr, s.Config.Dir)
 	}
 
 	if isHTTPS {
