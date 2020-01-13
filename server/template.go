@@ -52,7 +52,7 @@ var dirListingTemplateText = `<!DOCTYPE html>
             <a href="{{ .Name }}" class="col col-name type-file">{{ .Name }}</a>
           {{- end }}
           <span class="col col-size">
-            {{ .HumanSize.Value -}}
+            {{ if eq .HumanSize.Suffix "" }}-{{ else }}{{ .HumanSize.Value }}{{ end -}}
             <span class="size-suffix">{{ .HumanSize.Suffix }}</span>
           </span>
         </div>
@@ -61,8 +61,7 @@ var dirListingTemplateText = `<!DOCTYPE html>
     </main>
     <footer>
       <div class="powered-by">
-        Powered by
-        <a href="https://github.com/albertodonato/h2static">{{ .App.Name }} {{ .App.Version }}</a>
+        Powered by <a href="https://github.com/albertodonato/h2static">{{ .App.Name }} {{ .App.Version }}</a>
       </div>
     </footer>
   </body>
@@ -165,12 +164,15 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, so
 	for _, f := range files {
 		name := string(template.URL(f.Info.Name()))
 		size := f.Info.Size()
-		entries = append(entries, DirEntryInfo{
-			Name:      name,
-			IsDir:     f.Info.IsDir(),
-			Size:      size,
-			HumanSize: getHumanByteSize(size),
-		})
+		entry := DirEntryInfo{
+			Name:  name,
+			IsDir: f.Info.IsDir(),
+			Size:  size,
+		}
+		if !f.Info.IsDir() {
+			entry.HumanSize = getHumanByteSize(size)
+		}
+		entries = append(entries, entry)
 	}
 	return &templateContext{
 		App:          version.App,
