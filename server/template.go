@@ -52,7 +52,7 @@ var dirListingTemplateText = `<!DOCTYPE html>
             <a href="{{ .Name }}" class="col col-name type-file">{{ .Name }}</a>
           {{- end }}
           <span class="col col-size">
-            {{ if eq .HumanSize.Suffix "" }}-{{ else }}{{ .HumanSize.Value }}{{ end -}}
+            {{ if eq .HumanSize.Suffix "" }}&mdash;{{ else }}{{ .HumanSize.Value }}{{ end -}}
             <span class="size-suffix">{{ .HumanSize.Suffix }}</span>
           </span>
         </div>
