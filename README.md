@@ -85,6 +85,8 @@ Usage of h2static:
 
   -addr string
         address and port to listen on (default ":8080")
+  -allow-outside-symlinks
+        allow symlinks with target outside of directory
   -basic-auth string
         password file for Basic Auth (each line should be in the form "user:SHA512-hash")
   -dir string
