@@ -33,7 +33,7 @@ var staticAssets = StaticAssets{
 	"style.css": {
 		ContentType: "text/css",
 		Content: []byte(`
- body {
+body {
   width: 90%;
   margin: 0 auto;
   font-family: sans;
@@ -71,7 +71,7 @@ a:active, a:hover {
   display: flex;
   justify-content: space-between;
 }
-.button {
+.col {
   display: inline-block;
   margin: 0 0.2rem;
   padding: 1rem 0.5rem;
@@ -157,7 +157,7 @@ a.powered-by:hover {
     width: 4em;
     height: 4em;
   }
-  .button {
+  .col {
     padding: 0.5rem;
   }
   .col-size {

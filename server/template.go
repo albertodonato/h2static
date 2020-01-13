@@ -19,6 +19,9 @@ var dirListingTemplateText = `<!DOCTYPE html>
 <html>
   <head>
     <title>{{ .App.Name }} - Directory listing for {{ .Dir.Name }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="{{ .App.Name }}/{{ .App.Version }}">
     <link rel="stylesheet" type="text/css" href="{{ .AssetsPrefix }}style.css">
   </head>
   <body>
@@ -33,22 +36,22 @@ var dirListingTemplateText = `<!DOCTYPE html>
     <main>
       <section class="listing">
         <div class="entry sort sort-{{- if .Sort.Asc }}asc{{ else }}desc{{ end -}}">
-          <a class="button col-name {{ if eq .Sort.Column "n" }}sorted{{ end -}}" href="?c=n&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Name</a>
-          <a class="button col-size {{ if eq .Sort.Column "s" }}sorted{{ end -}}" href="?c=s&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Size</a>
+          <a class="col col-name {{ if eq .Sort.Column "n" }}sorted{{ end -}}" href="?c=n&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Name</a>
+          <a class="col col-size {{ if eq .Sort.Column "s" }}sorted{{ end -}}" href="?c=s&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Size</a>
         </div>
         {{- if not .Dir.IsRoot -}}
         <div class="entry">
-          <a href=".." class="button col-name type-dir-up">..</a>
+          <a href=".." class="col col-name type-dir-up">..</a>
         </div>
         {{- end -}}
         {{- range .Dir.Entries -}}
         <div class="entry">
           {{ if .IsDir -}}
-            <a href="{{ .Name }}/" class="button col-name type-dir">{{ .Name }}/</a>
+            <a href="{{ .Name }}/" class="col col-name type-dir">{{ .Name }}/</a>
           {{- else -}}
-            <a href="{{ .Name }}" class="button col-name type-file">{{ .Name }}</a>
+            <a href="{{ .Name }}" class="col col-name type-file">{{ .Name }}</a>
           {{- end }}
-          <span class="button col-size">
+          <span class="col col-size">
             {{ .HumanSize.Value -}}
             <span class="size-suffix">{{ .HumanSize.Suffix }}</span>
           </span>
@@ -59,9 +62,7 @@ var dirListingTemplateText = `<!DOCTYPE html>
     <footer>
       <div class="powered-by">
         Powered by
-        <a href="https://github.com/albertodonato/h2static">
-          {{ .App.Name }} {{ .App.Version }}
-        </a>
+        <a href="https://github.com/albertodonato/h2static">{{ .App.Name }} {{ .App.Version }}</a>
       </div>
     </footer>
   </body>
