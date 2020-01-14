@@ -35,17 +35,17 @@ var dirListingTemplateText = `<!DOCTYPE html>
     </header>
     <main>
       <section class="listing">
-        <div class="entry sort sort-{{- if .Sort.Asc }}asc{{ else }}desc{{ end -}}">
+        <div class="row sort sort-{{- if .Sort.Asc }}asc{{ else }}desc{{ end -}}">
           <a class="col col-name {{ if eq .Sort.Column "n" }}sorted{{ end -}}" href="?c=n&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Name</a>
           <a class="col col-size {{ if eq .Sort.Column "s" }}sorted{{ end -}}" href="?c=s&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Size</a>
         </div>
         {{- if not .Dir.IsRoot -}}
-        <div class="entry">
+        <div class="row entry">
           <a href=".." class="col col-name type-dir-up">..</a>
         </div>
         {{- end -}}
         {{- range .Dir.Entries -}}
-        <div class="entry">
+        <div class="row entry">
           {{ if .IsDir -}}
             <a href="{{ .Name }}/" class="col col-name type-dir">{{ .Name }}/</a>
           {{- else -}}

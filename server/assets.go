@@ -66,7 +66,7 @@ a:active, a:hover {
 .listing {
   width: 100%;
 }
-.entry {
+.row {
   padding: 0.5rem 0;
   display: flex;
   justify-content: space-between;
