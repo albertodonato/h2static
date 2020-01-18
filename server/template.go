@@ -44,12 +44,13 @@ var dirListingTemplateText = `<!DOCTYPE html>
           <a href=".." class="col col-name type-dir-up">..</a>
         </div>
         {{- end -}}
-        {{- range .Dir.Entries -}}
+        {{- range $i, $entry := .Dir.Entries -}}
+        {{- $i := inc $i -}}
         <div class="row entry">
           {{ if .IsDir -}}
-            <a href="{{ .Name }}/" class="col col-name type-dir">{{ .Name }}/</a>
+            <a href="{{ .Name }}/" class="col col-name type-dir" tabindex="{{ $i }}">{{ .Name }}/</a>
           {{- else -}}
-            <a href="{{ .Name }}" class="col col-name type-file">{{ .Name }}</a>
+            <a href="{{ .Name }}" class="col col-name type-file" tabindex="{{ $i }}">{{ .Name }}</a>
           {{- end }}
           <span class="col col-size">
             {{ if eq .HumanSize.Suffix "" }}&mdash;{{ else }}{{ .HumanSize.Value }}{{ end -}}
@@ -117,7 +118,9 @@ type DirectoryListingTemplate struct {
 func NewDirectoryListingTemplate() *DirectoryListingTemplate {
 	return &DirectoryListingTemplate{
 		template: template.Must(
-			template.New("DirListing").Parse(dirListingTemplateText)),
+			template.New("DirListing").Funcs(template.FuncMap{
+				"inc": func(n int) int { return n + 1 },
+			}).Parse(dirListingTemplateText)),
 	}
 }
 
