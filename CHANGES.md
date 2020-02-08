@@ -1,3 +1,10 @@
+v2.2.1 - 2020-02-08
+===================
+
+* Don't show directory size in HTML output (#9)
+* CSS/HTML cleanups
+
+
 v2.2.0 - 2020-01-13
 ===================
 
