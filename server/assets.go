@@ -125,7 +125,7 @@ a.type-file {
   background-color: white;
   color: #777777;
   text-align: right;
-  width: 11rem;
+  width: 10rem;
 }
 .size-suffix {
   display: inline-block;

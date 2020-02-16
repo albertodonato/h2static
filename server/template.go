@@ -18,7 +18,7 @@ const AssetsPrefix = "/.h2static-assets/"
 var dirListingTemplateText = `<!DOCTYPE html>
 <html>
   <head>
-    <title>{{ .App.Name }} - Directory listing for {{ .Dir.Name }}</title>
+    <title>{{ .App.Name }} - Inde of {{ .Dir.Name }}</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="{{ .App.Name }}/{{ .App.Version }}">
@@ -30,7 +30,7 @@ var dirListingTemplateText = `<!DOCTYPE html>
         <a class="logo" alt="{{ .App.Name }}" href="/">
           <img src="{{ .AssetsPrefix }}logo.svg">
         </a>
-        <span class="title">Directory listing for <span class="path">{{ .Dir.Name }}</span></span>
+        <span class="title">Index of <span class="path">{{ .Dir.Name }}</span></span>
       </h1>
     </header>
     <main>
