@@ -1,15 +1,15 @@
 language: go
+os: linux
 go:
   - "1.11"
   - "1.12"
   - "1.13"
-matrix:
-  fast_finish: true
 stages:
   - vet
   - lint
   - test
 jobs:
+  fast_finish: true
   include:
     - stage: vet
       script: go vet ./...
