@@ -1,12 +1,15 @@
 package server
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"time"
 
 	"github.com/albertodonato/h2static/version"
 )
@@ -123,29 +126,46 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 
 // Run starts the server.
 func (s *StaticServer) Run() error {
-	var err error
+	if s.Config.Log {
+		scheme := "HTTP"
+		if s.IsHTTPS() {
+			scheme = "HTTPS"
+		}
+		log.Printf(
+			"Starting %s server on %s, serving path %s",
+			scheme, s.Config.Addr, s.Config.Dir)
+	}
 
+	return s.runServer()
+}
+
+func (s *StaticServer) runServer() error {
 	server, err := s.getServer()
 	if err != nil {
 		return err
 	}
-	isHTTPS := s.IsHTTPS()
-	if s.Config.Log {
-		kind := "HTTP"
-		if isHTTPS {
-			kind = "HTTPS"
-		}
-		log.Printf(
-			"Starting %s server on %s, serving path %s",
-			kind, s.Config.Addr, s.Config.Dir)
-	}
 
-	if isHTTPS {
-		err = server.ListenAndServeTLS(s.Config.TLSCert, s.Config.TLSKey)
-	} else {
-		err = server.ListenAndServe()
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+	go func() {
+		if s.IsHTTPS() {
+			err = server.ListenAndServeTLS(s.Config.TLSCert, s.Config.TLSKey)
+		} else {
+			err = server.ListenAndServe()
+		}
+	}()
+	<-stop
+
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	if err := server.Shutdown(ctx); err != nil {
+		return err
 	}
-	return err
+	return s.afterShutdown()
+}
+
+func (s *StaticServer) afterShutdown() error {
+	log.Printf("Server shutdown")
+	return nil
 }
 
 func checkFile(path string, asDir bool) error {
