@@ -7,9 +7,9 @@ description: |
   It supports HTTP/2 and TLS.
 
   This snap provides both an `h2static` command that can be run by any user,
-  with access to the user home directory, and a system-wide daemon.
+  with access to the user home directory, and a system-wide daemon service.
 
-  The daemon is configured with the following options:
+  The service can be configured with the following options (via `snap set`):
 
   * `allow-outside-symlinks`
 
@@ -18,8 +18,8 @@ description: |
 
   * `basic-auth`
 
-    content of the crednetials file for Basic Authorization. Each line should contain
-    colon-separated pair of username and SHA512 hash of the password.
+    content of the crednetials file for Basic Authorization. Each line should
+    contain colon-separated pair of username and SHA512 hash of the password.
 
   * `disable-h2`
 

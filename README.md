@@ -7,8 +7,7 @@
 [![Snap Status](https://build.snapcraft.io/badge/albertodonato/h2static.svg)](https://build.snapcraft.io/user/albertodonato/h2static)
 
 
-A minimal HTTP server for serving static files, using the builtin Go `http`
-library.
+A minimal HTTP server for serving static files (and websites).
 
 It provides a few handy features for serving files and static websites:
 
