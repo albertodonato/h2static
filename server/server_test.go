@@ -22,69 +22,76 @@ type ServerTestSuite struct {
 }
 
 // If the specified Dir doesn't exist, an error is returned.
-func (s *ServerTestSuite) TestValidateConfigDirNotExists() {
-	serv, err := server.NewStaticServer(server.StaticServerConfig{Dir: "/not/here"})
-	s.Nil(serv)
+func (s *ServerTestSuite) TestConfigValidateDirNotExists() {
+	config := server.StaticServerConfig{Dir: "/not/here"}
+	err := config.Validate()
 	s.NotNil(err)
 	s.Contains(err.Error(), "/not/here: no such file or directory")
 }
 
 // If the specified Dir exists but is not a directory, an error is returned.
-func (s *ServerTestSuite) TestValidateConfigDirNotDir() {
+func (s *ServerTestSuite) TestConfigValidateDirNotDir() {
 	path := s.WriteFile("foo", "bar")
-	serv, err := server.NewStaticServer(server.StaticServerConfig{Dir: path})
-	s.Nil(serv)
+	config := server.StaticServerConfig{Dir: path}
+	err := config.Validate()
 	s.NotNil(err)
 	s.Equal(fmt.Sprintf("not a directory: %s", path), err.Error())
 }
 
 // If the TLS certificate file doesn't exist, an error is returned.
-func (s *ServerTestSuite) TestValidateConfigTLSCertFileNotExists() {
+func (s *ServerTestSuite) TestConfigValidateTLSCertFileNotExists() {
 	tlsKey := s.WriteFile("foo", "bar")
-	serv, err := server.NewStaticServer(server.StaticServerConfig{
+	config := server.StaticServerConfig{
 		Dir:     s.TempDir,
 		TLSCert: "/not/here",
 		TLSKey:  tlsKey,
-	})
-	s.Nil(serv)
+	}
+	err := config.Validate()
 	s.NotNil(err)
 	s.Contains(err.Error(), "/not/here: no such file or directory")
 }
 
 // If the TLS key file doesn't exist, an error is returned.
-func (s *ServerTestSuite) TestValidateConfigTLSKeyFileNotExists() {
+func (s *ServerTestSuite) TestConfigValidateTLSKeyFileNotExists() {
 	tlsCert := s.WriteFile("foo", "bar")
-	serv, err := server.NewStaticServer(
-		server.StaticServerConfig{
-			Dir:     s.TempDir,
-			TLSCert: tlsCert,
-			TLSKey:  "/not/here",
-		})
-	s.Nil(serv)
+	config := server.StaticServerConfig{
+		Dir:     s.TempDir,
+		TLSCert: tlsCert,
+		TLSKey:  "/not/here",
+	}
+	err := config.Validate()
 	s.NotNil(err)
 	s.Contains(err.Error(), "/not/here: no such file or directory")
 }
 
 // If the passwords file doesn't exist, an error is returned.
-func (s *ServerTestSuite) TestValidateConfigPasswordFileNotExists() {
-	serv, err := server.NewStaticServer(
-		server.StaticServerConfig{
-			Dir:          s.TempDir,
-			PasswordFile: "/not/here",
-		})
-	s.Nil(serv)
+func (s *ServerTestSuite) TestConfigValidatePasswordFileNotExists() {
+	config := server.StaticServerConfig{
+		Dir:          s.TempDir,
+		PasswordFile: "/not/here",
+	}
+	err := config.Validate()
 	s.NotNil(err)
 	s.Contains(err.Error(), "/not/here: no such file or directory")
 }
 
 // If no invalid file is passed, ValidateConfig returns nil.
-func (s *ServerTestSuite) TestValidateConfigNoError() {
-	serv, err := server.NewStaticServer(server.StaticServerConfig{Dir: s.TempDir})
-	s.NotNil(serv)
-	s.Nil(err)
+func (s *ServerTestSuite) TestConfigValidateNoError() {
+	config := server.StaticServerConfig{Dir: s.TempDir}
+	s.Nil(config.Validate())
 }
 
-// IsHTTPS returns true if certificates are set.
+// IsHTTPS returns true if certificates are set in the config
+func (s *ServerTestSuite) TestIsHTTPS() {
+	config := server.StaticServerConfig{
+		Dir:     s.TempDir,
+		TLSCert: "cert.pem",
+		TLSKey:  "key.pem",
+	}
+	s.True(config.IsHTTPS())
+}
+
+// If certificates are set and exist, HTTPS is enabled.
 func (s *ServerTestSuite) TestEnableTLSTrue() {
 	tlsCert := s.WriteFile("cert.pem", "cert")
 	tlsKey := s.WriteFile("key.pem", "key")
@@ -94,13 +101,13 @@ func (s *ServerTestSuite) TestEnableTLSTrue() {
 		TLSKey:  tlsKey,
 	})
 	s.Nil(err)
-	s.True(serv.IsHTTPS())
+	s.True(serv.Config.IsHTTPS())
 }
 
-// IsHTTPS returns false if certificates are not set.
+// If certificates are not set, HTTPS is not enabled.
 func (s *ServerTestSuite) TestEnableTLSFalse() {
 	serv := server.StaticServer{}
-	s.False(serv.IsHTTPS())
+	s.False(serv.Config.IsHTTPS())
 }
 
 // getServer returns static file handlers for a path.

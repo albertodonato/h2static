@@ -29,6 +29,33 @@ type StaticServerConfig struct {
 	TLSKey                  string
 }
 
+// IsHTTPS returns whether HTTPS is enabled in the config.
+func (c StaticServerConfig) IsHTTPS() bool {
+	return c.TLSCert != "" && c.TLSKey != ""
+}
+
+// Validate raises an error if StaticServerConfig is invalid.
+func (c StaticServerConfig) Validate() error {
+	if err := checkFile(c.Dir, true); err != nil {
+		return err
+	}
+
+	if c.IsHTTPS() {
+		for _, path := range []string{c.TLSCert, c.TLSKey} {
+			if err := checkFile(path, false); err != nil {
+				return err
+			}
+		}
+	}
+	if c.PasswordFile != "" {
+		if err := checkFile(c.PasswordFile, false); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // StaticServer is a static HTTP server.
 type StaticServer struct {
 	Config StaticServerConfig
@@ -39,10 +66,10 @@ func NewStaticServer(config StaticServerConfig) (*StaticServer, error) {
 	if config.Dir == "" {
 		config.Dir = "."
 	}
-	server := StaticServer{Config: config}
-	if err := validateServerConfig(server); err != nil {
+	if err := config.Validate(); err != nil {
 		return nil, err
 	}
+	server := StaticServer{Config: config}
 
 	// always use absolute path for the root dir.
 	absDir, err := filepath.Abs(config.Dir)
@@ -53,35 +80,9 @@ func NewStaticServer(config StaticServerConfig) (*StaticServer, error) {
 	return &server, nil
 }
 
-func validateServerConfig(s StaticServer) error {
-	if err := checkFile(s.Config.Dir, true); err != nil {
-		return err
-	}
-
-	if s.IsHTTPS() {
-		for _, path := range []string{s.Config.TLSCert, s.Config.TLSKey} {
-			if err := checkFile(path, false); err != nil {
-				return err
-			}
-		}
-	}
-	if s.Config.PasswordFile != "" {
-		if err := checkFile(s.Config.PasswordFile, false); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// IsHTTPS returns whether HTTPS is enabled.
-func (s *StaticServer) IsHTTPS() bool {
-	return s.Config.TLSCert != "" && s.Config.TLSKey != ""
-}
-
 // Scheme returns the server scheme (http or https)
 func (s *StaticServer) Scheme() string {
-	if s.IsHTTPS() {
+	if s.Config.IsHTTPS() {
 		return "https"
 	}
 	return "http"
@@ -153,7 +154,7 @@ func (s *StaticServer) runServer() error {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	go func() {
-		if s.IsHTTPS() {
+		if s.Config.IsHTTPS() {
 			err = server.ListenAndServeTLS(s.Config.TLSCert, s.Config.TLSKey)
 		} else {
 			err = server.ListenAndServe()
