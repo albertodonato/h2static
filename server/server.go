@@ -154,15 +154,21 @@ func (s *StaticServer) runServer() error {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	go func() {
+		var err error
 		if s.Config.IsHTTPS() {
 			err = server.ListenAndServeTLS(s.Config.TLSCert, s.Config.TLSKey)
 		} else {
 			err = server.ListenAndServe()
 		}
+
+		if err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
 	}()
 	<-stop
 
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
 		return err
 	}
