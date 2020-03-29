@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -27,6 +28,16 @@ type StaticServerConfig struct {
 	PasswordFile            string
 	TLSCert                 string
 	TLSKey                  string
+}
+
+// Port returns the port from the config.
+func (c StaticServerConfig) Port() uint16 {
+	i := strings.LastIndex(c.Addr, ":")
+	n, err := strconv.ParseUint(c.Addr[i+1:], 10, 16)
+	if err != nil {
+		return 0
+	}
+	return uint16(n)
 }
 
 // IsHTTPS returns whether HTTPS is enabled in the config.
