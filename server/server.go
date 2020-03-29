@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/albertodonato/h2static/version"
@@ -78,6 +79,14 @@ func (s *StaticServer) IsHTTPS() bool {
 	return s.Config.TLSCert != "" && s.Config.TLSKey != ""
 }
 
+// Scheme returns the server scheme (http or https)
+func (s *StaticServer) Scheme() string {
+	if s.IsHTTPS() {
+		return "https"
+	}
+	return "http"
+}
+
 // getServer returns a configured server.
 func (s *StaticServer) getServer() (*http.Server, error) {
 	fileSystem := FileSystem{
@@ -127,13 +136,9 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 // Run starts the server.
 func (s *StaticServer) Run() error {
 	if s.Config.Log {
-		scheme := "HTTP"
-		if s.IsHTTPS() {
-			scheme = "HTTPS"
-		}
 		log.Printf(
 			"Starting %s server on %s, serving path %s",
-			scheme, s.Config.Addr, s.Config.Dir)
+			strings.ToUpper(s.Scheme()), s.Config.Addr, s.Config.Dir)
 	}
 
 	return s.runServer()
