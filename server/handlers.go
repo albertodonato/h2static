@@ -135,8 +135,8 @@ func (h LoggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	wr := newLoggingResponseWriter(w)
 	h.Handler.ServeHTTP(wr, r)
 	log.Printf(
-		`%s %s %s %d %d %d "%s"`,
-		r.Proto, r.Method, r.URL, r.ContentLength, wr.statusCode, wr.length,
+		`%s %s %s %d %d %d %s "%s"`,
+		r.Proto, r.Method, r.URL, r.ContentLength, wr.statusCode, wr.length, r.RemoteAddr,
 		r.Header.Get("User-Agent"))
 }
 
