@@ -58,7 +58,7 @@ license: LGPL-3.0+
 icon: logo.svg
 confinement: strict
 grade: stable
-base: core18
+base: core20
 
 apps:
   h2static:
@@ -80,10 +80,7 @@ parts:
     plugin: go
     source: .
     source-type: git
-    build-packages:
-      - gcc
-    go-importpath: github.com/albertodonato/h2static
-    # Manually strip binaries (see lp:1858785)
+    # Manually strip binaries (see https://pad.lv/1858785)
     override-build: |
       set -e
       snapcraftctl build
