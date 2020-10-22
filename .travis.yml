@@ -1,8 +1,8 @@
 language: go
 os: linux
 go:
-  - "1.13"
   - "1.14"
+  - "1.15"
 stages:
   - vet
   - lint
@@ -12,8 +12,8 @@ jobs:
   include:
     - stage: vet
       script: go vet ./...
-      go: "1.14"
+      go: "1.15"
     - stage: lint
       install: go get golang.org/x/lint/golint
       script: golint ./...
-      go: "1.14"
+      go: "1.15"
