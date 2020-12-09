@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  vet:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Repository checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Golang
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.15"
+
+    - name: Vet
+      run: |
+        go vet ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Repository checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Golang
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.15"
+
+    - name: Install dependencies
+      run: |
+        go get golang.org/x/lint/golint
+
+    - name: Lint
+      run: |
+        golint ./...
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version:
+          - "1.14"
+          - "1.15"
+    steps:
+    - name: Repository checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Golang
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.python-version }}
+
+    - name: Test
+      run: |
+        go test ./...

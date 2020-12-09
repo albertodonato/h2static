@@ -4,7 +4,7 @@
 
 [![Build status](https://img.shields.io/travis/albertodonato/h2static.svg)](https://travis-ci.com/albertodonato/h2static)
 [![Go Report Card](https://goreportcard.com/badge/github.com/albertodonato/h2static)](https://goreportcard.com/report/github.com/albertodonato/h2static)
-[![Snap Status](https://build.snapcraft.io/badge/albertodonato/h2static.svg)](https://build.snapcraft.io/user/albertodonato/h2static)
+[![Snap Package](https://snapcraft.io/h2static/badge.svg)](https://snapcraft.io/h2static)
 
 
 A minimal HTTP server for serving static files (and websites).
