@@ -2,7 +2,7 @@
 
 # Tiny static web server with TLS and HTTP/2 support
 
-[![Build status](https://img.shields.io/travis/albertodonato/h2static.svg)](https://travis-ci.com/albertodonato/h2static)
+[![Build status](https://github.com/albertodonato/h2static/workflows/CI/badge.svg)](https://github.com/albertodonato/h2static/actions?query=workflow%3ACI)
 [![Go Report Card](https://goreportcard.com/badge/github.com/albertodonato/h2static)](https://goreportcard.com/report/github.com/albertodonato/h2static)
 [![Snap Package](https://snapcraft.io/h2static/badge.svg)](https://snapcraft.io/h2static)
 
