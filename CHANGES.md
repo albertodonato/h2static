@@ -1,3 +1,12 @@
+v2.2.2 - 2020-12-19
+===================
+
+* Log request source address
+* Cleanups and refactoring
+* [snap] Use go modules
+* [snap] switch to `core20`
+
+
 v2.2.1 - 2020-02-08
 ===================
 
