@@ -1,41 +1,23 @@
-name: Release binaries
+name: Release
 
 on:
-  release:
-    types:
-      - created
+  push:
+    tag:
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
-  releases-matrix:
-    name: Release binary
+  release:
+    name: Release
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos:
-          - darwin
-          - linux
-          - windows
-        goarch:
-          - amd64
-          - arm
-          - arm64
-        exclude:
-          - goos: darwin
-            goarch: arm
-          - goos: darwin
-            goarch: arm64
-          - goos: windows
-            goarch: arm64
     steps:
     - name: Repository checkout
       uses: actions/checkout@v2
-    - name:
-      uses: wangyoucao577/go-release-action@v1.11
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        goos: ${{ matrix.goos }}
-        goarch: ${{ matrix.goarch }}
-        project_path: ./cmd/h2static
-        binary_name: h2static
-        extra_files: CHANGES.md LICENSE logo.svg README.md
-        sha256sum: true
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false

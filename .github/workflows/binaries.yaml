@@ -1,0 +1,41 @@
+name: Build release binaries
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  release-binaries:
+    name: Build release binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos:
+          - darwin
+          - linux
+          - windows
+        goarch:
+          - amd64
+          - arm
+          - arm64
+        exclude:
+          - goos: darwin
+            goarch: arm
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: arm64
+    steps:
+    - name: Repository checkout
+      uses: actions/checkout@v2
+    - name:
+      uses: wangyoucao577/go-release-action@v1.11
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        project_path: ./cmd/h2static
+        binary_name: h2static
+        extra_files: CHANGES.md LICENSE logo.svg README.md
+        sha256sum: true
