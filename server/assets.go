@@ -142,7 +142,7 @@ a.type-file {
 .powered-by a {
   font-family: monospace;
   font-size: 120%;
-  margin-left: 0.5em;
+  margin: 0 0.5em;
 }
 a.powered-by:hover {
   text-decoration: underline;

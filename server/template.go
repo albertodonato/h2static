@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"runtime"
 	"sort"
 	"strings"
 
@@ -18,7 +19,7 @@ const AssetsPrefix = "/.h2static-assets/"
 var dirListingTemplateText = `<!DOCTYPE html>
 <html>
   <head>
-    <title>{{ .App.Name }} - Inde of {{ .Dir.Name }}</title>
+    <title>{{ .App.Name }} - Index of {{ .Dir.Name }}</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="{{ .App.Name }}/{{ .App.Version }}">
@@ -62,7 +63,7 @@ var dirListingTemplateText = `<!DOCTYPE html>
     </main>
     <footer>
       <div class="powered-by">
-        Powered by <a href="https://github.com/albertodonato/h2static">{{ .App.Name }} {{ .App.Version }}</a>
+        Powered by <a href="https://github.com/albertodonato/h2static">{{ .App.Name }} {{ .App.Version }}</a> on {{ .OS.OS }}/{{ .OS.Arch }}
       </div>
     </footer>
   </body>
@@ -102,11 +103,17 @@ type sortInfo struct {
 	Asc    bool
 }
 
+type osInfo struct {
+	OS   string
+	Arch string
+}
+
 type templateContext struct {
 	App          version.Version
 	AssetsPrefix string
-	Sort         sortInfo
 	Dir          DirInfo
+	OS           osInfo
+	Sort         sortInfo
 }
 
 // DirectoryListingTemplate is a template rendered for a directory.
@@ -177,8 +184,13 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, so
 		}
 		entries = append(entries, entry)
 	}
+
 	return &templateContext{
-		App:          version.App,
+		App: version.App,
+		OS: osInfo{
+			OS:   strings.Title(runtime.GOOS),
+			Arch: runtime.GOARCH,
+		},
 		AssetsPrefix: AssetsPrefix,
 		Sort: sortInfo{
 			Column: sortColumn,
