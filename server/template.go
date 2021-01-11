@@ -15,6 +15,9 @@ import (
 // AssetsPrefix defines the URL prefix for static assets.
 const AssetsPrefix = "/.h2static-assets/"
 
+// CSSAsset defines the path of the CSS file.
+const CSSAsset = AssetsPrefix + "style.css"
+
 // template for the directory listing page
 var dirListingTemplateText = `<!DOCTYPE html>
 <html>
@@ -23,7 +26,7 @@ var dirListingTemplateText = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="{{ .App.Name }}/{{ .App.Version }}">
-    <link rel="stylesheet" type="text/css" href="{{ .AssetsPrefix }}style.css">
+    <link rel="stylesheet" type="text/css" href="{{ .CSSAsset }}">
   </head>
   <body>
     <header>
@@ -111,6 +114,7 @@ type osInfo struct {
 type templateContext struct {
 	App          version.Version
 	AssetsPrefix string
+	CSSAsset     string
 	Dir          DirInfo
 	OS           osInfo
 	Sort         sortInfo
@@ -192,6 +196,7 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, so
 			Arch: runtime.GOARCH,
 		},
 		AssetsPrefix: AssetsPrefix,
+		CSSAsset:     CSSAsset,
 		Sort: sortInfo{
 			Column: sortColumn,
 			Asc:    sortAsc,

@@ -38,6 +38,17 @@ func (s *StaticServerConfigTestSuite) TestConfigValidateDirNotDir() {
 	s.Equal(fmt.Sprintf("not a directory: %s", path), err.Error())
 }
 
+// If the CSS file doesn't exist, an error is returned.
+func (s *StaticServerConfigTestSuite) TestConfigValidateCSSFileNotExist() {
+	config := server.StaticServerConfig{
+		Dir: s.TempDir,
+		CSS: "/not/here",
+	}
+	err := config.Validate()
+	s.NotNil(err)
+	s.Contains(err.Error(), "/not/here: no such file or directory")
+}
+
 // If the TLS certificate file doesn't exist, an error is returned.
 func (s *StaticServerConfigTestSuite) TestConfigValidateTLSCertFileNotExists() {
 	tlsKey := s.WriteFile("foo", "bar")
@@ -220,4 +231,42 @@ func (s *StaticServerTestSuite) TestSetupServerBasicAuth() {
 	s.Nil(err)
 	h := httpServer.Handler.(*server.CommonHeadersHandler)
 	s.IsType(&server.BasicAuthHandler{}, h.Handler)
+}
+
+func TestServeResources(t *testing.T) {
+	suite.Run(t, new(ServeResourcesTestSuite))
+}
+
+type ServeResourcesTestSuite struct {
+	testhelpers.TempDirTestSuite
+
+	server *server.StaticServer
+}
+
+func (s *ServeResourcesTestSuite) SetupTest() {
+	s.TempDirTestSuite.SetupTest()
+	cssPath := s.WriteFile("style.css", "")
+	server, err := server.NewStaticServer(server.StaticServerConfig{
+		Dir: s.TempDir,
+		CSS: cssPath,
+	})
+	s.server = server
+	s.Nil(err)
+}
+
+func (s *ServeResourcesTestSuite) TestCSSFile() {
+	cssContent := "body {background: red;}"
+	s.WriteFile("style.css", cssContent)
+	httpServer, err := server.GetServer(s.server)
+	s.Nil(err)
+	h := httpServer.Handler.(*server.CommonHeadersHandler)
+	mux := h.Handler.(*http.ServeMux)
+	r := httptest.NewRequest("GET", server.CSSAsset, nil)
+	w := httptest.NewRecorder()
+	fh, _ := mux.Handler(r)
+	fh.ServeHTTP(w, r)
+	response := w.Result()
+	s.Equal(http.StatusOK, response.StatusCode)
+	s.Equal(cssContent, w.Body.String())
+
 }

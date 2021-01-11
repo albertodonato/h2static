@@ -21,19 +21,20 @@ Usage of {{.Name}}:
 func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.StaticServer, error) {
 	conf := &server.StaticServerConfig{}
 	fs.StringVar(&conf.Addr, "addr", ":8080", "address and port to listen on")
+	fs.StringVar(&conf.CSS, "css", "", "file to override builtin CSS")
 	fs.BoolVar(
 		&conf.AllowOutsideSymlinks, "allow-outside-symlinks", false,
 		"allow symlinks with target outside of directory")
-	fs.StringVar(
-		&conf.PasswordFile, "basic-auth", "",
-		`password file for Basic Auth (each line should be in the form "user:SHA512-hash")`)
 	fs.StringVar(&conf.Dir, "dir", ".", "directory to serve")
+	fs.BoolVar(&conf.DisableH2, "disable-h2", false, "disable HTTP/2 support")
 	fs.BoolVar(
 		&conf.DisableLookupWithSuffix, "disable-lookup-with-suffix", false,
 		"disable matching files with .htm(l) suffix for paths without suffix")
-	fs.BoolVar(&conf.DisableH2, "disable-h2", false, "disable HTTP/2 support")
-	fs.BoolVar(&conf.ShowDotFiles, "show-dotfiles", false, "show files whose name starts with a dot")
 	fs.BoolVar(&conf.Log, "log", false, "log requests")
+	fs.StringVar(
+		&conf.PasswordFile, "basic-auth", "",
+		`password file for Basic Auth (each line should be in the form "user:SHA512-hash")`)
+	fs.BoolVar(&conf.ShowDotFiles, "show-dotfiles", false, "show files whose name starts with a dot")
 	fs.StringVar(&conf.TLSCert, "tls-cert", "", "certificate file for TLS connections")
 	fs.StringVar(&conf.TLSKey, "tls-key", "", "key file for TLS connections")
 	fs.Usage = func() {

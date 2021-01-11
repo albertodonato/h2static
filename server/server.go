@@ -20,12 +20,13 @@ import (
 type StaticServerConfig struct {
 	Addr                    string
 	AllowOutsideSymlinks    bool
+	CSS                     string
 	Dir                     string
 	DisableH2               bool
 	DisableLookupWithSuffix bool
-	ShowDotFiles            bool
 	Log                     bool
 	PasswordFile            string
+	ShowDotFiles            bool
 	TLSCert                 string
 	TLSKey                  string
 }
@@ -50,7 +51,11 @@ func (c StaticServerConfig) Validate() error {
 	if err := checkFile(c.Dir, true); err != nil {
 		return err
 	}
-
+	if c.CSS != "" {
+		if err := checkFile(c.CSS, false); err != nil {
+			return err
+		}
+	}
 	if c.IsHTTPS() {
 		for _, path := range []string{c.TLSCert, c.TLSKey} {
 			if err := checkFile(path, false); err != nil {
@@ -88,6 +93,7 @@ func NewStaticServer(config StaticServerConfig) (*StaticServer, error) {
 		return nil, err
 	}
 	server.Config.Dir = absDir
+
 	return &server, nil
 }
 
@@ -109,6 +115,15 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/", NewFileHandler(fileSystem))
+	if s.Config.CSS != "" {
+		// serve CSS from the specified file instead of the builtin asset
+		mux.HandleFunc(
+			CSSAsset,
+			func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, s.Config.CSS)
+			})
+
+	}
 	mux.Handle(
 		AssetsPrefix,
 		http.StripPrefix(AssetsPrefix, &AssetsHandler{Assets: staticAssets}))
