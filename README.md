@@ -19,7 +19,10 @@ It provides a few handy features for serving files and static websites:
 * serve the corresponding `.html`/`.htm` file for a path without the suffix
   (when such path doesn't exist)
 
-It can be run simply as
+Pre-build binaries are available for different achitectures on the [releases
+page](https://github.com/albertodonato/h2static/releases).
+
+Alternatively, it can be run simply as
 
 ```bash
 go run ./cmd/h2static
