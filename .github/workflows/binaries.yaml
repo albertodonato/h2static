@@ -30,7 +30,7 @@ jobs:
     - name: Repository checkout
       uses: actions/checkout@v2
     - name:
-      uses: wangyoucao577/go-release-action@v1.11
+      uses: wangyoucao577/go-release-action@v1.16
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
