@@ -46,6 +46,7 @@ required. The service can be run with
 h2static -tls-cert cert.pem -tls-key key.pem
 ```
 
+
 ## JSON directory listing
 
 When requesting a path that matches a directory, it's possible to get the
@@ -78,6 +79,29 @@ $ curl -s -H "Accept: application/json" http://localhost:8080/ | jq
 ```
 
 
+## Basic-authentication
+
+
+It's possible to enable Basic-authentication for the static serve via the `--basic-auth authfile` option. The `authfile` should have the following format:
+
+
+```
+user1:bc547750b92797f955b36112cc9bdd5cddf7d0862151d03a167ada8995aa24a9ad24610b36a68bc02da24141ee51670aea13ed6469099a4453f335cb239db5da
+user2:92a891f888e79d1c2e8b82663c0f37cc6d61466c508ec62b8132588afe354712b20bb75429aa20aa3ab7cfcc58836c734306b43efd368080a2250831bf7f363f
+```
+
+where passwords are SHA-512 hashed. A simple way to generate the hash is via:
+
+```bash
+echo -n PASSWORD | sha512sum
+```
+
+and copying the resulting hash to the file.
+
+
+Note that the password file is read once at startup, subsequent changes to it won't affect authentication.
+
+
 ## Usage
 
 Full usage options are as follows:
@@ -91,6 +115,8 @@ Usage of h2static:
         allow symlinks with target outside of directory
   -basic-auth string
         password file for Basic Auth (each line should be in the form "user:SHA512-hash")
+  -css string
+        file to override builtin CSS for listing
   -dir string
         directory to serve (default ".")
   -disable-h2

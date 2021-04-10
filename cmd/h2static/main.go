@@ -21,7 +21,7 @@ Usage of {{.Name}}:
 func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.StaticServer, error) {
 	conf := &server.StaticServerConfig{}
 	fs.StringVar(&conf.Addr, "addr", ":8080", "address and port to listen on")
-	fs.StringVar(&conf.CSS, "css", "", "file to override builtin CSS")
+	fs.StringVar(&conf.CSS, "css", "", "file to override builtin CSS for listing")
 	fs.BoolVar(
 		&conf.AllowOutsideSymlinks, "allow-outside-symlinks", false,
 		"allow symlinks with target outside of directory")
