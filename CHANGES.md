@@ -1,3 +1,10 @@
+v2.3.2 - 2021-04-10
+===================
+
+- Change licence to EUPL-1.2
+- [gh] Fix action to build release binaries
+
+
 v2.3.1 - 2021-04-10
 ===================
 
