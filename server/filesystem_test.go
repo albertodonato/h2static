@@ -154,11 +154,10 @@ func (s *FileSystemTestSuite) TestHideDotFilesListing() {
 // Files starting with a dot can be included in listing.
 func (s *FileSystemTestSuite) TestShowDotFilesListing() {
 	s.WriteFile(".foo", "")
-	s.WriteFile("bar", "")
 	s.fs.HideDotFiles = false
 	file, err := s.fs.Open("/")
 	s.Nil(err)
-	s.Equal([]string{".foo", "bar"}, s.fileList(file))
+	s.Equal([]string{".foo"}, s.fileList(file))
 }
 
 // Symlinks are reported as files or directories based on the target.
