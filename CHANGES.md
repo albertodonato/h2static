@@ -1,3 +1,10 @@
+v2.3.1 - 2021-04-10
+===================
+
+* Fix flaky test
+* [gh] Fix GitHub actions branch name
+
+
 v2.3.0 - 2021-04-10
 ===================
 
