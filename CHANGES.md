@@ -1,3 +1,11 @@
+v2.3.0 - 2021-04-10
+===================
+
+* Support custom CSS file for listing (#10)
+* Add OS/architecture info at bottom of listing page
+* Update dependencies and go versions
+
+
 v2.2.2 - 2020-12-19
 ===================
 
