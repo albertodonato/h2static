@@ -94,6 +94,7 @@ where passwords are SHA-512 hashed. A simple way to generate the hash is via:
 
 ```bash
 echo -n PASSWORD | sha512sum
+911b0a07a8cacfebc5f1f45596d67017136c950499fa5b4ff6faffa031f3cec7f197853d1660712c154e1f59c60f682e34ea9b5cbd2d8d5adb0c834f963f30de  -
 ```
 
 and copying the resulting hash to the file.
