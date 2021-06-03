@@ -2,7 +2,6 @@ package server_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/albertodonato/h2static/server"
 	"github.com/albertodonato/h2static/testhelpers"
-	"github.com/albertodonato/h2static/version"
 )
 
 func TestFileHandler(t *testing.T) {
@@ -265,23 +263,25 @@ func (s *BasicAuthHandlerTestSuite) TestValidCredentials() {
 	s.Equal(http.StatusNotFound, response.StatusCode)
 }
 
-func TestCommonHeadersHandler(t *testing.T) {
-	suite.Run(t, new(CommonHeadersHandlerTestSuite))
+func TestAddHeadersHandler(t *testing.T) {
+	suite.Run(t, new(AddHeadersHandlerTestSuite))
 }
 
-type CommonHeadersHandlerTestSuite struct {
+type AddHeadersHandlerTestSuite struct {
 	suite.Suite
 }
 
-func (s *CommonHeadersHandlerTestSuite) TestAddHeaders() {
+func (s *AddHeadersHandlerTestSuite) TestAddHeaders() {
 	r := httptest.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
-	handler := server.CommonHeadersHandler{Handler: http.NotFoundHandler()}
+	handler := server.AddHeadersHandler(
+		map[string]string{"X-Foo": "foo", "X-Bar": "bar"},
+		http.NotFoundHandler())
 	handler.ServeHTTP(w, r)
 	response := w.Result()
-	server := fmt.Sprintf("%s/%s", version.App.Name, version.App.Version)
 	s.Equal(http.StatusNotFound, response.StatusCode)
-	s.Equal(server, response.Header.Get("Server"))
+	s.Equal("foo", response.Header.Get("X-Foo"))
+	s.Equal("bar", response.Header.Get("X-Bar"))
 }
 
 func TestAssetsHandler(t *testing.T) {
@@ -293,30 +293,17 @@ type AssetsHandlerTestSuite struct {
 }
 
 func (s *AssetsHandlerTestSuite) TestServeAssets() {
-	assets := server.StaticAssets{
-		"foo.txt": {
-			ContentType: "text/plain",
-			Content:     []byte("foo content"),
-		},
-		"bar.json": {
-			ContentType: "application/json",
-			Content:     []byte(`{"a":"b"}`),
-		},
+	handler := server.AssetsHandler()
+	filesMap := map[string]string{
+		"logo.svg":  "image/svg+xml",
+		"style.css": "text/css; charset=utf-8",
 	}
-
-	handler := server.AssetsHandler{Assets: assets}
-	r := httptest.NewRequest("GET", "/foo.txt", nil)
-	w := httptest.NewRecorder()
-	handler.ServeHTTP(w, r)
-	response := w.Result()
-	s.Equal(http.StatusOK, response.StatusCode)
-	s.Equal("text/plain", response.Header.Get("Content-Type"))
-	s.Equal("foo content", w.Body.String())
-	r = httptest.NewRequest("GET", "/bar.json", nil)
-	w = httptest.NewRecorder()
-	handler.ServeHTTP(w, r)
-	response = w.Result()
-	s.Equal(http.StatusOK, response.StatusCode)
-	s.Equal("application/json", response.Header.Get("Content-Type"))
-	s.Equal(`{"a":"b"}`, w.Body.String())
+	for filePath, contentType := range filesMap {
+		r := httptest.NewRequest("GET", "/"+filePath, nil)
+		w := httptest.NewRecorder()
+		handler.ServeHTTP(w, r)
+		response := w.Result()
+		s.Equal(http.StatusOK, response.StatusCode)
+		s.Equal(contentType, response.Header.Get("Content-Type"))
+	}
 }

@@ -107,29 +107,35 @@ func (s *StaticServer) Scheme() string {
 
 // getServer returns a configured server.
 func (s *StaticServer) getServer() (*http.Server, error) {
+	mux := http.NewServeMux()
+	// handler for static files
 	fileSystem := FileSystem{
 		AllowOutsideSymlinks: s.Config.AllowOutsideSymlinks,
 		HideDotFiles:         !s.Config.ShowDotFiles,
 		ResolveHTML:          !s.Config.DisableLookupWithSuffix,
 		Root:                 s.Config.Dir,
 	}
-	mux := http.NewServeMux()
 	mux.Handle("/", NewFileHandler(fileSystem))
+
+	// add handler for builtin assets. Cache them for 24h so they don't
+	// get requested each time
+	assetsHandler := AssetsHandler()
+	assetsHandler = AddHeadersHandler(
+		map[string]string{"Cache-Control": fmt.Sprintf("public, max-age=%d", 24*60*60)},
+		AssetsHandler())
+	mux.Handle(AssetsPrefix, http.StripPrefix(AssetsPrefix, assetsHandler))
+
+	// optionally, serve CSS from the specified file instead of the builtin assets
 	if s.Config.CSS != "" {
-		// serve CSS from the specified file instead of the builtin asset
 		mux.HandleFunc(
 			CSSAsset,
 			func(w http.ResponseWriter, r *http.Request) {
 				http.ServeFile(w, r, s.Config.CSS)
 			})
-
 	}
-	mux.Handle(
-		AssetsPrefix,
-		http.StripPrefix(AssetsPrefix, &AssetsHandler{Assets: staticAssets}))
 
+	// optionally, wrap handler with Basic-Auth
 	var handler http.Handler = mux
-
 	if s.Config.PasswordFile != "" {
 		credentials, err := loadCredentials(s.Config.PasswordFile)
 		if err != nil {
@@ -142,10 +148,15 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 		}
 	}
 
+	// optionally, enable logging
 	if s.Config.Log {
 		handler = &LoggingHandler{Handler: handler}
 	}
-	handler = &CommonHeadersHandler{Handler: handler}
+
+	// always add server version to headers
+	handler = AddHeadersHandler(
+		map[string]string{"Server": fmt.Sprintf("%s/%s", version.App.Name, version.App.Version)},
+		handler)
 
 	tlsNextProto := map[string]func(*http.Server, *tls.Conn, http.Handler){}
 	if !s.Config.DisableH2 {

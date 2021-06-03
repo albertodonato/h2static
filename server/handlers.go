@@ -2,15 +2,15 @@ package server
 
 import (
 	"crypto/sha512"
+	"embed"
 	"encoding/hex"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"strings"
-
-	"github.com/albertodonato/h2static/version"
 )
 
 // FileHandler is an http.Handler which serves static files under the specified
@@ -177,36 +177,25 @@ func (h BasicAuthHandler) hashPassword(password string) string {
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-// CommonHeadersHandler adds common headers to the response.
-type CommonHeadersHandler struct {
-	http.Handler
+// AddHeadersHandler wraps an http.Handler adding headers.
+func AddHeadersHandler(headers map[string]string, h http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			header := w.Header()
+			for key, value := range headers {
+				header.Set(key, value)
+			}
+			h.ServeHTTP(w, r)
+		})
 }
 
-// ServeHTTP adds common headers to the response.
-func (h CommonHeadersHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set(
-		"Server", fmt.Sprintf("%s/%s", version.App.Name, version.App.Version))
-	h.Handler.ServeHTTP(w, r)
-}
+//go:embed assets
+var assetsFileSystem embed.FS
 
-// AssetsHandler serves static assets.
-type AssetsHandler struct {
-	http.Handler
-
-	Assets StaticAssets
-}
-
-// ServeHTTP return content for static assets.
-func (h AssetsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	asset, ok := h.Assets[strings.TrimPrefix(r.URL.Path, "/")]
-	if ok {
-		header := w.Header()
-		header.Set("Content-Type", asset.ContentType)
-		header.Set("Cache-Control", "public, max-age=86400")
-		w.Write(asset.Content)
-		return
-	}
-	writeHTTPError(w, http.StatusNotFound)
+// AssetsHandler serves static assets for the server.
+func AssetsHandler() http.Handler {
+	fileSystem, _ := fs.Sub(assetsFileSystem, "assets")
+	return http.FileServer(http.FS(fileSystem))
 }
 
 func writeHTTPError(w http.ResponseWriter, code int) {
