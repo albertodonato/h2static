@@ -1,6 +1,7 @@
 package server
 
 import (
+	_ "embed" // for embed directive
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -18,60 +19,8 @@ const AssetsPrefix = "/.h2static-assets/"
 // CSSAsset defines the path of the CSS file.
 const CSSAsset = AssetsPrefix + "style.css"
 
-// template for the directory listing page
-var dirListingTemplateText = `<!DOCTYPE html>
-<html>
-  <head>
-    <title>{{ .App.Name }} - Index of {{ .Dir.Name }}</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="{{ .App.Name }}/{{ .App.Version }}">
-    <link rel="stylesheet" type="text/css" href="{{ .CSSAsset }}">
-  </head>
-  <body>
-    <header>
-      <h1>
-        <a class="logo" alt="{{ .App.Name }}" href="/">
-          <img src="{{ .AssetsPrefix }}logo.svg">
-        </a>
-        <span class="title">Index of <span class="path">{{ .Dir.Name }}</span></span>
-      </h1>
-    </header>
-    <main>
-      <section class="listing">
-        <div class="row sort sort-{{- if .Sort.Asc }}asc{{ else }}desc{{ end -}}">
-          <a class="col col-name {{ if eq .Sort.Column "n" }}sorted{{ end -}}" href="?c=n&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Name</a>
-          <a class="col col-size {{ if eq .Sort.Column "s" }}sorted{{ end -}}" href="?c=s&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Size</a>
-        </div>
-        {{- if not .Dir.IsRoot -}}
-        <div class="row entry">
-          <a href=".." class="col col-name type-dir-up">..</a>
-        </div>
-        {{- end -}}
-        {{- range $i, $entry := .Dir.Entries -}}
-        {{- $i := inc $i -}}
-        <div class="row entry">
-          {{ if .IsDir -}}
-            <a href="{{ .Name }}/" class="col col-name type-dir" tabindex="{{ $i }}">{{ .Name }}/</a>
-          {{- else -}}
-            <a href="{{ .Name }}" class="col col-name type-file" tabindex="{{ $i }}">{{ .Name }}</a>
-          {{- end }}
-          <span class="col col-size">
-            {{ if eq .HumanSize.Suffix "" }}&mdash;{{ else }}{{ .HumanSize.Value }}{{ end -}}
-            <span class="size-suffix">{{ .HumanSize.Suffix }}</span>
-          </span>
-        </div>
-        {{ end -}}
-      </section>
-    </main>
-    <footer>
-      <div class="powered-by">
-        Powered by <a href="https://github.com/albertodonato/h2static">{{ .App.Name }} {{ .App.Version }}</a> on {{ .OS.OS }}/{{ .OS.Arch }}
-      </div>
-    </footer>
-  </body>
-</html>
-`
+//go:embed template.html
+var dirListingTemplateText string
 
 // DirInfo holds details about the directory being listed.
 type DirInfo struct {
