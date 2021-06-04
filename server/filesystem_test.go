@@ -47,6 +47,7 @@ func (s *FileSystemTestSuite) fileList(file *server.File) (names []string) {
 	for _, file := range files {
 		names = append(names, file.Info.Name())
 	}
+	sort.Strings(names)
 	return
 }
 

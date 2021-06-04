@@ -118,9 +118,8 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 	mux.Handle("/", NewFileHandler(fileSystem))
 
 	// add handler for builtin assets. Cache them for 24h so they don't
-	// get requested each time
-	assetsHandler := AssetsHandler()
-	assetsHandler = AddHeadersHandler(
+	// get requested every time
+	assetsHandler := AddHeadersHandler(
 		map[string]string{"Cache-Control": fmt.Sprintf("public, max-age=%d", 24*60*60)},
 		AssetsHandler())
 	mux.Handle(AssetsPrefix, http.StripPrefix(AssetsPrefix, assetsHandler))
