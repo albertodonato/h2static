@@ -55,7 +55,7 @@ description: |
     support will be enabled.
 
 license: EUPL-1.2
-icon: logo.svg
+icon: server/assets/logo.svg
 confinement: strict
 grade: stable
 base: core20

@@ -1,4 +1,4 @@
-![h2static logo](./logo.svg)
+![h2static logo](server/assets/logo.svg)
 
 # Tiny static web server with TLS and HTTP/2 support
 
