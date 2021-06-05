@@ -1,8 +1,16 @@
+v2.3.3 - 2021-06-05
+===================
+
+* Move assets and templates out of code, include them using the `embed` module
+* Require Go 1.16 (for `embed`)
+* Add favicon
+
+
 v2.3.2 - 2021-04-10
 ===================
 
-- Change licence to EUPL-1.2
-- [gh] Fix action to build release binaries
+* Change licence to EUPL-1.2
+* [gh] Fix action to build release binaries
 
 
 v2.3.1 - 2021-04-10
