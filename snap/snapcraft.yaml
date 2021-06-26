@@ -37,6 +37,11 @@ description: |
 
     If this option empty or null, the service will not be started.
 
+  * `request-path-prefix`
+
+    a path prefix to be stripped for the request. This is mostly useful in the
+    case where the server is behind a reverse proxy with a prefix set.
+
   * `serve-path`
 
     the directory to serve content from. it's set to `$SNAP_COMMON` if not

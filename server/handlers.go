@@ -21,10 +21,10 @@ type FileHandler struct {
 }
 
 // NewFileHandler returns a FileHandler for the specified filesystem.
-func NewFileHandler(fileSystem FileSystem) *FileHandler {
+func NewFileHandler(fileSystem FileSystem, pathPrefix string) *FileHandler {
 	return &FileHandler{
 		FileSystem: fileSystem,
-		template:   NewDirectoryListingTemplate(),
+		template:   NewDirectoryListingTemplate(DirectoryListingTemplateConfig{PathPrefix: pathPrefix}),
 	}
 }
 

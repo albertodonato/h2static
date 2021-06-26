@@ -126,6 +126,8 @@ Usage of h2static:
         disable matching files with .htm(l) suffix for paths without suffix
   -log
         log requests
+  -request-path-prefix string
+        prefix to strip from request path (e.g. when behind a reverse proxy)
   -show-dotfiles
         show files whose name starts with a dot
   -tls-cert string

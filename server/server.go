@@ -26,6 +26,7 @@ type StaticServerConfig struct {
 	DisableLookupWithSuffix bool
 	Log                     bool
 	PasswordFile            string
+	RequestPathPrefix       string
 	ShowDotFiles            bool
 	TLSCert                 string
 	TLSKey                  string
@@ -115,7 +116,7 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 		ResolveHTML:          !s.Config.DisableLookupWithSuffix,
 		Root:                 s.Config.Dir,
 	}
-	mux.Handle("/", NewFileHandler(fileSystem))
+	mux.Handle("/", NewFileHandler(fileSystem, s.Config.RequestPathPrefix))
 
 	// add handler for builtin assets. Cache them for 24h so they don't
 	// get requested every time
@@ -133,8 +134,12 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 			})
 	}
 
-	// optionally, wrap handler with Basic-Auth
 	var handler http.Handler = mux
+	// optionally, strip request path prefix
+	if s.Config.RequestPathPrefix != "" {
+		handler = http.StripPrefix(s.Config.RequestPathPrefix, handler)
+	}
+	// optionally, wrap handler with Basic-Auth
 	if s.Config.PasswordFile != "" {
 		credentials, err := loadCredentials(s.Config.PasswordFile)
 		if err != nil {

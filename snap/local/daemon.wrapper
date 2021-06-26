@@ -21,6 +21,9 @@ fi
 
 dir=$(option_get serve-path "$SNAP_COMMON")
 
+# command-line options
+opts=""
+
 # handle boolean options
 declare -a bool_opts=(
     allow-outside-symlinks
@@ -28,13 +31,19 @@ declare -a bool_opts=(
     disable-lookup-with-suffix
     show-dotfiles
 )
-opts=""
 for option in "${bool_opts[@]}"; do
     if [ "$(option_get "$option")" = "true" ]; then
-        opts="$opts -${option}"
+        opts+=" -${option}"
     fi
 done
 
+# request path prefix
+request_path_prefix="$option_get request-path-prefix"
+if [ -n "$request_path_prefix" ]; then
+    opts+=" -request-path-prefix ${request_path_prefix}"
+fi
+
+# TLS options
 tls_cert="$(option_get tls.cert)"
 tls_key="$(option_get tls.key)"
 tls_cert_file="$SNAP_DATA/cert.pem"
@@ -44,18 +53,19 @@ if [ -n "$tls_key" ] && [ -n "$tls_cert" ]; then
     chmod 600 "$tls_cert_file" "$tls_key_file"
     echo "$tls_cert" > "$tls_cert_file"
     echo "$tls_key" > "$tls_key_file"
-    opts="$opts -tls-cert $tls_cert_file -tls-key $tls_key_file"
+    opts+=" -tls-cert $tls_cert_file -tls-key $tls_key_file"
 else
     rm -f "$tls_cert_file" "$tls_key_file"
 fi
 
+# basic-auth
 basic_auth="$(option_get basic-auth)"
 basic_auth_file="$SNAP_DATA/basic-auth"
 if [ -n "$basic_auth" ]; then
     touch "$basic_auth_file"
     chmod 600 "$basic_auth_file"
     echo "$basic_auth" > "$basic_auth_file"
-    opts="$opts -basic-auth $basic_auth_file"
+    opts+=" -basic-auth $basic_auth_file"
 else
     rm -rf "$basic_auth_file"
 fi

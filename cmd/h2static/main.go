@@ -34,6 +34,9 @@ func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.Static
 	fs.StringVar(
 		&conf.PasswordFile, "basic-auth", "",
 		`password file for Basic Auth (each line should be in the form "user:SHA512-hash")`)
+	fs.StringVar(
+		&conf.RequestPathPrefix, "request-path-prefix", "",
+		"prefix to strip from request path (e.g. when behind a reverse proxy)")
 	fs.BoolVar(&conf.ShowDotFiles, "show-dotfiles", false, "show files whose name starts with a dot")
 	fs.StringVar(&conf.TLSCert, "tls-cert", "", "certificate file for TLS connections")
 	fs.StringVar(&conf.TLSKey, "tls-key", "", "key file for TLS connections")

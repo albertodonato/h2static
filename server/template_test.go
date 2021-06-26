@@ -39,7 +39,7 @@ func (s *DirectoryListingTemplateTestSuite) SetupTest() {
 
 // RenderHTML renders the HTML template.
 func (s *DirectoryListingTemplateTestSuite) TestRenderHTML() {
-	template := server.NewDirectoryListingTemplate()
+	template := server.NewDirectoryListingTemplate(server.DirectoryListingTemplateConfig{})
 	w := httptest.NewRecorder()
 	template.RenderHTML(w, "/", s.dir, "", true)
 	response := w.Result()
@@ -51,9 +51,19 @@ func (s *DirectoryListingTemplateTestSuite) TestRenderHTML() {
 	s.Contains(content, `<a href="foo" class="col col-name type-file" tabindex="3">foo</a>`)
 }
 
+// RenderHTML renders the HTML template with the correct path prefix.
+func (s *DirectoryListingTemplateTestSuite) TestRenderHTMLWithPathPrefix() {
+	template := server.NewDirectoryListingTemplate(server.DirectoryListingTemplateConfig{PathPrefix: "/prefix"})
+	w := httptest.NewRecorder()
+	template.RenderHTML(w, "/", s.dir, "", true)
+	content := w.Body.String()
+	s.Contains(content, `<link rel="shortcut icon" type="image/svg+xml" href="/prefix/.h2static-assets/logo.svg">`)
+	s.Contains(content, `<link rel="stylesheet" type="text/css" href="/prefix/.h2static-assets/style.css">`)
+}
+
 // RenderHTML renders controls for descending sorting.
 func (s *DirectoryListingTemplateTestSuite) TestRenderHTMLSortControlsDesc() {
-	template := server.NewDirectoryListingTemplate()
+	template := server.NewDirectoryListingTemplate(server.DirectoryListingTemplateConfig{})
 	w := httptest.NewRecorder()
 	template.RenderHTML(w, "/", s.dir, "", true)
 	response := w.Result()
@@ -66,7 +76,7 @@ func (s *DirectoryListingTemplateTestSuite) TestRenderHTMLSortControlsDesc() {
 
 // RenderHTML renders controls for ascending sorting.
 func (s *DirectoryListingTemplateTestSuite) TestRenderHTMLSortControlsAsc() {
-	template := server.NewDirectoryListingTemplate()
+	template := server.NewDirectoryListingTemplate(server.DirectoryListingTemplateConfig{})
 	w := httptest.NewRecorder()
 	template.RenderHTML(w, "/", s.dir, "", false)
 	response := w.Result()
@@ -79,7 +89,7 @@ func (s *DirectoryListingTemplateTestSuite) TestRenderHTMLSortControlsAsc() {
 
 // RenderJSON renders JSON listing.
 func (s *DirectoryListingTemplateTestSuite) TestRenderJSON() {
-	template := server.NewDirectoryListingTemplate()
+	template := server.NewDirectoryListingTemplate(server.DirectoryListingTemplateConfig{})
 	w := httptest.NewRecorder()
 	template.RenderJSON(w, "/", s.dir, "", true)
 	response := w.Result()

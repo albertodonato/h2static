@@ -69,14 +69,21 @@ type templateContext struct {
 	Sort         sortInfo
 }
 
+// DirectoryListingTemplateConfig holds configuration for a DirectoryListingTemplate
+type DirectoryListingTemplateConfig struct {
+	PathPrefix string
+}
+
 // DirectoryListingTemplate is a template rendered for a directory.
 type DirectoryListingTemplate struct {
+	Config   DirectoryListingTemplateConfig
 	template *template.Template
 }
 
 // NewDirectoryListingTemplate returns a DirectoryListingTemplate for the specified directory.
-func NewDirectoryListingTemplate() *DirectoryListingTemplate {
+func NewDirectoryListingTemplate(config DirectoryListingTemplateConfig) *DirectoryListingTemplate {
 	return &DirectoryListingTemplate{
+		Config: config,
 		template: template.Must(
 			template.New("DirListing").Funcs(template.FuncMap{
 				"inc": func(n int) int { return n + 1 },
@@ -144,8 +151,8 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, so
 			OS:   strings.Title(runtime.GOOS),
 			Arch: runtime.GOARCH,
 		},
-		AssetsPrefix: AssetsPrefix,
-		CSSAsset:     CSSAsset,
+		AssetsPrefix: t.Config.PathPrefix + AssetsPrefix,
+		CSSAsset:     t.Config.PathPrefix + CSSAsset,
 		Sort: sortInfo{
 			Column: sortColumn,
 			Asc:    sortAsc,

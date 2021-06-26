@@ -30,7 +30,7 @@ func (s *FileHandlerTestSuite) SetupTest() {
 		ResolveHTML:  true,
 		HideDotFiles: true,
 	}
-	s.handler = server.NewFileHandler(s.fileSystem)
+	s.handler = server.NewFileHandler(s.fileSystem, "")
 	s.WriteFile("foo", "foofoofoo")
 	s.WriteFile("bar", "barbar")
 	s.Mkdir("baz")
