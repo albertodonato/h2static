@@ -38,7 +38,7 @@ for option in "${bool_opts[@]}"; do
 done
 
 # request path prefix
-request_path_prefix="$option_get request-path-prefix"
+request_path_prefix="$(option_get request-path-prefix)"
 if [ -n "$request_path_prefix" ]; then
     opts+=" -request-path-prefix ${request_path_prefix}"
 fi
