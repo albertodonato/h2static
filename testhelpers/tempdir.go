@@ -23,7 +23,7 @@ func (s *TempDirTestSuite) SetupTest() {
 	s.TempDir = tempdir
 }
 
-// TearDownTest cleans the temporary dir.
+// TearDownTest cleans up the temporary dir.
 func (s *TempDirTestSuite) TearDownTest() {
 	os.RemoveAll(s.TempDir)
 }

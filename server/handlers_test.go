@@ -229,6 +229,7 @@ func (s *BasicAuthHandlerTestSuite) SetupTest() {
 	}
 }
 
+// A 401 response is returned if no credentials are provided.
 func (s *BasicAuthHandlerTestSuite) TestNoCredentials() {
 	r := httptest.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
@@ -241,6 +242,7 @@ func (s *BasicAuthHandlerTestSuite) TestNoCredentials() {
 		response.Header.Get("WWW-Authenticate"))
 }
 
+// A 401 response is returned if credentials are invalid.
 func (s *BasicAuthHandlerTestSuite) TestInvalidCredentials() {
 	r := httptest.NewRequest("GET", "/", nil)
 	r.SetBasicAuth("foo", "wrong")
@@ -254,6 +256,7 @@ func (s *BasicAuthHandlerTestSuite) TestInvalidCredentials() {
 		response.Header.Get("WWW-Authenticate"))
 }
 
+// A response is returned if credentials match.
 func (s *BasicAuthHandlerTestSuite) TestValidCredentials() {
 	r := httptest.NewRequest("GET", "/", nil)
 	r.SetBasicAuth("foo", "bar")
@@ -271,6 +274,7 @@ type AddHeadersHandlerTestSuite struct {
 	suite.Suite
 }
 
+// Specified headers are added to the response.
 func (s *AddHeadersHandlerTestSuite) TestAddHeaders() {
 	r := httptest.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
@@ -292,6 +296,7 @@ type AssetsHandlerTestSuite struct {
 	suite.Suite
 }
 
+// Static assets are served with the right content-type.
 func (s *AssetsHandlerTestSuite) TestServeAssets() {
 	handler := server.AssetsHandler()
 	filesMap := map[string]string{
@@ -306,4 +311,40 @@ func (s *AssetsHandlerTestSuite) TestServeAssets() {
 		s.Equal(http.StatusOK, response.StatusCode)
 		s.Equal(contentType, response.Header.Get("Content-Type"))
 	}
+}
+
+func TestLoggingHandler(t *testing.T) {
+	suite.Run(t, new(LoggingHandlerTestSuite))
+}
+
+type LoggingHandlerTestSuite struct {
+	testhelpers.LogCaptureSuite
+
+	handler server.LoggingHandler
+}
+
+func (s *LoggingHandlerTestSuite) SetupTest() {
+	s.LogCaptureSuite.SetupTest()
+	s.handler = server.LoggingHandler{Handler: http.NotFoundHandler()}
+}
+
+// Requests are logged.
+func (s *LoggingHandlerTestSuite) TestLogRequest() {
+	r := httptest.NewRequest("GET", "/path", nil)
+	w := httptest.NewRecorder()
+	s.handler.ServeHTTP(w, r)
+	s.Contains(s.Logs.String(), "HTTP/1.1 GET /path 0 404 19 "+r.RemoteAddr)
+	response := w.Result()
+	s.Equal(http.StatusNotFound, response.StatusCode)
+}
+
+// Requests are logged with the original request IP.
+func (s *LoggingHandlerTestSuite) TestLogRequestWithForward() {
+	r := httptest.NewRequest("GET", "/path", nil)
+	r.Header.Add("X-Forwarded-For", "1.2.3.4")
+	w := httptest.NewRecorder()
+	s.handler.ServeHTTP(w, r)
+	s.Contains(s.Logs.String(), "HTTP/1.1 GET /path 0 404 19 1.2.3.4")
+	response := w.Result()
+	s.Equal(http.StatusNotFound, response.StatusCode)
 }

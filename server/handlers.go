@@ -134,10 +134,19 @@ func (w *loggingResponseWriter) Write(b []byte) (n int, err error) {
 func (h LoggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	wr := newLoggingResponseWriter(w)
 	h.Handler.ServeHTTP(wr, r)
+	remoteAddr := h.getRemoteAddr(r)
 	log.Printf(
 		`%s %s %s %d %d %d %s "%s"`,
-		r.Proto, r.Method, r.URL, r.ContentLength, wr.statusCode, wr.length, r.RemoteAddr,
+		r.Proto, r.Method, r.URL, r.ContentLength, wr.statusCode, wr.length, remoteAddr,
 		r.Header.Get("User-Agent"))
+}
+
+func (h LoggingHandler) getRemoteAddr(r *http.Request) string {
+	addr := r.Header.Get("X-Forwarded-For")
+	if addr != "" {
+		return addr
+	}
+	return r.RemoteAddr
 }
 
 // BasicAuthHandler provides Basic Authorization.
