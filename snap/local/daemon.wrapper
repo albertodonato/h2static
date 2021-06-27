@@ -22,7 +22,7 @@ fi
 dir=$(option_get serve-path "$SNAP_COMMON")
 
 # command-line options
-opts=""
+declare -a opts=()
 
 # handle boolean options
 declare -a bool_opts=(
@@ -33,14 +33,14 @@ declare -a bool_opts=(
 )
 for option in "${bool_opts[@]}"; do
     if [ "$(option_get "$option")" = "true" ]; then
-        opts+=" -${option}"
+        opts+=("-${option}")
     fi
 done
 
 # request path prefix
 request_path_prefix="$(option_get request-path-prefix)"
 if [ -n "$request_path_prefix" ]; then
-    opts+=" -request-path-prefix ${request_path_prefix}"
+    opts+=("-request-path-prefix" "$request_path_prefix")
 fi
 
 # TLS options
@@ -51,9 +51,9 @@ tls_key_file="$SNAP_DATA/key.pem"
 if [ -n "$tls_key" ] && [ -n "$tls_cert" ]; then
     touch "$tls_cert_file" "$tls_key_file"
     chmod 600 "$tls_cert_file" "$tls_key_file"
-    echo "$tls_cert" > "$tls_cert_file"
-    echo "$tls_key" > "$tls_key_file"
-    opts+=" -tls-cert $tls_cert_file -tls-key $tls_key_file"
+    cat <<<"$tls_cert" > "$tls_cert_file"
+    cat <<<"$tls_key" > "$tls_key_file"
+    opts+=("-tls-cert" "$tls_cert_file" "-tls-key" "$tls_key_file")
 else
     rm -f "$tls_cert_file" "$tls_key_file"
 fi
@@ -64,12 +64,10 @@ basic_auth_file="$SNAP_DATA/basic-auth"
 if [ -n "$basic_auth" ]; then
     touch "$basic_auth_file"
     chmod 600 "$basic_auth_file"
-    echo "$basic_auth" > "$basic_auth_file"
-    opts+=" -basic-auth $basic_auth_file"
+    cat <<<"$basic_auth" > "$basic_auth_file"
+    opts+=("-basic-auth" "$basic_auth_file")
 else
     rm -rf "$basic_auth_file"
 fi
 
-set -x
-# shellcheck disable=SC2086
-exec "$SNAP/bin/h2static" -log -addr "$addr" -dir "$dir" $opts
+exec "$SNAP/bin/h2static" -log -addr "$addr" -dir "$dir" "${opts[@]}"
