@@ -46,7 +46,7 @@ jobs:
     - name: Repository checkout
       uses: actions/checkout@v2
     - name:
-      uses: wangyoucao577/go-release-action@v1.16
+      uses: wangyoucao577/go-release-action@v1.18
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
@@ -54,4 +54,5 @@ jobs:
         project_path: ./cmd/h2static
         binary_name: h2static
         extra_files: CHANGES.md LICENSE server/assets/logo.svg README.md
+        md5sum: false
         sha256sum: true
