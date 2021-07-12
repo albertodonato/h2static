@@ -16,15 +16,17 @@ import (
 // FileHandler is an http.Handler which serves static files under the specified
 // filesystem.
 type FileHandler struct {
-	FileSystem FileSystem
-	template   *DirectoryListingTemplate
+	FileSystem     FileSystem
+	DirectoryIndex bool
+	template       *DirectoryListingTemplate
 }
 
 // NewFileHandler returns a FileHandler for the specified filesystem.
-func NewFileHandler(fileSystem FileSystem, pathPrefix string) *FileHandler {
+func NewFileHandler(fileSystem FileSystem, directoryIndex bool, pathPrefix string) *FileHandler {
 	return &FileHandler{
-		FileSystem: fileSystem,
-		template:   NewDirectoryListingTemplate(DirectoryListingTemplateConfig{PathPrefix: pathPrefix}),
+		FileSystem:     fileSystem,
+		DirectoryIndex: directoryIndex,
+		template:       NewDirectoryListingTemplate(DirectoryListingTemplateConfig{PathPrefix: pathPrefix}),
 	}
 }
 
@@ -57,7 +59,13 @@ func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// if found, append the index suffix
 		indexPath := f.findIndexSuffix(basePath)
 		if indexPath == "" {
-			// no index found, list directory content
+			if !f.DirectoryIndex {
+				// directory listing disallowed
+				writeHTTPError(w, http.StatusForbidden)
+				return
+			}
+
+			// list directory content
 			file, err := f.FileSystem.Open(basePath)
 			if err != nil {
 				writeServerError(w, err)

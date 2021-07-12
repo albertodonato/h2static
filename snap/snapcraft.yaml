@@ -25,6 +25,10 @@ description: |
 
     set to true to disable HTTP/2 support.
 
+  * `disable-index`
+
+    set to true to disable directory index.
+
   * `disable-lookup-with-suffix`
 
     set to true to disable disable matching files with .htm(l) suffix for paths

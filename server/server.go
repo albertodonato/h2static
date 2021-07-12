@@ -23,6 +23,7 @@ type StaticServerConfig struct {
 	CSS                     string
 	Dir                     string
 	DisableH2               bool
+	DisableIndex            bool
 	DisableLookupWithSuffix bool
 	Log                     bool
 	PasswordFile            string
@@ -116,7 +117,7 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 		ResolveHTML:          !s.Config.DisableLookupWithSuffix,
 		Root:                 s.Config.Dir,
 	}
-	mux.Handle("/", NewFileHandler(fileSystem, s.Config.RequestPathPrefix))
+	mux.Handle("/", NewFileHandler(fileSystem, !s.Config.DisableIndex, s.Config.RequestPathPrefix))
 
 	// add handler for builtin assets. Cache them for 24h so they don't
 	// get requested every time

@@ -30,7 +30,7 @@ func (s *FileHandlerTestSuite) SetupTest() {
 		ResolveHTML:  true,
 		HideDotFiles: true,
 	}
-	s.handler = server.NewFileHandler(s.fileSystem, "")
+	s.handler = server.NewFileHandler(s.fileSystem, true, "")
 	s.WriteFile("foo", "foofoofoo")
 	s.WriteFile("bar", "barbar")
 	s.Mkdir("baz")
@@ -50,6 +50,18 @@ func (s *FileHandlerTestSuite) TestListingHTML() {
 	s.Contains(content, `<a href="foo" class="col col-name type-file" tabindex="3">foo</a>`)
 	// The root directory doesn't contain a link up
 	s.NotContains(content, `<a href=".." class="col col-name type-dir-up">..</a>`)
+}
+
+// HTML listing can be disallowed
+func (s *FileHandlerTestSuite) TestListingHTMLDisallowed() {
+	handler := server.NewFileHandler(s.fileSystem, false, "")
+	r := httptest.NewRequest("GET", "/", nil)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, r)
+	response := w.Result()
+	s.Equal(http.StatusForbidden, response.StatusCode)
+	content := w.Body.String()
+	s.Contains(content, "403 Forbidden")
 }
 
 // HTML listing for a subdirectory has a link to the parent.

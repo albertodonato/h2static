@@ -28,6 +28,7 @@ declare -a opts=()
 declare -a bool_opts=(
     allow-outside-symlinks
     disable-h2
+    disable-index
     disable-lookup-with-suffix
     show-dotfiles
 )

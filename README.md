@@ -122,6 +122,8 @@ Usage of h2static:
         directory to serve (default ".")
   -disable-h2
         disable HTTP/2 support
+  -disable-index
+        disable directory index
   -disable-lookup-with-suffix
         disable matching files with .htm(l) suffix for paths without suffix
   -log
