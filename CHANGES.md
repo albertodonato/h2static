@@ -1,3 +1,13 @@
+v2.4.0 - 2021-07-17
+===================
+
+* Add `-request-path-prefix` option to remove prefix from request path
+  (e.g. when reverse-proxied under a path)
+* Get remote address from `X-Forwarded-For` header if set, for request logging
+* Add `-disable-index` option to disable directory indexes
+* [snap] Rework daemon wrapper
+
+
 v2.3.3 - 2021-06-05
 ===================
 
@@ -9,7 +19,7 @@ v2.3.3 - 2021-06-05
 v2.3.2 - 2021-04-10
 ===================
 
-* Change licence to EUPL-1.2
+* Change license to EUPL-1.2
 * [gh] Fix action to build release binaries
 
 
