@@ -18,6 +18,7 @@ import (
 type FileHandler struct {
 	FileSystem     FileSystem
 	DirectoryIndex bool
+	pathPrefix     string
 	template       *DirectoryListingTemplate
 }
 
@@ -26,6 +27,7 @@ func NewFileHandler(fileSystem FileSystem, directoryIndex bool, pathPrefix strin
 	return &FileHandler{
 		FileSystem:     fileSystem,
 		DirectoryIndex: directoryIndex,
+		pathPrefix:     pathPrefix,
 		template:       NewDirectoryListingTemplate(DirectoryListingTemplateConfig{PathPrefix: pathPrefix}),
 	}
 }
@@ -53,7 +55,7 @@ func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if file.Info.IsDir() {
 		if !strings.HasSuffix(urlPath, "/") {
 			// always redirect to URL with trailing slash for directories
-			localRedirect(w, r, urlPath+"/")
+			localRedirect(w, r, f.pathPrefix+urlPath+"/")
 			return
 		}
 		// if found, append the index suffix

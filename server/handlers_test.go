@@ -99,6 +99,18 @@ func (s *FileHandlerTestSuite) TestDirectoryRedirectWithTrailingSlash() {
 	s.Equal("/baz/", response.Header.Get("Location"))
 }
 
+// URLs for directories without trailing shash are redirected to the URL with
+// slash, including the path prefix.
+func (s *FileHandlerTestSuite) TestDirectoryRedirectWithTrailingSlashPathPrefix() {
+	handler := server.NewFileHandler(s.fileSystem, false, "/prefix")
+	r := httptest.NewRequest("GET", "/baz", nil)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, r)
+	response := w.Result()
+	s.Equal(http.StatusMovedPermanently, response.StatusCode)
+	s.Equal("/prefix/baz/", response.Header.Get("Location"))
+}
+
 // If a directory has an index.html file, it's served instead of listing.
 func (s *FileHandlerTestSuite) TestServeDirectoryIndexHTML() {
 	s.WriteFile("index.html", "some content")
