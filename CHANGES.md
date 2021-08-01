@@ -1,3 +1,10 @@
+v2.4.1 - 2021-08-02
+===================
+
+* Fix redirect `Location` header when a request path prefix is used, to include
+  the prefix
+
+
 v2.4.0 - 2021-07-17
 ===================
 
