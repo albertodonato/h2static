@@ -160,7 +160,7 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 
 	// always add server version to headers
 	handler = AddHeadersHandler(
-		map[string]string{"Server": fmt.Sprintf("%s/%s", version.App.Name, version.App.Version)},
+		map[string]string{"Server": version.App.Identifier()},
 		handler)
 
 	tlsNextProto := map[string]func(*http.Server, *tls.Conn, http.Handler){}

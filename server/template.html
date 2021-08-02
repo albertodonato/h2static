@@ -4,7 +4,7 @@
     <title>{{ .App.Name }} - Index of {{ .Dir.Name }}</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="{{ .App.Name }}/{{ .App.Version }}">
+    <meta name="generator" content="{{ .App.Identifier }}">
     <link rel="shortcut icon" type="image/svg+xml" href="{{ .AssetsPrefix }}logo.svg">
     <link rel="stylesheet" type="text/css" href="{{ .CSSAsset }}">
   </head>
@@ -46,7 +46,7 @@
     </main>
     <footer>
       <div class="powered-by">
-        Powered by <a href="https://github.com/albertodonato/h2static">{{ .App.Name }} {{ .App.Version }}</a> on {{ .OS.OS }}/{{ .OS.Arch }}
+        Powered by <a href="https://github.com/albertodonato/h2static">{{ .App }}</a> on {{ .OS.OS }}/{{ .OS.Arch }}
       </div>
     </footer>
   </body>
