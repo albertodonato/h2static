@@ -19,6 +19,9 @@ const AssetsPrefix = "/.h2static-assets/"
 // CSSAsset defines the path of the CSS file.
 const CSSAsset = AssetsPrefix + "style.css"
 
+// LogoAsset defines the path of the logo.
+const LogoAsset = AssetsPrefix + "logo.svg"
+
 //go:embed template.html
 var dirListingTemplateText string
 
@@ -61,12 +64,13 @@ type osInfo struct {
 }
 
 type templateContext struct {
-	App          version.Version
-	AssetsPrefix string
-	CSSAsset     string
-	Dir          DirInfo
-	OS           osInfo
-	Sort         sortInfo
+	App       version.Version
+	OS        osInfo
+	Dir       DirInfo
+	BasePath  string
+	CSSAsset  string
+	LogoAsset string
+	Sort      sortInfo
 }
 
 // DirectoryListingTemplateConfig holds configuration for a DirectoryListingTemplate
@@ -151,16 +155,17 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, so
 			OS:   strings.Title(runtime.GOOS),
 			Arch: runtime.GOARCH,
 		},
-		AssetsPrefix: t.Config.PathPrefix + AssetsPrefix,
-		CSSAsset:     t.Config.PathPrefix + CSSAsset,
-		Sort: sortInfo{
-			Column: sortColumn,
-			Asc:    sortAsc,
-		},
 		Dir: DirInfo{
 			Name:    path,
 			IsRoot:  path == "/",
 			Entries: entries,
+		},
+		BasePath:  t.Config.PathPrefix,
+		CSSAsset:  t.Config.PathPrefix + CSSAsset,
+		LogoAsset: t.Config.PathPrefix + LogoAsset,
+		Sort: sortInfo{
+			Column: sortColumn,
+			Asc:    sortAsc,
 		},
 	}, nil
 }

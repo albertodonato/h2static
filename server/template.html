@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="{{ .App.Identifier }}">
-    <link rel="shortcut icon" type="image/svg+xml" href="{{ .AssetsPrefix }}logo.svg">
+    <link rel="shortcut icon" type="image/svg+xml" href="{{ .LogoAsset }}">
     <link rel="stylesheet" type="text/css" href="{{ .CSSAsset }}">
   </head>
   <body>
     <header>
       <h1>
-        <a class="logo" alt="{{ .App.Name }}" href="/">
-          <img src="{{ .AssetsPrefix }}logo.svg">
+        <a class="logo" href="{{ .BasePath }}/">
+          <img alt="{{ .App.Name }} logo" src="{{ .LogoAsset }}">
         </a>
         <span class="title">Index of <span class="path">{{ .Dir.Name }}</span></span>
       </h1>
