@@ -2,6 +2,7 @@ package server_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -368,7 +369,9 @@ func (s *LoggingHandlerTestSuite) TestLogRequestWithForward() {
 	r.Header.Add("X-Forwarded-For", "1.2.3.4")
 	w := httptest.NewRecorder()
 	s.handler.ServeHTTP(w, r)
-	s.Contains(s.Logs.String(), "HTTP/1.1 GET /path 0 404 19 1.2.3.4")
+	s.Contains(
+		s.Logs.String(),
+		fmt.Sprintf("HTTP/1.1 GET /path 0 404 19 %s [1.2.3.4]", r.RemoteAddr))
 	response := w.Result()
 	s.Equal(http.StatusNotFound, response.StatusCode)
 }

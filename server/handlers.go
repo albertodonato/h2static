@@ -152,11 +152,12 @@ func (h LoggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h LoggingHandler) getRemoteAddr(r *http.Request) string {
-	addr := r.Header.Get("X-Forwarded-For")
-	if addr != "" {
-		return addr
+	addr := r.RemoteAddr
+	xffAddr := r.Header.Get("X-Forwarded-For")
+	if xffAddr != "" {
+		addr = fmt.Sprintf("%s [%s]", addr, xffAddr)
 	}
-	return r.RemoteAddr
+	return addr
 }
 
 // BasicAuthHandler provides Basic Authorization.
