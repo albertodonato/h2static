@@ -1,3 +1,10 @@
+v2.4.3 - 2021-12-20
+===================
+
+* Fix redirect link on logo
+* Log both local and `X-Forwarded-For` address
+
+
 v2.4.2 - 2021-12-05
 ===================
 
