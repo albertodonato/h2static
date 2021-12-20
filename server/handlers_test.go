@@ -366,7 +366,7 @@ func (s *LoggingHandlerTestSuite) TestLogRequest() {
 // Requests are logged with the original request IP.
 func (s *LoggingHandlerTestSuite) TestLogRequestWithForward() {
 	r := httptest.NewRequest("GET", "/path", nil)
-	r.Header.Add("X-Forwarded-For", "1.2.3.4")
+	r.Header.Add("X-Forwarded-For", "1.1.1.1, 8.8.8.8, 1.2.3.4")
 	w := httptest.NewRecorder()
 	s.handler.ServeHTTP(w, r)
 	s.Contains(

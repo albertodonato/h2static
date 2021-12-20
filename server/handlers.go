@@ -153,8 +153,10 @@ func (h LoggingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (h LoggingHandler) getRemoteAddr(r *http.Request) string {
 	addr := r.RemoteAddr
-	xffAddr := r.Header.Get("X-Forwarded-For")
-	if xffAddr != "" {
+	xff := r.Header.Get("X-Forwarded-For")
+	if xff != "" {
+		addresses := strings.Split(xff, ",")
+		xffAddr := strings.Trim(addresses[len(addresses)-1], " ")
 		addr = fmt.Sprintf("%s [%s]", addr, xffAddr)
 	}
 	return addr
