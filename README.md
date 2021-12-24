@@ -155,3 +155,21 @@ automatically.  See `snap info h2static` for details about the available snap
 settings.
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/h2static)
+
+
+### Snap setup with Let's Encrypt certificates
+
+Assuming [Certbot](https://certbot.eff.org/) is already set up to handle
+certificate renewals for the domain, a simple hook can be added to update
+certificates for `h2static`.  The hook could be written to
+`/etc/letsencrypt/renewal-hooks/post/h2static` with the following content:
+
+
+```bash
+#!/bin/bash
+
+DOMAIN="example.com"
+CERTSDIR="/etc/letsencrypt/live/$DOMAIN"
+
+snap set h2static tls.cert="$(<$CERTSDIR/fullchain.pem)" tls.key="$(<$CERTSDIR/privkey.pem)"
+```
