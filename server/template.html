@@ -23,11 +23,11 @@
           <a class="col col-name {{ if eq .Sort.Column "n" }}sorted{{ end -}}" href="?c=n&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Name</a>
           <a class="col col-size {{ if eq .Sort.Column "s" }}sorted{{ end -}}" href="?c=s&o={{- if .Sort.Asc }}d{{ else }}a{{ end -}}">Size</a>
         </div>
-        {{- if not .Dir.IsRoot -}}
+        {{ if not .Dir.IsRoot -}}
         <div class="row entry">
           <a href=".." class="col col-name type-dir-up">..</a>
         </div>
-        {{- end -}}
+        {{- end }}
         {{- range $i, $entry := .Dir.Entries -}}
         {{- $i := inc $i -}}
         <div class="row entry">
