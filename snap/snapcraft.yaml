@@ -64,6 +64,10 @@ description: |
     support will be enabled.
 
 license: EUPL-1.2
+website: https://github.com/albertodonato/h2static
+source-code: https://github.com/albertodonato/h2static
+contact: https://github.com/albertodonato/h2static/issues
+issues: https://github.com/albertodonato/h2static/issues
 icon: server/assets/logo.svg
 confinement: strict
 grade: stable
