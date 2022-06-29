@@ -71,7 +71,7 @@ issues: https://github.com/albertodonato/h2static/issues
 icon: server/assets/logo.svg
 confinement: strict
 grade: stable
-base: core20
+base: core22
 
 apps:
   h2static:
@@ -93,11 +93,12 @@ parts:
     plugin: go
     source: .
     source-type: git
+    build-snaps:
+      - go
     # Manually strip binaries (see https://pad.lv/1858785)
     override-build: |
-      set -e
-      snapcraftctl build
-      strip -s $SNAPCRAFT_PART_INSTALL/bin/h2static
+      craftctl default
+      strip -s $CRAFT_PART_INSTALL/bin/h2static
 
   daemon-wrapper:
     plugin: dump
