@@ -1,3 +1,12 @@
+v2.4.4 - 2022-11-12
+===================
+
+* Fix HTML template indentation
+* [snap] Switch to core22 base
+* [snap] update metadata
+* [doc] document Let's Encrypt setup
+
+
 v2.4.3 - 2021-12-20
 ===================
 
