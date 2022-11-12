@@ -44,9 +44,9 @@ jobs:
             goarch: arm64
     steps:
     - name: Repository checkout
-      uses: actions/checkout@v2
+      ses: actions/checkout@v2
     - name:
-      uses: wangyoucao577/go-release-action@v1.18
+      uses: wangyoucao577/go-release-action@v1.32
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
