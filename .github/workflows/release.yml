@@ -44,7 +44,7 @@ jobs:
             goarch: arm64
     steps:
     - name: Repository checkout
-      ses: actions/checkout@v2
+      uses: actions/checkout@v2
     - name:
       uses: wangyoucao577/go-release-action@v1.32
       with:
