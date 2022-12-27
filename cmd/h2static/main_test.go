@@ -2,6 +2,7 @@ package main_test
 
 import (
 	"flag"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -72,11 +73,12 @@ func (s *H2StaticTestSuite) TestNewStaticServerFromCmdline() {
 
 // Config options are validated and error returned on invalid paths.
 func (s *H2StaticTestSuite) TestValidateConfig() {
+	fileName := filepath.Join("not", "here")
 	server, err := main.NewStaticServerFromCmdline(
-		s.flagSet, []string{"-dir", "/not/here"})
+		s.flagSet, []string{"-dir", fileName})
 	s.Nil(server)
 	s.NotNil(err)
-	s.Contains(err.Error(), "/not/here: no such file or directory")
+	s.Contains(err.Error(), fileName)
 }
 
 // newStaticServerFromCmdline prints help text.

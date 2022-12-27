@@ -1,7 +1,6 @@
 package testhelpers
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -18,7 +17,7 @@ type TempDirTestSuite struct {
 
 // SetupTest sets up a temporary dir.
 func (s *TempDirTestSuite) SetupTest() {
-	tempdir, err := ioutil.TempDir("", "testdir")
+	tempdir, err := os.MkdirTemp("", "testdir")
 	s.Nil(err)
 	s.TempDir = tempdir
 }
@@ -32,7 +31,7 @@ func (s *TempDirTestSuite) TearDownTest() {
 // path.
 func (s *TempDirTestSuite) WriteFile(name, content string) string {
 	path := s.absPath(name)
-	err := ioutil.WriteFile(path, []byte(content), 0644)
+	err := os.WriteFile(path, []byte(content), 0644)
 	s.Nil(err)
 	return path
 }

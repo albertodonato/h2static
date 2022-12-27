@@ -1,7 +1,7 @@
 package server_test
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -36,7 +36,7 @@ func (s *FileSystemTestSuite) SetupTest() {
 func (s *FileSystemTestSuite) readFile(file *server.File) string {
 	f, err := os.Open(file.AbsPath())
 	s.Nil(err)
-	content, err := ioutil.ReadAll(f)
+	content, err := io.ReadAll(f)
 	s.Nil(err)
 	return string(content)
 }
