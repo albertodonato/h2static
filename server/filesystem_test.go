@@ -3,9 +3,7 @@ package server_test
 import (
 	"io"
 	"os"
-	"path/filepath"
 	"sort"
-	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -192,17 +190,6 @@ func (s *FileSystemTestSuite) TestListingWithSymlinks() {
 			{name: "new-bar", isdir: true},
 			{name: "new-foo", isdir: false},
 		}, details)
-}
-
-// Special files are not included in listing.
-func (s *FileSystemTestSuite) TestListingIgnoreSpecial() {
-	fifoPath := filepath.Join(s.TempDir, "fifo")
-	s.Nil(syscall.Mkfifo(fifoPath, 0644))
-	file, err := s.fs.Open("/")
-	s.Nil(err)
-	files, err := file.Readdir()
-	s.Nil(err)
-	s.Equal([]*server.File{}, files)
 }
 
 // OpenFile returns a File if it's not a directory.
