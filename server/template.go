@@ -152,7 +152,7 @@ func (t *DirectoryListingTemplate) getTemplateContext(path string, dir *File, so
 	return &templateContext{
 		App: version.App,
 		OS: osInfo{
-			OS:   strings.Title(runtime.GOOS),
+			OS:   runtime.GOOS,
 			Arch: runtime.GOARCH,
 		},
 		Dir: DirInfo{
