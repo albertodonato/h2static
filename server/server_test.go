@@ -115,7 +115,7 @@ func (s *StaticServerConfigTestSuite) TestPort() {
 
 // Port returns 0 if the address is unset.
 func (s *StaticServerConfigTestSuite) TestPortUnset() {
-	config := server.StaticServerConfig{}
+	var config server.StaticServerConfig
 	s.Equal(config.Port(), uint16(0))
 }
 
@@ -143,7 +143,7 @@ func (s *StaticServerTestSuite) TestEnableTLSTrue() {
 
 // If certificates are not set, HTTPS is not enabled.
 func (s *StaticServerTestSuite) TestEnableTLSFalse() {
-	serv := server.StaticServer{}
+	var serv server.StaticServer
 	s.False(serv.Config.IsHTTPS())
 	s.Equal(serv.Scheme(), "http")
 }

@@ -10,7 +10,7 @@ import (
 
 // load BasicAuth credentials from file
 func loadCredentials(path string) (map[string]string, error) {
-	credentials := map[string]string{}
+	credentials := make(map[string]string)
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err

@@ -175,12 +175,12 @@ func (s *FileSystemTestSuite) TestListingWithSymlinks() {
 		name  string
 		isdir bool
 	}
-	details := []detail{}
-	for _, file := range files {
-		details = append(details, detail{
+	details := make([]detail, len(files))
+	for i, file := range files {
+		details[i] = detail{
 			name:  file.Info.Name(),
 			isdir: file.Info.IsDir(),
-		})
+		}
 	}
 	sort.Slice(details, func(i, j int) bool {
 		return details[i].name < details[j].name

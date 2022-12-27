@@ -96,7 +96,7 @@ func (s *DirectoryListingTemplateTestSuite) TestRenderJSON() {
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("application/json", response.Header.Get("Content-Type"))
 	decoder := json.NewDecoder(w.Body)
-	content := server.DirInfo{}
+	var content server.DirInfo
 	decoder.Decode(&content)
 	s.Equal(
 		server.DirInfo{

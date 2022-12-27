@@ -163,7 +163,7 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 		map[string]string{"Server": version.App.Identifier()},
 		handler)
 
-	tlsNextProto := map[string]func(*http.Server, *tls.Conn, http.Handler){}
+	tlsNextProto := make(map[string]func(*http.Server, *tls.Conn, http.Handler))
 	if !s.Config.DisableH2 {
 		// Setting to nil means to use the default (which is H2-enabled)
 		tlsNextProto = nil

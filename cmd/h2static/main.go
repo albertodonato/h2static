@@ -20,7 +20,7 @@ Usage of {{.Name}}:
 // NewStaticServerFromCmdline returns a a StaticServer parsing cmdline args.
 func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.StaticServer, error) {
 	var versionFlag bool
-	conf := &server.StaticServerConfig{}
+	var conf server.StaticServerConfig
 	fs.StringVar(&conf.Addr, "addr", ":8080", "address and port to listen on")
 	fs.StringVar(&conf.CSS, "css", "", "file to override builtin CSS for listing")
 	fs.BoolVar(
@@ -55,7 +55,7 @@ func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.Static
 		fs.Output().Write([]byte(version.App.String() + "\n"))
 		os.Exit(0)
 	}
-	return server.NewStaticServer(*conf)
+	return server.NewStaticServer(conf)
 }
 
 func printHeader(fs *flag.FlagSet) {
