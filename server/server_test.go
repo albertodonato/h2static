@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -11,6 +12,16 @@ import (
 	"github.com/albertodonato/h2static/server"
 	"github.com/albertodonato/h2static/testhelpers"
 )
+
+var nonExistentPath string
+
+func init() {
+	if runtime.GOOS == "windows" {
+		nonExistentPath = `C:\not\here`
+	} else {
+		nonExistentPath = "/not/here"
+	}
+}
 
 func TestStaticServerConfig(t *testing.T) {
 	suite.Run(t, new(StaticServerConfigTestSuite))
@@ -22,10 +33,10 @@ type StaticServerConfigTestSuite struct {
 
 // If the specified Dir doesn't exist, an error is returned.
 func (s *StaticServerConfigTestSuite) TestConfigValidateDirNotExists() {
-	config := server.StaticServerConfig{Dir: "/not/here"}
+	config := server.StaticServerConfig{Dir: nonExistentPath}
 	err := config.Validate()
 	s.NotNil(err)
-	s.Contains(err.Error(), "/not/here: no such file or directory")
+	s.Contains(err.Error(), nonExistentPath)
 }
 
 // If the specified Dir exists but is not a directory, an error is returned.
@@ -41,11 +52,11 @@ func (s *StaticServerConfigTestSuite) TestConfigValidateDirNotDir() {
 func (s *StaticServerConfigTestSuite) TestConfigValidateCSSFileNotExist() {
 	config := server.StaticServerConfig{
 		Dir: s.TempDir,
-		CSS: "/not/here",
+		CSS: nonExistentPath,
 	}
 	err := config.Validate()
 	s.NotNil(err)
-	s.Contains(err.Error(), "/not/here: no such file or directory")
+	s.Contains(err.Error(), nonExistentPath)
 }
 
 // If the TLS certificate file doesn't exist, an error is returned.
@@ -53,12 +64,12 @@ func (s *StaticServerConfigTestSuite) TestConfigValidateTLSCertFileNotExists() {
 	tlsKey := s.WriteFile("foo", "bar")
 	config := server.StaticServerConfig{
 		Dir:     s.TempDir,
-		TLSCert: "/not/here",
+		TLSCert: nonExistentPath,
 		TLSKey:  tlsKey,
 	}
 	err := config.Validate()
 	s.NotNil(err)
-	s.Contains(err.Error(), "/not/here: no such file or directory")
+	s.Contains(err.Error(), nonExistentPath)
 }
 
 // If the TLS key file doesn't exist, an error is returned.
@@ -67,22 +78,22 @@ func (s *StaticServerConfigTestSuite) TestConfigValidateTLSKeyFileNotExists() {
 	config := server.StaticServerConfig{
 		Dir:     s.TempDir,
 		TLSCert: tlsCert,
-		TLSKey:  "/not/here",
+		TLSKey:  nonExistentPath,
 	}
 	err := config.Validate()
 	s.NotNil(err)
-	s.Contains(err.Error(), "/not/here: no such file or directory")
+	s.Contains(err.Error(), nonExistentPath)
 }
 
 // If the passwords file doesn't exist, an error is returned.
 func (s *StaticServerConfigTestSuite) TestConfigValidatePasswordFileNotExists() {
 	config := server.StaticServerConfig{
 		Dir:          s.TempDir,
-		PasswordFile: "/not/here",
+		PasswordFile: nonExistentPath,
 	}
 	err := config.Validate()
 	s.NotNil(err)
-	s.Contains(err.Error(), "/not/here: no such file or directory")
+	s.Contains(err.Error(), nonExistentPath)
 }
 
 // If no invalid file is passed, ValidateConfig returns nil.

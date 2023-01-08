@@ -39,12 +39,18 @@ jobs:
       run: |
         go install honnef.co/go/tools/cmd/staticcheck@latest
 
-    - name: check
+    - name: Static check
       run: |
         staticcheck ./...
 
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Repository checkout
       uses: actions/checkout@v2
