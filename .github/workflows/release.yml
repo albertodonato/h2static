@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Repository checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Create Release
       uses: actions/create-release@v1
       env:
@@ -44,9 +44,9 @@ jobs:
             goarch: arm64
     steps:
     - name: Repository checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name:
-      uses: wangyoucao577/go-release-action@v1.32
+      uses: wangyoucao577/go-release-action@v1.34
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
