@@ -178,10 +178,8 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 
 // Run starts the server.
 func (s *StaticServer) Run() error {
-	if s.Config.Log {
-		log.Printf("Starting %v %s server on %s, serving path %s",
-			version.App, strings.ToUpper(s.Scheme()), s.Config.Addr, s.Config.Dir)
-	}
+	log.Printf("Starting %v %s server on %s, serving path %s",
+		version.App, strings.ToUpper(s.Scheme()), s.Config.Addr, s.Config.Dir)
 
 	return s.runServer()
 }
