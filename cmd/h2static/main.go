@@ -27,6 +27,7 @@ func NewStaticServerFromCmdline(fs *flag.FlagSet, args []string) (*server.Static
 		&conf.AllowOutsideSymlinks, "allow-outside-symlinks", false,
 		"allow symlinks with target outside of directory")
 	fs.StringVar(&conf.Dir, "dir", ".", "directory to serve")
+	fs.UintVar(&conf.DebugPort, "debug-port", 0, "port to serve /debug URLs, on localhhost")
 	fs.BoolVar(&conf.DisableH2, "disable-h2", false, "disable HTTP/2 support")
 	fs.BoolVar(&conf.DisableIndex, "disable-index", false, "disable directory index")
 	fs.BoolVar(

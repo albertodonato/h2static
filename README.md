@@ -118,6 +118,8 @@ Usage of h2static:
         password file for Basic Auth (each line should be in the form "user:SHA512-hash")
   -css string
         file to override builtin CSS for listing
+  -debug-port uint
+        port to serve /debug URLs, on localhhost
   -dir string
         directory to serve (default ".")
   -disable-h2
@@ -136,6 +138,8 @@ Usage of h2static:
         certificate file for TLS connections
   -tls-key string
         key file for TLS connections
+  -version
+        print program version and exit
 ```
 
 

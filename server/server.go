@@ -21,6 +21,7 @@ type StaticServerConfig struct {
 	Addr                    string
 	AllowOutsideSymlinks    bool
 	CSS                     string
+	DebugPort               uint
 	Dir                     string
 	DisableH2               bool
 	DisableIndex            bool
@@ -204,6 +205,11 @@ func (s *StaticServer) runServer() error {
 			log.Fatal(err)
 		}
 	}()
+
+	if s.Config.DebugPort > 0 {
+		log.Printf("Serving debug URLs under http://localhost:%d/debug", s.Config.DebugPort)
+		go serveDebug(s.Config.DebugPort)
+	}
 	<-stop
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
