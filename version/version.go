@@ -24,5 +24,5 @@ func (v Version) Identifier() string {
 // App defines The application version.
 var App = Version{
 	Name:    "h2static",
-	Version: "2.4.4",
+	Version: "2.4.5",
 }

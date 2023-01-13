@@ -1,3 +1,12 @@
+v2.4.5 - 2023-01-13
+===================
+
+* Add `-debug-port` option to serve debug URLs on localhost
+* Always print startup message
+* [gh] Run tests on multiple OSes
+* Switch to `staticcheck` linter
+
+
 v2.4.4 - 2022-11-12
 ===================
 
