@@ -34,6 +34,11 @@ func NewFileHandler(fileSystem FileSystem, directoryIndex bool, pathPrefix strin
 
 // ServeHTTP handles a request for the static file serve.
 func (f FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if method := strings.ToUpper(r.Method); method != http.MethodGet && method != http.MethodHead {
+		writeHTTPError(w, http.StatusMethodNotAllowed)
+		return
+	}
+
 	urlPath := r.URL.Path
 	if !strings.HasPrefix(urlPath, "/") {
 		urlPath = "/" + urlPath

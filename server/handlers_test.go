@@ -37,6 +37,24 @@ func (s *FileHandlerTestSuite) SetupTest() {
 	s.Mkdir("baz")
 }
 
+// HEAD requests are replied
+func (s *FileHandlerTestSuite) TestHEADRequest() {
+	r := httptest.NewRequest("HEAD", "/", nil)
+	w := httptest.NewRecorder()
+	s.handler.ServeHTTP(w, r)
+	response := w.Result()
+	s.Equal(http.StatusOK, response.StatusCode)
+}
+
+// Methods others than GET and HEAD are not allowed
+func (s *FileHandlerTestSuite) TestMethodNotAllowed() {
+	r := httptest.NewRequest("POST", "/", nil)
+	w := httptest.NewRecorder()
+	s.handler.ServeHTTP(w, r)
+	response := w.Result()
+	s.Equal(http.StatusMethodNotAllowed, response.StatusCode)
+}
+
 // HTML listing contains links to entries.
 func (s *FileHandlerTestSuite) TestListingHTML() {
 	r := httptest.NewRequest("GET", "/", nil)
