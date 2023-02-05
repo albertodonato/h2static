@@ -119,7 +119,7 @@ Usage of h2static:
   -css string
         file to override builtin CSS for listing
   -debug-port uint
-        port to serve /debug URLs, on localhhost
+        port to serve /debug URLs, on localhost
   -dir string
         directory to serve (default ".")
   -disable-h2
