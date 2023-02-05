@@ -10,3 +10,8 @@ func GetServer(s *StaticServer) (*http.Server, error) {
 }
 
 var GetHumanByteSize = getHumanByteSize
+
+// Export newDebugServer.
+func NewDebugServer(port uint) *http.Server {
+	return newDebugServer(port)
+}

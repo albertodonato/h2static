@@ -208,7 +208,12 @@ func (s *StaticServer) runServer() error {
 
 	if s.Config.DebugPort > 0 {
 		log.Printf("Serving debug URLs under http://localhost:%d/debug", s.Config.DebugPort)
-		go serveDebug(s.Config.DebugPort)
+		go func() {
+			debugServer := newDebugServer(s.Config.DebugPort)
+			if err := debugServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				log.Fatal(err)
+			}
+		}()
 	}
 	<-stop
 
