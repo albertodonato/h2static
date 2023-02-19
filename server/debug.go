@@ -2,18 +2,9 @@ package server
 
 import (
 	"expvar"
-	"fmt"
 	"net/http"
 	"net/http/pprof"
 )
-
-// newDebugServer returns a configured debug Server on localhost.
-func newDebugServer(port uint) *http.Server {
-	return &http.Server{
-		Addr:    fmt.Sprintf("localhost:%d", port),
-		Handler: newDebugMux(),
-	}
-}
 
 // newDebugMux returns a new ServeMux configured with debug URLs.
 func newDebugMux() *http.ServeMux {

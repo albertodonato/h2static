@@ -118,8 +118,8 @@ Usage of h2static:
         password file for Basic Auth (each line should be in the form "user:SHA512-hash")
   -css string
         file to override builtin CSS for listing
-  -debug-port uint
-        port to serve /debug URLs, on localhost
+  -debug-addr string
+        address and port to serve /debug URLs on
   -dir string
         directory to serve (default ".")
   -disable-h2

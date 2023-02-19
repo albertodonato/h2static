@@ -21,7 +21,10 @@ type ServeDebugTestSuite struct {
 }
 
 func (s *ServeDebugTestSuite) TestDebugVarURL() {
-	server := server.NewDebugServer(0)
+	server := http.Server{
+		Addr:    ":0",
+		Handler: server.NewDebugMux(),
+	}
 	r := httptest.NewRequest("GET", "/debug/vars", nil)
 	w := httptest.NewRecorder()
 	server.Handler.ServeHTTP(w, r)
@@ -34,7 +37,10 @@ func (s *ServeDebugTestSuite) TestDebugVarURL() {
 }
 
 func (s *ServeDebugTestSuite) TestDebugPprofURLS() {
-	server := server.NewDebugServer(0)
+	server := http.Server{
+		Addr:    ":0",
+		Handler: server.NewDebugMux(),
+	}
 	r := httptest.NewRequest("GET", "/debug/pprof/", nil)
 	w := httptest.NewRecorder()
 	server.Handler.ServeHTTP(w, r)

@@ -22,7 +22,7 @@ type StaticServerConfig struct {
 	Addr                    string
 	AllowOutsideSymlinks    bool
 	CSS                     string
-	DebugPort               uint
+	DebugAddr               string
 	Dir                     string
 	DisableH2               bool
 	DisableIndex            bool
@@ -207,10 +207,13 @@ func (s *StaticServer) runServer() error {
 		}
 	}()
 
-	if s.Config.DebugPort > 0 {
-		log.Printf("Serving debug URLs under http://localhost:%d/debug", s.Config.DebugPort)
+	if s.Config.DebugAddr != "" {
+		log.Printf("Serving debug URLs under %s", s.Config.DebugAddr)
 		go func() {
-			debugServer := newDebugServer(s.Config.DebugPort)
+			debugServer := http.Server{
+				Addr:    s.Config.DebugAddr,
+				Handler: newDebugMux(),
+			}
 			if err := debugServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 				log.Fatal(err)
 			}

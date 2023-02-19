@@ -9,9 +9,10 @@ func GetServer(s *StaticServer) (*http.Server, error) {
 	return s.getServer()
 }
 
+// Export getHumanByteSize.
 var GetHumanByteSize = getHumanByteSize
 
-// Export newDebugServer.
-func NewDebugServer(port uint) *http.Server {
-	return newDebugServer(port)
+// Export NewDebugMux.
+func NewDebugMux() *http.ServeMux {
+	return newDebugMux()
 }
