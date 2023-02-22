@@ -41,7 +41,7 @@ jobs:
 
     - name: Static check
       run: |
-        staticcheck ./...
+        staticcheck --checks=all ./...
 
   test:
     strategy:
