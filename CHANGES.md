@@ -1,3 +1,11 @@
+v2.4.6 - 2023-02-25
+===================
+
+* Change debug option to ``-debug-addr`` to allow specifying address and port.
+* Return Bad request error for requests other than GET/HEAD.
+* Enable all checks with staticcheck.
+
+
 v2.4.5 - 2023-01-13
 ===================
 
