@@ -125,7 +125,8 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 	// get requested every time
 	assetsHandler := AddHeadersHandler(
 		map[string]string{"Cache-Control": fmt.Sprintf("public, max-age=%d", 24*60*60)},
-		AssetsHandler())
+		AssetsHandler(),
+	)
 	mux.Handle(AssetsPrefix, http.StripPrefix(AssetsPrefix, assetsHandler))
 
 	// optionally, serve CSS from the specified file instead of the builtin assets
@@ -163,7 +164,8 @@ func (s *StaticServer) getServer() (*http.Server, error) {
 	// always add server version to headers
 	handler = AddHeadersHandler(
 		map[string]string{"Server": version.App.Identifier()},
-		handler)
+		handler,
+	)
 
 	tlsNextProto := make(map[string]func(*http.Server, *tls.Conn, http.Handler))
 	if !s.Config.DisableH2 {
@@ -208,11 +210,23 @@ func (s *StaticServer) runServer() error {
 	}()
 
 	if s.Config.DebugAddr != "" {
-		log.Printf("Serving debug URLs under %s", s.Config.DebugAddr)
+		log.Printf("Serving debug URLs on %s", s.Config.DebugAddr)
+
+		var handler http.Handler = newDebugMux()
+		// optionally, enable logging
+		if s.Config.Log {
+			handler = &LoggingHandler{Handler: handler}
+		}
+		// always add server version to headers
+		handler = AddHeadersHandler(
+			map[string]string{"Server": version.App.Identifier()},
+			handler,
+		)
+
 		go func() {
 			debugServer := http.Server{
 				Addr:    s.Config.DebugAddr,
-				Handler: newDebugMux(),
+				Handler: handler,
 			}
 			if err := debugServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 				log.Fatal(err)
