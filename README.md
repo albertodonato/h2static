@@ -22,7 +22,13 @@ It provides a few handy features for serving files and static websites:
 Pre-built binaries are available for different achitectures on the [releases
 page](https://github.com/albertodonato/h2static/releases).
 
-Alternatively, it can be run simply as
+It can be installed directly via
+
+```bash
+go install github.com/albertodonato/h2static/cmd/h2static@latest
+```
+
+Alternatively, it can be run from the repository simply as
 
 ```bash
 go run ./cmd/h2static
