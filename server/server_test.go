@@ -186,7 +186,7 @@ func (s *StaticServerTestSuite) TestSetupServerSpecifyAllowOutsideSymlinks() {
 	content := "some content"
 	s.WriteFile("outside.txt", content)
 	subdir := s.Mkdir("sub")
-	s.Symlink("outside.txt", "sub/test.txt")
+	s.Symlink("../outside.txt", "sub/test.txt")
 	serv, err := server.NewStaticServer(server.StaticServerConfig{
 		Dir:                  subdir,
 		AllowOutsideSymlinks: true,

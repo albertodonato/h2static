@@ -71,7 +71,10 @@ func (fs FileSystem) newFile(name string) (*File, error) {
 		return nil, err
 	}
 	if !fs.AllowOutsideSymlinks {
-		if target, _ := os.Readlink(absPath); target != "" {
+		if target, err := filepath.EvalSymlinks(absPath); target != "" {
+			if err != nil {
+				return nil, err
+			}
 			path, err := filepath.Abs(target)
 			if err != nil {
 				return nil, err

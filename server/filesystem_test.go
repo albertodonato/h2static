@@ -102,7 +102,7 @@ func (s *FileSystemTestSuite) TestNoLookupWithHTMLSuffix() {
 func (s *FileSystemTestSuite) TestNoOutsideSymlink() {
 	s.WriteFile("foo", "content")
 	root := s.Mkdir("root")
-	s.Symlink("foo", "root/foo-link")
+	s.Symlink("../foo", "root/foo-link")
 	fs := server.FileSystem{Root: root}
 	file, err := fs.Open("/foo-link")
 	s.IsType(os.ErrPermission, err)
@@ -113,8 +113,19 @@ func (s *FileSystemTestSuite) TestNoOutsideSymlink() {
 func (s *FileSystemTestSuite) TestOutsideSymlinks() {
 	s.WriteFile("foo", "content")
 	root := s.Mkdir("root")
-	s.Symlink("foo", "root/foo-link")
+	s.Symlink("../foo", "root/foo-link")
 	fs := server.FileSystem{Root: root, AllowOutsideSymlinks: true}
+	file, err := fs.Open("/foo-link")
+	s.Nil(err)
+	s.Equal("content", s.readFile(file))
+}
+
+// Local symlinks are always accessible.
+func (s *FileSystemTestSuite) TestLocalSymlinks() {
+	root := s.Mkdir("root")
+	s.WriteFile("root/foo", "content")
+	s.Symlink("foo", "root/foo-link")
+	fs := server.FileSystem{Root: root}
 	file, err := fs.Open("/foo-link")
 	s.Nil(err)
 	s.Equal("content", s.readFile(file))
