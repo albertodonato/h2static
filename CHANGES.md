@@ -1,3 +1,10 @@
+v2.4.7 - 2024-01-10
+===================
+
+* Fix issue with path expansion for relative symlinks, leading to Unauthorized
+  errors with symlinks targeted to paths inside the served tree.
+
+
 v2.4.6 - 2023-02-25
 ===================
 
