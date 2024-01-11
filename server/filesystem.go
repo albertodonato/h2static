@@ -66,34 +66,32 @@ func (fs FileSystem) open(name string) (*os.File, error) {
 }
 
 func (fs FileSystem) newFile(name string) (*File, error) {
-	absPath, err := fs.absPath(name)
+	path, err := fs.resolvePath(filepath.Join(fs.Root, name))
 	if err != nil {
 		return nil, err
 	}
 	if !fs.AllowOutsideSymlinks {
-		if target, err := filepath.EvalSymlinks(absPath); target != "" {
-			if err != nil {
-				return nil, err
-			}
-			path, err := filepath.Abs(target)
-			if err != nil {
-				return nil, err
-			}
-			root, err := filepath.Abs(fs.Root)
-			if err != nil {
-				return nil, err
-			}
-			if !strings.HasPrefix(path, root) {
-				return nil, os.ErrPermission
-			}
+		root, err := fs.resolvePath(fs.Root)
+		if err != nil {
+			return nil, err
+		}
+		if !strings.HasPrefix(path, root) {
+			return nil, os.ErrPermission
 		}
 	}
-	return NewFile(absPath, fs.HideDotFiles)
+	return NewFile(path, fs.HideDotFiles)
 }
 
-// Return the absolute path of a name under the filesystem.
-func (fs FileSystem) absPath(name string) (string, error) {
-	return filepath.Abs(filepath.Join(fs.Root, name))
+func (fs FileSystem) resolvePath(path string) (string, error) {
+	path, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return "", err
+	}
+	path, err = filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	return path, nil
 }
 
 // File is an entry of a  FileSystem entry.
