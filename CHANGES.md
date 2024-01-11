@@ -1,3 +1,9 @@
+v2.4.8 - 2024-01-11
+===================
+
+* Rework path expansion fix to ensure filesystem root is also expanded.
+
+
 v2.4.7 - 2024-01-10
 ===================
 
