@@ -53,6 +53,6 @@ jobs:
         goarch: ${{ matrix.goarch }}
         project_path: ./cmd/h2static
         binary_name: h2static
-        extra_files: CHANGES.md LICENSE server/assets/logo.svg README.md
+        extra_files: CHANGES.md LICENSE README.md images/ server/assets/logo.svg
         md5sum: false
         sha256sum: true
