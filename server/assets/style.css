@@ -1,24 +1,40 @@
 :root {
-    --text-color: #000;
-    --active-link-color: #007bff;
+    --active-link-color: #4d94ff;
     --control-color: #fff;
     --control-bg-color: #6c757d;
     --control-bg: var(--control-bg-color) linear-gradient(to bottom, #828a91 0, var(--control-bg-color) 100%);
-    --type-file-color: #515151;
-    --type-file-bg-color: #ddd;
-    --type-file-bg: var(--type-file-bg-color) linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
     --dir-color: #fff;
     --dir-bg-color: #337ab7;
-    --dir-bg: var(--dir-bg-color) linear-gradient(to bottom, var(--dir-bg-color) 0, #2e6da4 100%);
+    --dir-bg: var(--dir-bg-color) linear-gradient(to bottom, var(--dir-bg-color) 0, #2e6da4 100%);                   
     --dir-up-bg-color: #6c757d;
     --dir-up-bg: var(--dir-up-bg-color) linear-gradient(to bottom, #828a91 0, var(--dir-up-bg-color) 100%);
-    --size-color: #777;
+}
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg-color: #fff;
+        --text-color: #000;
+        --type-file-color: #515151;
+        --type-file-bg-color: #ddd;
+        --type-file-bg: var(--type-file-bg-color) linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
+        --size-color: #777;
+    }
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #1a1a1a;
+        --text-color: #fff;
+        --type-file-color: #ccc;
+        --type-file-bg-color: #333;
+        --type-file-bg: var(--type-file-bg-color) linear-gradient(to bottom, #1a1a1a 0, var(--type-file-bg-color) 100%);
+        --size-color: #ccc;
+    }
 }
 body {
     width: 90%;
     margin: 0 auto;
     font-family: sans;
     font-size: 34px;
+    background-color: var(--bg-color);
     color: var(--text-color);
 }
 h1 {
