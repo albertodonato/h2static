@@ -1,20 +1,36 @@
+:root {
+    --text-color: #000;
+    --active-link-color: #007bff;
+    --control-color: #fff;
+    --control-bg-color: #6c757d;
+    --control-bg: var(--control-bg-color) linear-gradient(to bottom, #828a91 0, var(--control-bg-color) 100%);
+    --type-file-color: #515151;
+    --type-file-bg-color: #ddd;
+    --type-file-bg: var(--type-file-bg-color) linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
+    --dir-color: #fff;
+    --dir-bg-color: #337ab7;
+    --dir-bg: var(--dir-bg-color) linear-gradient(to bottom, var(--dir-bg-color) 0, #2e6da4 100%);
+    --dir-up-bg-color: #6c757d;
+    --dir-up-bg: var(--dir-up-bg-color) linear-gradient(to bottom, #828a91 0, var(--dir-up-bg-color) 100%);
+    --size-color: #777;
+}
 body {
     width: 90%;
     margin: 0 auto;
     font-family: sans;
     font-size: 34px;
-    color: black;
+    color: var(--text-color);
 }
 h1 {
     margin: 1em 0;
     font-size: 130%;
 }
 a, a:visited {
-    color: black;
+    color: var(--text-color);
     text-decoration: none;
 }
 a:active, a:hover {
-    color: #007bff;
+    color: var(--active-link-color);
     text-decoration: none;
 }
 .logo {
@@ -49,24 +65,24 @@ a:active, a:hover {
 a.type-dir-up {
     flex-grow: 0;
     width: auto;
-    background: #6c757d linear-gradient(to bottom, #828a91 0, #6c757d 100%);
-    border-color: #6c757d;
-    color: white;
+    background: var(--dir-up-bg);
+    border-color: var(--dir-up-bg-color);
+    color: var(--dir-color);
 }
 a.type-dir {
-    background: #337ab7 linear-gradient(to bottom, #337ab7 0, #2e6da4 100%);
-    border-color: #337ab7;
-    color: white;
+    background: var(--dir-bg);
+    border-color: var(--dir-bg-color);
+    color: var(--dir-color);
 }
 a.type-file {
-    background: #dddddd linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
-    border-color: #dddddd;
-    color: #515151;
+    background: var(--type-file-bg);
+    border-color: var(--type-file-bg-color);
+    color: var(--type-file-color);
 }
 .sort a {
-    background: #6c757d linear-gradient(to bottom, #828a91 0, #6c757d 100%);
-    border-color: #6c757d;
-    color: white;
+    background: var(--control-bg);
+    border-color: var(--control-bg-color);
+    color: var(--control-color);
     font-size: 80%;
 }
 .sort-asc .col-name.sorted::after,
@@ -86,9 +102,9 @@ a.type-file {
     flex-grow: 1;
 }
 .col-size {
-    border-color: #777777;
-    background-color: white;
-    color: #777777;
+    border-color: var(--size-color);
+    background-color: var(--size-bg-color);
+    color: var(--size-color);
     text-align: right;
     width: 10rem;
 }
