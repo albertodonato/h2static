@@ -116,6 +116,10 @@ a.type-file {
 }
 .col-name {
     flex-grow: 1;
+    flex-shrink: 10;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    text-overflow: ellipsis;
 }
 .col-size {
     border-color: var(--size-color);

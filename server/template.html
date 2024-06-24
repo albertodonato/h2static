@@ -25,16 +25,16 @@
         </div>
         {{ if not .Dir.IsRoot -}}
         <div class="row entry">
-          <a href=".." class="col col-name type-dir-up">..</a>
+          <a title="Up one directory" href=".." class="col col-name type-dir-up">..</a>
         </div>
         {{- end }}
         {{- range $i, $entry := .Dir.Entries -}}
         {{- $i := inc $i -}}
         <div class="row entry">
           {{ if .IsDir -}}
-          <a href="{{ .Name }}/" class="col col-name type-dir" tabindex="{{ $i }}">{{ .Name }}/</a>
+          <a title="{{ .Name }}/" href="{{ .Name }}/" class="col col-name type-dir" tabindex="{{ $i }}">{{ .Name }}/</a>
           {{- else -}}
-          <a href="{{ .Name }}" class="col col-name type-file" tabindex="{{ $i }}">{{ .Name }}</a>
+          <a title="{{ .Name }}" href="{{ .Name }}" class="col col-name type-file" tabindex="{{ $i }}">{{ .Name }}</a>
           {{- end }}
           <span class="col col-size">
             {{ if eq .HumanSize.Suffix "" }}&mdash;{{ else }}{{ .HumanSize.Value }}{{ end -}}
