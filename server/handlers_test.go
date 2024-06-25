@@ -64,9 +64,9 @@ func (s *FileHandlerTestSuite) TestListingHTML() {
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
 	content := w.Body.String()
-	s.Contains(content, `<a href="bar" class="col col-name type-file" tabindex="1">bar</a>`)
-	s.Contains(content, `<a href="baz/" class="col col-name type-dir" tabindex="2">baz/</a>`)
-	s.Contains(content, `<a href="foo" class="col col-name type-file" tabindex="3">foo</a>`)
+	s.Contains(content, `<a title="bar" href="bar" class="col col-name type-file" tabindex="1">bar</a>`)
+	s.Contains(content, `<a title="baz/" href="baz/" class="col col-name type-dir" tabindex="2">baz/</a>`)
+	s.Contains(content, `<a title="foo" href="foo" class="col col-name type-file" tabindex="3">foo</a>`)
 	// The root directory doesn't contain a link up
 	s.NotContains(content, `<a href=".." class="col col-name type-dir-up">..</a>`)
 }
@@ -92,7 +92,7 @@ func (s *FileHandlerTestSuite) TestListingHTMLSubdir() {
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
 	content := w.Body.String()
-	s.Contains(content, `<a href=".." class="col col-name type-dir-up">..</a>`)
+	s.Contains(content, `<a title="Up one directory" href=".." class="col col-name type-dir-up">..</a>`)
 }
 
 // File content is served.

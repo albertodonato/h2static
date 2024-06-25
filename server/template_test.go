@@ -46,9 +46,9 @@ func (s *DirectoryListingTemplateTestSuite) TestRenderHTML() {
 	s.Equal(http.StatusOK, response.StatusCode)
 	s.Equal("text/html; charset=utf-8", response.Header.Get("Content-Type"))
 	content := w.Body.String()
-	s.Contains(content, `<a href="bar" class="col col-name type-file" tabindex="1">bar</a>`)
-	s.Contains(content, `<a href="baz/" class="col col-name type-dir" tabindex="2">baz/</a>`)
-	s.Contains(content, `<a href="foo" class="col col-name type-file" tabindex="3">foo</a>`)
+	s.Contains(content, `<a title="bar" href="bar" class="col col-name type-file" tabindex="1">bar</a>`)
+	s.Contains(content, `<a title="baz/" href="baz/" class="col col-name type-dir" tabindex="2">baz/</a>`)
+	s.Contains(content, `<a title="foo" href="foo" class="col col-name type-file" tabindex="3">foo</a>`)
 }
 
 // RenderHTML renders the HTML template with the correct path prefix.
