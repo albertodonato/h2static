@@ -3,6 +3,7 @@ package testhelpers
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/stretchr/testify/suite"
@@ -29,13 +30,17 @@ func (s *TempDirTestSuite) TearDownTest() {
 		return
 	}
 
+	// Force garbage collection to release file handles
+	runtime.GC()
+	runtime.Gosched()
+
 	// Retry removal with a small delay to handle Windows file locking issues
 	var err error
-	for attempt := 0; attempt < 3; attempt++ {
+	for attempt := 0; attempt < 10; attempt++ {
 		if err = os.RemoveAll(s.TempDir); err == nil {
 			return
 		}
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 	}
 	s.NoError(err)
 }
