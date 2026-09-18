@@ -160,6 +160,71 @@ Usage of h2static:
 ```
 
 
+## Install with Nix
+
+The repository provides a flake with a package for the tool and a NixOS module
+to run it as a service.
+
+To run it locally without installing anything:
+
+```bash
+nix run github:albertodonato/h2static -- -dir /srv/www
+```
+
+From a checkout of the repository:
+
+```bash
+nix run . -- -dir /srv/www
+```
+
+and it can be built with
+
+```bash
+nix build
+```
+
+which produces the binary as `result/bin/h2static`.
+
+
+### NixOS module
+
+To run the server as a system service, add the flake as an input and import
+the NixOS module:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    h2static.url = "github:albertodonato/h2static";
+  };
+
+  outputs =
+    { nixpkgs, h2static, ... }:
+    {
+      nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          h2static.nixosModules.default
+          {
+            services.h2static = {
+              enable = true;
+              root = "/srv/www";
+              listenAddress = ":8080";
+              logRequests = true;
+              extraArgs = [ "-disable-index" ];
+            };
+          }
+        ];
+      };
+    };
+}
+```
+
+Any option not exposed directly by the module can be passed via `extraArgs`.
+The service runs as a dynamically allocated user, with read-only access to the
+directory it serves.
+
+
 ## Install from Snap
 
 The tool can be installed from the [Snap Store](https://snapcraft.io), on

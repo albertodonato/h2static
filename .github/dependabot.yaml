@@ -24,3 +24,15 @@ updates:
           - "*"
     commit-message:
       prefix: chore
+  - package-ecosystem: nix
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      all:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: chore
