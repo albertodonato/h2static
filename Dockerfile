@@ -2,7 +2,7 @@ FROM golang:latest AS build-image
 
 ADD . /src
 RUN cd /src && \
-    go build -ldflags "-linkmode external -extldflags -static" -o /target/h2static ./cmd/h2static && \
+    go build -ldflags "-linkmode external -extldflags -static" -o /target/h2static && \
     strip -s /target/h2static
 
 
