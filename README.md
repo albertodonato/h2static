@@ -36,19 +36,19 @@ page](https://github.com/albertodonato/h2static/releases).
 It can be installed directly via
 
 ```bash
-go install github.com/albertodonato/h2static/cmd/h2static@latest
+go install github.com/albertodonato/h2static@latest
 ```
 
 Alternatively, it can be run from the repository simply as
 
 ```bash
-go run ./cmd/h2static
+go run . [args...]
 ```
 
 and built with
 
 ```bash
-go build ./cmd/h2static
+go build
 ```
 
 which produces a `h2static` binary.
