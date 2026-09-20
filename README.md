@@ -21,11 +21,11 @@ It provides a few handy features for serving files and static websites:
 
 HTML directory listing provides a responsive design to support both desktop
 
-<p align="center"><img alt="Desktop page" src="images/screen-1.jpg" width="90%"/></p>
+<p align="center"><img alt="Desktop page" src="images/desktop.png" width="90%"/></p>
 
 and mobile
 
-<p align="center"><img alt="Mobile page" src="images/screen-2.jpg" width="40%"/></p>
+<p align="center"><img alt="Mobile page" src="images/mobile.png" width="40%"/></p>
 
 
 ## Install
